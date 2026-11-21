@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loddo City 3D - Grugliasco</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; font-family: system-ui, sans-serif; }
+  canvas { display: block; }
+  #hud { position: fixed; top: 10px; left: 10px; right: 10px; display: flex; justify-content: space-between; align-items: flex-start; pointer-events: none; }
+  #wallet { background: #fff; color: #2d6a4f; font-weight: bold; padding: 6px 14px; border-radius: 20px; box-shadow: 0 2px 6px rgba(0,0,0,.2); }
+  #near { background: rgba(0,0,0,.6); color: #fff; padding: 8px 14px; border-radius: 10px; font-size: 15px; min-height: 20px; }
+  #log { position: fixed; bottom: 60px; left: 10px; background: rgba(255,255,255,.9); padding: 8px 12px; border-radius: 10px; font-size: 14px; max-width: 320px; }
+  #friends { position: fixed; bottom: 10px; left: 10px; background: rgba(255,255,255,.9); padding: 8px 12px; border-radius: 10px; font-size: 14px; max-width: 320px; }
+  #friends h3 { margin: 0 0 4px; font-size: 15px; }
+  #flist { list-style: none; padding: 0; margin: 0; }
+  #flist li { display: flex; justify-content: space-between; align-items: center; margin: 4px 0; gap: 8px; }
+  #flist button { padding: 3px 10px; border: none; border-radius: 6px; background: #2d6a4f; color: #fff; cursor: pointer; }
+  #help { position: fixed; bottom: 10px; right: 10px; background: rgba(255,255,255,.9); padding: 8px 12px; border-radius: 10px; font-size: 13px; }
+  .label { position: absolute; transform: translate(-50%, -100%); background: rgba(255,255,255,.88); padding: 2px 6px; border-radius: 6px; font-size: 12px; font-weight: bold; pointer-events: none; white-space: nowrap; }
+  .box { position: fixed; background: #fff; border-radius: 14px; padding: 16px; box-shadow: 0 6px 20px rgba(0,0,0,.3); }
+  #panel { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 320px; max-width: 90vw; }
+  #dialog { bottom: 20px; left: 50%; transform: translateX(-50%); width: 520px; max-width: 94vw; }
+  #panel h2, #dialog h2 { margin: 0 0 6px; font-size: 19px; }
+  #dsay { font-size: 16px; line-height: 1.45; margin: 6px 0 12px; min-height: 40px; }
+  .box p { margin: 6px 0 12px; line-height: 1.4; }
+  .box button { display: block; width: 100%; margin: 6px 0; padding: 10px; border: none; border-radius: 8px; background: #2d6a4f; color: #fff; font-size: 15px; cursor: pointer; text-align: left; }
+  .box button:hover { background: #40916c; }
+  .box button:disabled { background: #bbb; cursor: not-allowed; }
+  .box button.close { background: #888; text-align: center; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div id="hud">
+  <div id="wallet">Soldi: 150 €</div>
+  <div id="near"></div>
+</div>
+<div id="log">Benvenuto a Loddo City! Cammina verso un edificio o una persona e premi E.</div>
+<div id="friends"><h3>Amici</h3><ul id="flist"></ul></div>
+<div id="help">Frecce o WASD: muovi · Trascina: ruota · Rotella: zoom · E: usa · Esc: chiudi</div>
+
+<div id="panel" class="box hidden">
+  <h2 id="ptitle"></h2>
+  <p id="pdesc"></p>
+  <div id="pactions"></div>
+  <button class="close" id="closePanel">Chiudi</button>
+</div>
+
+<div id="dialog" class="box hidden">
+  <h2 id="dname"></h2>
+  <div id="dsay"></div>
+  <div id="dopts"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// ================= STATO =================
+const state = { money: 150, hasHome: false, job: null };
+let paused = false;
+let dialogOpen = false;
+
+function updateWallet() { document.getElementById("wallet").textContent = "Soldi: " + state.money + " €"; }
+function log(text) { document.getElementById("log").textContent = text; }
+function spend(amount) {
+  if (state.money < amount) { log("Non hai abbastanza soldi! Serve lavorare."); return false; }
+  state.money -= amount; updateWallet(); return true;
+}
+function earn(amount, text) { state.money += amount; updateWallet(); log(text); }
+function work() {
+  if (!state.job) { log("Non hai ancora un lavoro. Vai all'Ufficio lavoro."); return; }
+  const pay = state.job === "Commesso" ? 50 : 80;
+  earn(pay, `Hai lavorato come ${state.job}: +${pay} €.`);
+}
+function flight(city, cost) {
+  if (!state.hasHome) { log("Prima trova una casa!"); return; }
+  if (spend(cost)) log(`Sei volato a ${city}! (Per ora è solo una scena.)`);
+}
+
+// ================= SCENA =================
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xcfe8f5);
+scene.fog = new THREE.Fog(0xcfe8f5, 250, 900);
+
+const camera = new THREE.PerspectiveCamera(55, innerWidth / innerHeight, 0.5, 1500);
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.75));
+const sun = new THREE.DirectionalLight(0xffffff, 0.6);
+sun.position.set(200, 300, 100);
+scene.add(sun);
+
+const matCache = {};
+function M(c) { if (!matCache[c]) matCache[c] = new THREE.MeshLambertMaterial({ color: c }); return matCache[c]; }
+const B = (w, h, d) => new THREE.BoxGeometry(w, h, d);
+function add(geo, color, x, y, z, parent) {
+  const m = new THREE.Mesh(geo, M(color));
+  m.position.set(x, y, z);
+  (parent || scene).add(m);
+  return m;
+}
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+
+// Zona reale: Via Michelangelo (0,0) - Parco Porporati - Da Costa - L'Elite9 (metri, nord = z+)
+const places = [
+  { id: "casa", name: "Casa (Via Michelangelo)", kind: "house", x: -20, z: 12, w: 12, d: 9, color: 0xf1dca7,
+    desc: "Un appartamento in Via Michelangelo. Serve per dormire e riposarti.",
+    actions: () => [{ label: state.hasHome ? "Casa già tua" : "Firma il contratto (100 €)", disabled: state.hasHome,
+      run: () => { if (spend(100)) { state.hasHome = true; log("Hai una casa! Ora è tutta tua."); } } }] },
+  { id: "parco", name: "Parco Porporati", kind: "park", x: -674, z: -21, w: 110, d: 80, noCollide: true,
+    desc: "Qui incontri gli abitanti. Avvicinati a una persona e premi E per parlarci.",
+    actions: () => [{ label: "Passeggia (gratis)", run: () => log("Due passi nel parco, che bella giornata.") }] },
+  { id: "dacosta", name: "Pizzeria Da Costa", kind: "shop", x: -493, z: -223, w: 18, d: 14, h: 5, color: 0xe9c46a, awn: 0xc1121f,
+    desc: "Pizzeria con prezzi accessibili.",
+    actions: () => [{ label: "Mangia una pizza (10 €)", run: () => { if (spend(10)) log("Pizza buonissima!"); } }] },
+  { id: "elite", name: "Ristorante L'Elite9", kind: "shop", x: -303, z: 166, w: 20, d: 14, h: 6, color: 0xe76f51, awn: 0x1d3557,
+    desc: "Ristorante di fascia media: si mangia meglio, ma costa di più.",
+    actions: () => [{ label: "Cena al ristorante (30 €)", run: () => { if (spend(30)) log("Cena speciale!"); } }] },
+  { id: "supermercato", name: "Supermercato", kind: "shop", x: -200, z: -120, w: 22, d: 16, h: 5, color: 0x8ecae6, awn: 0xe63946,
+    desc: "Il supermercato per la spesa di ogni giorno.",
+    actions: () => [{ label: "Fai la spesa (15 €)", run: () => { if (spend(15)) log("Frigo pieno!"); } }] },
+  { id: "lavoro", name: "Ufficio lavoro", kind: "shop", x: 60, z: -90, w: 18, d: 14, h: 6, color: 0xffd166, awn: 0x264653,
+    desc: "Qui trovi un lavoro. Più è alto, più soldi guadagni al giorno.",
+    actions: () => [
+      { label: "Commesso (50 € al giorno)", run: () => { state.job = "Commesso"; log("Sei commesso!"); } },
+      { label: "Cameriere (80 € al giorno)", run: () => { state.job = "Cameriere"; log("Sei cameriere!"); } },
+      { label: "Lavora oggi", run: () => work() }
+    ] },
+  { id: "negozi", name: "Centro commerciale", kind: "shop", x: 250, z: -110, w: 30, d: 18, h: 7, color: 0xc77dff, awn: 0xffffff,
+    desc: "Negozi e giochi.",
+    actions: () => [
+      { label: "Console (300 €)", run: () => { if (spend(300)) log("Hai una console nuova!"); } },
+      { label: "Gioco (60 €)", run: () => { if (spend(60)) log("Nuovo gioco nel cassetto!"); } }
+    ] },
+  { id: "stazione", name: "Stazione", kind: "shop", x: 300, z: 80, w: 24, d: 14, h: 6, color: 0x457b9d, awn: 0x1d3557,
+    desc: "Da qui si parte per il mondo. Ogni biglietto costa soldi.",
+    actions: () => [
+      { label: "Roma (80 €)", run: () => flight("Roma", 80) },
+      { label: "Londra (120 €)", run: () => flight("Londra", 120) },
+      { label: "Tokyo (250 €)", run: () => flight("Tokyo", 250) }
+    ] }
+];
+
+const obstacles = []; // alberi: cerchi {x,z,r}
+
+// ---- Modelli ----
+function buildHouse(pl) {
+  const g = new THREE.Group(); g.position.set(pl.x, 0, pl.z); scene.add(g);
+  const w = pl.w, d = pl.d;
+  add(B(w, 3.5, d), pl.color, 0, 1.75, 0, g);
+  const shape = new THREE.Shape();
+  shape.moveTo(-w / 2 - 0.5, 0); shape.lineTo(w / 2 + 0.5, 0); shape.lineTo(0, 2.6); shape.closePath();
+  const roofGeo = new THREE.ExtrudeGeometry(shape, { depth: d + 1, bevelEnabled: false });
+  roofGeo.translate(0, 0, -(d + 1) / 2);
+  add(roofGeo, 0x9b2226, 0, 3.5, 0, g);
+  add(B(1.1, 2, 0.2), 0x6b4f2a, 0, 1, d / 2 + 0.05, g);           // porta
+  for (const wx of [-w / 3, w / 3]) add(B(1.6, 1.2, 0.2), 0xbfe7ff, wx, 2.2, d / 2 + 0.05, g); // finestre
+  add(B(0.8, 2, 0.8), 0x8d5524, w / 3, 5, -d / 4, g);            // camino
+  pl.top = 6.5;
+  return g;
+}
+
+function buildShop(pl) {
+  const g = new THREE.Group(); g.position.set(pl.x, 0, pl.z); scene.add(g);
+  const h = pl.h, w = pl.w, d = pl.d;
+  add(B(w, h, d), pl.color, 0, h / 2, 0, g);
+  add(B(w + 0.6, 0.4, d + 0.6), 0x444444, 0, h + 0.2, 0, g);     // tetto
+  add(B(w * 0.85, 0.4, 1.6), pl.awn, 0, h * 0.62, d / 2 + 0.8, g); // tenda
+  add(B(w * 0.7, 1.6, 0.2), 0xdff3ff, 0, h * 0.3, d / 2 + 0.05, g); // vetrina
+  add(B(w * 0.6, 1, 0.4), 0xffffff, 0, h + 1, 0, g);              // insegna
+  pl.top = h + 2;
+  return g;
+}
+
+function makeTree(x, z) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); scene.add(g);
+  const s = 0.8 + Math.random() * 0.5;
+  add(new THREE.CylinderGeometry(0.3, 0.35, 2.5, 8), 0x6b4f2a, 0, 1.25, 0, g);
+  const f = new THREE.Mesh(new THREE.IcosahedronGeometry(2.2 * s, 0),
+    new THREE.MeshLambertMaterial({ color: pick([0x2d6a4f, 0x40916c, 0x52b788]), flatShading: true }));
+  f.position.y = 3.6; g.add(f);
+  obstacles.push({ x, z, r: 0.8 });
+}
+
+function buildPark(pl) {
+  const g = new THREE.Group(); g.position.set(pl.x, 0, pl.z); scene.add(g);
+  add(B(pl.w, 0.12, pl.d), 0x4caf50, 0, 0.06, 0, g);
+  add(B(pl.w * 0.9, 0.14, 4), 0xd9c8a0, 0, 0.07, 0, g);
+  add(B(4, 0.14, pl.d * 0.9), 0xd9c8a0, 0, 0.07, 0, g);
+  const pond = new THREE.Mesh(new THREE.CircleGeometry(9, 24), M(0x4cc9f0));
+  pond.rotation.x = -Math.PI / 2; pond.position.set(22, 0.12, -18); g.add(pond);
+  for (const [bx, bz] of [[-30, -10], [30, 10], [-10, 25], [12, -28]]) add(B(3, 0.5, 0.9), 0x8b5a2b, bx, 0.4, bz, g);
+  for (let i = 0; i < 14; i++) {
+    const wx = pl.x + (Math.random() - 0.5) * pl.w * 0.85;
+    const wz = pl.z + (Math.random() - 0.5) * pl.d * 0.85;
+    if (Math.hypot(wx - (pl.x + 22), wz - (pl.z - 18)) < 12) continue;
+    makeTree(wx, wz);
+  }
+  return g;
+}
+
+function buildCar(x, z, color, rotY) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = rotY; scene.add(g);
+  add(B(4, 0.9, 2), color, 0, 0.75, 0, g);
+  add(B(2.2, 0.8, 1.8), 0x9ecbff, -0.2, 1.5, 0, g);
+  for (const [wx, wz] of [[1.3, 1.05], [1.3, -1.05], [-1.3, 1.05], [-1.3, -1.05]]) {
+    const wh = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 0.3, 10), M(0x222222));
+    wh.rotation.x = Math.PI / 2; wh.position.set(wx, 0.4, wz); g.add(wh);
+  }
+  return g;
+}
+
+// Strade e terreno della zona
+const ground = new THREE.Mesh(new THREE.PlaneGeometry(1200, 600), M(0x9bd18a));
+ground.rotation.x = -Math.PI / 2; ground.position.set(-190, 0, -30); scene.add(ground);
+add(B(1200, 0.05, 10), 0x4a4a4a, -190, 0.03, 0);     // Via Michelangelo (asse est-ovest)
+add(B(9, 0.05, 600), 0x4a4a4a, -300, 0.03, -30);     // strada nord-sud (approssimata)
+add(B(9, 0.05, 600), 0x4a4a4a, 150, 0.03, -30);      // strada nord-sud (approssimata)
+for (let x = -740; x < 380; x += 30) add(B(12, 0.06, 0.5), 0xffffff, x, 0.07, 0);
+
+places.forEach(pl => {
+  if (pl.kind === "house") buildHouse(pl);
+  else if (pl.kind === "park") buildPark(pl);
+  else buildShop(pl);
+  pl.label = document.createElement("div");
+  pl.label.className = "label";
+  pl.label.textContent = pl.name;
+  document.body.appendChild(pl.label);
+});
+
+// Alberi lungo le strade (fuori dagli edifici e dalle strade)
+for (let i = 0; i < 40; i++) {
+  const x = -740 + Math.random() * 1120, z = -270 + Math.random() * 480;
+  if (Math.abs(z) < 8 || Math.abs(x + 300) < 8 || Math.abs(x - 150) < 8) continue;
+  if (places.some(pl => pl.kind !== "park" && Math.abs(x - pl.x) < pl.w / 2 + 3 && Math.abs(z - pl.z) < pl.d / 2 + 3)) continue;
+  makeTree(x, z);
+}
+
+// Auto in movimento sulla via principale
+const movingCars = [
+  { g: buildCar(-740, -2.5, 0xe63946, 0), dir: 1, sp: 8 },
+  { g: buildCar(200, 2.5, 0x2a9d8f, Math.PI), dir: -1, sp: 6 }
+];
+
+// ================= GIOCATORE E ABITANTI =================
+function makeHuman(shirt, pants, hair) {
+  const g = new THREE.Group();
+  add(B(0.9, 1.1, 0.5), shirt, 0, 1.5, 0, g);
+  add(new THREE.SphereGeometry(0.3, 12, 12), 0xffd6a5, 0, 2.35, 0, g);
+  add(B(0.64, 0.2, 0.62), hair, 0, 2.6, 0, g);
+  const legL = new THREE.Group(); legL.position.set(-0.2, 0.9, 0); add(B(0.35, 0.9, 0.35), pants, 0, -0.45, 0, legL); g.add(legL);
+  const legR = new THREE.Group(); legR.position.set(0.2, 0.9, 0); add(B(0.35, 0.9, 0.35), pants, 0, -0.45, 0, legR); g.add(legR);
+  const armL = new THREE.Group(); armL.position.set(-0.6, 1.9, 0); add(B(0.28, 0.9, 0.28), shirt, 0, -0.45, 0, armL); g.add(armL);
+  const armR = new THREE.Group(); armR.position.set(0.6, 1.9, 0); add(B(0.28, 0.9, 0.28), shirt, 0, -0.45, 0, armR); g.add(armR);
+  return { g, legL, legR, armL, armR, phase: 0 };
+}
+function animateHuman(h, moving, dt) {
+  if (moving) h.phase += dt * 9;
+  const s = moving ? Math.sin(h.phase) * 0.7 : 0;
+  h.legL.rotation.x = s; h.legR.rotation.x = -s;
+  h.armL.rotation.x = -s * 0.6; h.armR.rotation.x = s * 0.6;
+}
+
+const P = makeHuman(0x3a86ff, 0x264653, 0x3d2b1f);
+P.g.position.set(0, 0, -10);
+scene.add(P.g);
+const player = P.g;
+
+const npcData = [
+  { name: "Sara", shirt: 0xe63946, hair: 0x3d2b1f, p: { hello: "Ciao! Sei nuovo di Loddo City?", mood: "Oggi sono un po' stanca dopo la scuola, ma una pizza mi tira su!" } },
+  { name: "Luca", shirt: 0x2a9d8f, hair: 0x111111, p: { hello: "Ehi! Ti va di giocare a pallone?", mood: "Sono stato al campetto tutto il giorno, ho una fame!" } },
+  { name: "Giulia", shirt: 0xf4a261, hair: 0xb5651d, p: { hello: "Ciao, che bella giornata!", mood: "Stavo disegnando, ma ho perso l'ispirazione..." } },
+  { name: "Enzo", shirt: 0x6a4c93, hair: 0x555555, p: { hello: "Ciao vicino! Ti piace il parco?", mood: "Mi sto allenando per la corsa, oggi sono stanco." } },
+  { name: "Aisha", shirt: 0x264653, hair: 0x000000, p: { hello: "Ciao! Non ci siamo ancora presentati.", mood: "Oggi al lavoro è stata una giornata lunga." } }
+];
+const npcs = npcData.map(d => {
+  const H = makeHuman(d.shirt, 0x333344, d.hair);
+  H.g.position.set(-674 + (Math.random() - 0.5) * 90, 0, -21 + (Math.random() - 0.5) * 60);
+  scene.add(H.g);
+  return { name: d.name, p: d.p, fr: 0, friend: false, H, g: H.g, tx: H.g.position.x, tz: H.g.position.z, timer: Math.random() * 3, moving: false };
+});
+
+// ================= CAMERA IN TERZA PERSONA =================
+let yaw = 0, dist = 14, dragging = false, lastX = 0;
+const canvas = renderer.domElement;
+canvas.addEventListener("pointerdown", e => { dragging = true; lastX = e.clientX; });
+addEventListener("pointerup", () => { dragging = false; });
+addEventListener("pointermove", e => { if (dragging) { yaw -= (e.clientX - lastX) * 0.008; lastX = e.clientX; } });
+addEventListener("wheel", e => { dist = Math.min(30, Math.max(6, dist + e.deltaY * 0.01)); }, { passive: true });
+
+// ================= COLLISIONI =================
+function blocked(x, z) {
+  const r = 0.45;
+  for (const pl of places) {
+    if (pl.noCollide) continue;
+    if (x > pl.x - pl.w / 2 - r && x < pl.x + pl.w / 2 + r && z > pl.z - pl.d / 2 - r && z < pl.z + pl.d / 2 + r) return true;
+  }
+  for (const o of obstacles) if (Math.hypot(x - o.x, z - o.z) < o.r + r) return true;
+  return false;
+}
+
+// ================= TASTIERA =================
+const keys = {};
+addEventListener("keydown", e => {
+  keys[e.code] = true;
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) e.preventDefault();
+  if (e.code === "Escape" && dialogOpen) closeDialog();
+  if (e.code === "KeyE" && !e.repeat) interact();
+});
+addEventListener("keyup", e => { keys[e.code] = false; });
+
+// ================= INTERAZIONE =================
+function distToPlace(pl) {
+  const dx = Math.max(Math.abs(player.position.x - pl.x) - pl.w / 2, 0);
+  const dz = Math.max(Math.abs(player.position.z - pl.z) - pl.d / 2, 0);
+  return Math.hypot(dx, dz);
+}
+function nearestPlace() {
+  let best = null, bd = 3;
+  for (const pl of places) { const d = distToPlace(pl); if (d < bd) { bd = d; best = pl; } }
+  return best;
+}
+function nearestNPC() {
+  let best = null, bd = 2.5;
+  for (const n of npcs) {
+    const d = Math.hypot(n.g.position.x - player.position.x, n.g.position.z - player.position.z);
+    if (d < bd) { bd = d; best = n; }
+  }
+  return best;
+}
+function interact() {
+  if (paused) return;
+  const n = nearestNPC();
+  if (n) { openDialog(n); return; }
+  const pl = nearestPlace();
+  if (pl) openPanel(pl);
+}
+
+// ================= PANNELLO LUOGHI =================
+const panel = document.getElementById("panel");
+function openPanel(pl) {
+  paused = true;
+  panel.classList.remove("hidden");
+  document.getElementById("ptitle").textContent = pl.name;
+  document.getElementById("pdesc").textContent = pl.desc;
+  const box = document.getElementById("pactions");
+  box.innerHTML = "";
+  pl.actions().forEach(a => {
+    const b = document.createElement("button");
+    b.textContent = a.label;
+    b.disabled = !!a.disabled;
+    b.onclick = () => { a.run(); openPanel(pl); };
+    box.appendChild(b);
+  });
+}
+function closePanel() { panel.classList.add("hidden"); paused = false; }
+document.getElementById("closePanel").onclick = closePanel;
+
+// ================= DIALOGHI =================
+const dlg = document.getElementById("dialog");
+let talking = null;
+
+function addFr(n, k) {
+  n.fr = Math.min(10, n.fr + k);
+  if (n.fr > 0 && !n.friend) { n.friend = true; log(`${n.name} è diventato tuo amico!`); }
+  renderFriends();
+}
+function end(n, pts) { addFr(n, pts); return null; }
+function pizza(n) { if (spend(10)) { addFr(n, 2); return "thanks"; } return "broke"; }
+function dinner(n) { if (spend(30)) { addFr(n, 3); return "thanks"; } return "broke"; }
+function meet(n) {
+  n.g.position.set(player.position.x + 3, 0, player.position.z + 3);
+  n.tx = n.g.position.x; n.tz = n.g.position.z; n.timer = 6;
+  addFr(n, 1);
+  log(`${n.name} è corso da te!`);
+  return null;
+}
+
+// Ogni nodo riceve la persona con cui si parla e restituisce il testo e le scelte.
+// Una scelta restituisce la chiave del nodo successivo, oppure null per chiudere.
+const T = {
+  greet: n => ({ say: n.p.hello, opts: [
+    ["Sono nuovo a Loddo City", () => "newbie"],
+    ["Come va la giornata?", () => "mood"],
+    ["Ci vediamo!", () => end(n, 1)]
+  ] }),
+  newbie: n => ({ say: "Benvenuto! Per lavorare c'è l'Ufficio lavoro, e per la spesa il Supermercato.", opts: [
+    ["Che lavoro mi consigli?", () => "job"],
+    ["Grazie, ci vediamo!", () => end(n, 1)]
+  ] }),
+  job: n => ({ say: "Il commesso è il lavoro più semplice per iniziare. Il cameriere paga di più, ma è più faticoso.", opts: [
+    ["Capito, grazie!", () => end(n, 1)]
+  ] }),
+  mood: n => {
+    const opts = [
+      ["Vuoi una pizza insieme? (10 €)", () => pizza(n)],
+      ["Ci vediamo al parco?", () => { addFr(n, 1); return "park"; }],
+      ["Ci vediamo!", () => end(n, 0)]
+    ];
+    if (n.fr >= 2) opts.unshift(["Esci insieme, ti vengo a prendere!", () => meet(n)]);
+    if (n.fr >= 3) opts.splice(1, 0, ["Cena insieme da L'Elite9 (30 €)", () => dinner(n)]);
+    return { say: n.p.mood, opts };
+  },
+  park: n => ({ say: "Certo! Ti aspetto al parco.", opts: [["A dopo!", () => end(n, 0)]] }),
+  thanks: n => ({ say: "Buonissima! Grazie per l'invito!", opts: [["A presto!", () => end(n, 0)]] }),
+  broke: n => ({ say: "Mi piacerebbe, ma adesso non ho soldi nemmeno io...", opts: [["Capisco, ci vediamo", () => end(n, 0)]] })
+};
+
+function openDialog(n) {
+  talking = n;
+  dialogOpen = true;
+  paused = true;
+  dlg.classList.remove("hidden");
+  document.getElementById("dname").textContent = n.name + (n.friend ? " (amico)" : "");
+  showNode(n, "greet");
+}
+function showNode(n, key) {
+  const node = T[key](n);
+  document.getElementById("dsay").textContent = node.say;
+  const box = document.getElementById("dopts");
+  box.innerHTML = "";
+  node.opts.forEach(([label, fn]) => {
+    const b = document.createElement("button");
+    b.textContent = label;
+    b.onclick = () => {
+      const next = fn();
+      if (next === null) closeDialog();
+      else showNode(n, next);
+    };
+    box.appendChild(b);
+  });
+  renderFriends();
+}
+function closeDialog() {
+  dlg.classList.add("hidden");
+  dialogOpen = false;
+  paused = false;
+  talking = null;
+}
+
+function renderFriends() {
+  const ul = document.getElementById("flist");
+  ul.innerHTML = "";
+  const amici = npcs.filter(n => n.friend);
+  if (amici.length === 0) {
+    ul.innerHTML = "<li>Nessun amico ancora. Parla con qualcuno al parco!</li>";
+    return;
+  }
+  amici.forEach(n => {
+    const li = document.createElement("li");
+    li.textContent = `${n.name} ${"♥".repeat(Math.ceil(n.fr / 2))}`;
+    const b = document.createElement("button");
+    b.textContent = "Chiama";
+    b.onclick = () => { if (!paused) openDialog(n); };
+    li.appendChild(b);
+    ul.appendChild(li);
+  });
+}
+renderFriends();
+
+// ================= AGGIORNAMENTO =================
+const clock = new THREE.Clock();
+const v = new THREE.Vector3();
+
+function updateNPC(n, dt) {
+  n.timer -= dt;
+  if (n.timer <= 0) {
+    n.tx = -674 + (Math.random() - 0.5) * 90;
+    n.tz = -21 + (Math.random() - 0.5) * 60;
+    n.timer = 2 + Math.random() * 3;
+  }
+  const dx = n.tx - n.g.position.x, dz = n.tz - n.g.position.z;
+  const d = Math.hypot(dx, dz);
+  n.moving = d > 0.1;
+  if (n.moving) {
+    const sp = Math.min(1.2 * dt, d);
+    n.g.position.x += dx / d * sp;
+    n.g.position.z += dz / d * sp;
+    n.g.rotation.y = Math.atan2(dx, dz);
+  }
+  animateHuman(n.H, n.moving, dt);
+}
+
+function updateLabels() {
+  for (const pl of places) {
+    v.set(pl.x, (pl.top || 3) + 1.5, pl.z).project(camera);
+    if (v.z > 1) { pl.label.style.display = "none"; continue; }
+    pl.label.style.display = "block";
+    pl.label.style.left = ((v.x + 1) / 2 * innerWidth) + "px";
+    pl.label.style.top = ((-v.y + 1) / 2 * innerHeight) + "px";
+  }
+}
+
+function update(dt) {
+  let moving = false;
+  if (!paused) {
+    const up = (keys.KeyW || keys.ArrowUp) ? 1 : 0;
+    const down = (keys.KeyS || keys.ArrowDown) ? 1 : 0;
+    const rt = (keys.KeyD || keys.ArrowRight) ? 1 : 0;
+    const lf = (keys.KeyA || keys.ArrowLeft) ? 1 : 0;
+    const fx = -Math.sin(yaw), fz = -Math.cos(yaw);   // avanti rispetto alla visuale
+    const rx = Math.cos(yaw), rz = -Math.sin(yaw);    // destra rispetto alla visuale
+    let mx = fx * (up - down) + rx * (rt - lf);
+    let mz = fz * (up - down) + rz * (rt - lf);
+    const len = Math.hypot(mx, mz);
+    if (len > 0) {
+      mx /= len; mz /= len;
+      const sp = 9 * dt;
+      const nx = player.position.x + mx * sp;
+      const nz = player.position.z + mz * sp;
+      if (!blocked(nx, player.position.z)) player.position.x = nx;
+      if (!blocked(player.position.x, nz)) player.position.z = nz;
+      player.rotation.y = Math.atan2(mx, mz);
+      moving = true;
+    }
+  }
+  animateHuman(P, moving, dt);
+  npcs.forEach(n => updateNPC(n, dt));
+  movingCars.forEach(c => {
+    c.g.position.x += c.dir * c.sp * dt;
+    if (c.g.position.x > 380) c.g.position.x = -740;
+    if (c.g.position.x < -740) c.g.position.x = 380;
+  });
+
+  camera.position.set(
+    player.position.x + Math.sin(yaw) * dist,
+    5 + dist * 0.2,
+    player.position.z + Math.cos(yaw) * dist
+  );
+  camera.lookAt(player.position.x, 1.5, player.position.z);
+
+  const n = nearestNPC();
+  const pl = nearestPlace();
+  const near = document.getElementById("near");
+  if (paused) near.textContent = "";
+  else if (n) near.textContent = `Premi E per parlare con ${n.name}`;
+  else if (pl) near.textContent = `Premi E: ${pl.name}`;
+  else near.textContent = "";
+
+  updateLabels();
+}
+
+function animate() {
+  const dt = Math.min(clock.getDelta(), 0.05);
+  update(dt);
+  renderer.render(scene, camera);
+  requestAnimationFrame(animate);
+}
+animate();
+
+addEventListener("resize", () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>
