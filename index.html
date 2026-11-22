@@ -62,6 +62,8 @@
   .box button:disabled { background: rgba(255, 255, 255, .18); color: rgba(255, 255, 255, .6); cursor: not-allowed; transform: none; }
   .box button.close { background: rgba(255, 255, 255, .14); text-align: center; }
   .hidden { display: none !important; }
+  #fade { position: fixed; inset: 0; background: #0d0820; opacity: 0; pointer-events: none; transition: opacity .26s; z-index: 5; }
+  #fade.on { opacity: 1; }
 
   @media (max-width: 760px) {
     #help { display: none; }
@@ -85,7 +87,8 @@
   <div id="log" class="card">Benvenuto a Miami Beach! Cammina verso un edificio o una persona e premi E.</div>
   <div id="friends" class="card"><h3>Amici</h3><ul id="flist"></ul></div>
 </div>
-<div id="help" class="card"><kbd>WASD</kbd>/<kbd>Frecce</kbd> muovi · <kbd>Shift</kbd> corri · Trascina: ruota · Rotella: zoom · <kbd>E</kbd> usa · <kbd>Esc</kbd> chiudi</div>
+<div id="help" class="card"><kbd>WASD</kbd>/<kbd>Frecce</kbd> muovi · <kbd>Shift</kbd> corri · Trascina: ruota · Rotella: zoom · <kbd>E</kbd> entra / usa · <kbd>Esc</kbd> chiudi</div>
+<div id="fade"></div>
 
 <div id="panel" class="box card hidden">
   <h2 id="ptitle"></h2>
@@ -103,7 +106,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 // ================= STATO =================
-const state = { money: 150, hasHome: false, job: null };
+const state = { money: 150, hasHome: false, job: null, food: 0, console: false, games: 0 };
 let paused = false;
 let dialogOpen = false;
 
@@ -118,10 +121,9 @@ function spend(amount) {
   state.money -= amount; updateWallet(); return true;
 }
 function earn(amount, text) { state.money += amount; updateWallet(); log(text); }
-function work() {
-  if (!state.job) { log("Non hai ancora un lavoro. Vai all'Ufficio lavoro su Collins Avenue."); return; }
-  const pay = state.job === "Commesso" ? 50 : 80;
-  earn(pay, `Hai lavorato come ${state.job}: +${usd(pay)}.`);
+function workShift(job, pay, text) {
+  if (state.job !== job) { log(`Per lavorare qui devi essere ${job}. Vai al Job Center su Collins Avenue.`); return; }
+  earn(pay, `${text} +${usd(pay)}.`);
 }
 function flight(city, cost) {
   if (!state.hasHome) { log("Prima trova una casa!"); return; }
@@ -344,48 +346,22 @@ function addPalm(x, z, s) { palmSpots.push({ x, z, s: s || rr(0.85, 1.25), ry: r
 
 const places = [
   { id: "casa", name: "Casa (Ocean Drive)", kind: "house", strip: "ocean", z: 40, lw: 22, ld: 16, h: 13,
-    wall: 0xbff0e0, trim: 0xffffff, glass: 0x3f8fa8, neon: 0x22e1ff, sign: "Casa Loddo",
-    desc: "Un appartamento art déco su Ocean Drive, vista oceano. Serve per dormire e riposarti.",
-    actions: () => [{ label: state.hasHome ? "Casa già tua" : "Firma il contratto ($100)", disabled: state.hasHome,
-      run: () => { if (spend(100)) { state.hasHome = true; log("Hai una casa a South Beach! Ora è tutta tua."); } } }] },
+    wall: 0xbff0e0, trim: 0xffffff, glass: 0x3f8fa8, neon: 0x22e1ff, sign: "Casa Loddo" },
   { id: "parco", name: "Lummus Park", kind: "park", x: 79, z: 0, w: 22, d: 500, noCollide: true,
     desc: "Il parco sul lungomare, tra palme e spiaggia. Qui incontri gli abitanti: avvicinati a una persona e premi E.",
     actions: () => [{ label: "Passeggia (gratis)", run: () => log("Due passi tra le palme, che bella giornata.") }] },
   { id: "dacosta", name: "Pizzeria Da Costa", kind: "shop", strip: "ocean", z: -50, lw: 18, ld: 14, h: 8, tables: true,
-    wall: 0xffc8dd, trim: 0xffffff, glass: 0x4a7fa6, awn: 0xe63946, neon: 0xff4f7b, sign: "Da Costa Pizza",
-    desc: "Pizzeria con prezzi accessibili, a due passi dalla spiaggia.",
-    actions: () => [{ label: "Mangia una pizza ($10)", run: () => { if (spend(10)) log("Pizza buonissima!"); } }] },
+    wall: 0xffc8dd, trim: 0xffffff, glass: 0x4a7fa6, awn: 0xe63946, neon: 0xff4f7b, sign: "Da Costa Pizza" },
   { id: "elite", name: "Ristorante L'Elite9", kind: "shop", strip: "ocean", z: 130, lw: 20, ld: 14, h: 9, tables: true,
-    wall: 0xd8c8ff, trim: 0xffffff, glass: 0x2f6f8f, awn: 0x1d3557, neon: 0xb388ff, sign: "L'Elite9",
-    desc: "Ristorante di fascia media: si mangia meglio, ma costa di più.",
-    actions: () => [{ label: "Cena al ristorante ($30)", run: () => { if (spend(30)) log("Cena speciale!"); } }] },
+    wall: 0xd8c8ff, trim: 0xffffff, glass: 0x2f6f8f, awn: 0x1d3557, neon: 0xb388ff, sign: "L'Elite9" },
   { id: "supermercato", name: "Supermercato", kind: "shop", strip: "collinsW", z: -40, lw: 26, ld: 18, h: 7,
-    wall: 0xfff1b8, trim: 0xffffff, glass: 0x3f8fa8, awn: 0x2a9d8f, neon: 0x7cff6b, sign: "Super Market",
-    desc: "Il supermercato per la spesa di ogni giorno.",
-    actions: () => [{ label: "Fai la spesa ($15)", run: () => { if (spend(15)) log("Frigo pieno!"); } }] },
-  { id: "lavoro", name: "Ufficio lavoro", kind: "shop", strip: "collinsW", z: 40, lw: 18, ld: 16, h: 12,
-    wall: 0xffd6a5, trim: 0xffffff, glass: 0x4a7fa6, awn: 0x264653, neon: 0xffe74c, sign: "Job Center",
-    desc: "Qui trovi un lavoro. Più è alto, più soldi guadagni al giorno.",
-    actions: () => [
-      { label: "Commesso ($50 al giorno)", run: () => { state.job = "Commesso"; updateWallet(); log("Sei commesso!"); } },
-      { label: "Cameriere ($80 al giorno)", run: () => { state.job = "Cameriere"; updateWallet(); log("Sei cameriere!"); } },
-      { label: "Lavora oggi", run: () => work() }
-    ] },
-  { id: "negozi", name: "Centro commerciale", kind: "shop", strip: "collinsW", z: 135, lw: 34, ld: 20, h: 10,
-    wall: 0xbde0fe, trim: 0xffffff, glass: 0x2f6f8f, awn: 0xff4fa3, neon: 0xff4fa3, sign: "Sunshine Mall",
-    desc: "Negozi e giochi.",
-    actions: () => [
-      { label: "Console ($300)", run: () => { if (spend(300)) log("Hai una console nuova!"); } },
-      { label: "Gioco ($60)", run: () => { if (spend(60)) log("Nuovo gioco nel cassetto!"); } }
-    ] },
+    wall: 0xfff1b8, trim: 0xffffff, glass: 0x3f8fa8, awn: 0x2a9d8f, neon: 0x7cff6b, sign: "Super Market" },
+  { id: "lavoro", name: "Job Center", kind: "shop", strip: "collinsW", z: 40, lw: 18, ld: 16, h: 12,
+    wall: 0xffd6a5, trim: 0xffffff, glass: 0x4a7fa6, awn: 0x264653, neon: 0xffe74c, sign: "Job Center" },
+  { id: "negozi", name: "Sunshine Mall", kind: "shop", strip: "collinsW", z: 135, lw: 34, ld: 20, h: 10,
+    wall: 0xbde0fe, trim: 0xffffff, glass: 0x2f6f8f, awn: 0xff4fa3, neon: 0xff4fa3, sign: "Sunshine Mall" },
   { id: "aeroporto", name: "Aeroporto", kind: "airport", strip: "washW", z: -135, lw: 64, ld: 26, h: 11, neon: 0x22e1ff,
-    sign: "Loddo Intl Airport",
-    desc: "Da qui si parte per il mondo. Ogni biglietto costa soldi.",
-    actions: () => [
-      { label: "Roma ($80)", run: () => flight("Roma", 80) },
-      { label: "Londra ($120)", run: () => flight("Londra", 120) },
-      { label: "Tokyo ($250)", run: () => flight("Tokyo", 250) }
-    ] }
+    sign: "Loddo Intl Airport" }
 ];
 
 // Gruppo orientato sul fronte strada: in locale la facciata guarda +z
@@ -527,6 +503,7 @@ const reserved = {};
 places.forEach(pl => {
   if (pl.kind === "park") { buildPark(pl); pl.top = 2; return; }
   const g = stripGroup(pl.strip, pl.z, pl.ld);
+  pl.group = g;
   pl.x = g.position.x; pl.w = pl.ld; pl.d = pl.lw;
   const o = Object.assign({}, pl, { w: pl.lw, d: pl.ld });
   if (pl.kind === "house") buildDeco(g, Object.assign(o, { round: true, balconies: true, finSide: 1 }));
@@ -831,6 +808,9 @@ const P = makeHuman({ shirt: 0x22b8e6, pants: 0xf4f1de, hair: 0x3d2b1f, shades: 
 P.g.position.set(49.5, 0, 40);
 scene.add(P.g);
 const player = P.g;
+// maglietta tutta sua, così al Mall può cambiarla senza toccare gli altri
+const shirtMat = M(0x22b8e6).clone();
+player.traverse(o => { if (o.material === M(0x22b8e6)) o.material = shirtMat; });
 
 const npcData = [
   { name: "Sara", shirt: 0xff4fa3, hair: 0x3d2b1f, skin: 0xf5cba7, p: { hello: "Ciao! Sei nuovo di Miami Beach?", mood: "Oggi sono un po' stanca dopo la scuola, ma una pizza mi tira su!" } },
@@ -854,13 +834,758 @@ scene.traverse(o => {
   o.receiveShadow = true;
 });
 
+// ================= MONDO CORRENTE (esterno o interno di un locale) =================
+const OUTDOOR = { scene, solids, obstacles, bounds: [-195, 166, -246, 246], labels: [], hotspots: [] };
+let world = OUTDOOR, currentPlace = null, snapCam = false;
+
 // Etichette dei luoghi
 places.forEach(pl => {
   pl.label = document.createElement("div");
   pl.label.className = "label";
   pl.label.textContent = pl.name;
   document.body.appendChild(pl.label);
+  OUTDOOR.labels.push({ el: pl.label, x: pl.x, y: (pl.top || 3) + 1.5, z: pl.z, max: 110 });
 });
+
+// ================= INTERNI DEI LOCALI =================
+// Ogni locale ha la sua scena: stanza centrata nell'origine, porta sulla parete +z.
+const canvasMat = (draw, rx, ry, opts) =>
+  new THREE.MeshStandardMaterial(Object.assign({ map: texFrom(makeCanvas(128, 128, draw), rx, ry), roughness: 0.8 }, opts));
+const checker = (c1, c2, n) => (g, s) => {
+  const k = s / n;
+  for (let i = 0; i < n; i++) for (let j = 0; j < n; j++) { g.fillStyle = (i + j) % 2 ? c2 : c1; g.fillRect(i * k, j * k, k, k); }
+  noise(g, s, s, 300, 0.04);
+};
+const tiles = (base, grout, n) => (g, s) => {
+  g.fillStyle = base; g.fillRect(0, 0, s, s); noise(g, s, s, 300, 0.035);
+  g.fillStyle = grout; for (let i = 0; i < n; i++) { g.fillRect(i * s / n, 0, 2, s); g.fillRect(0, i * s / n, s, 2); }
+};
+const planks = (base, line) => (g, s) => {
+  g.fillStyle = base; g.fillRect(0, 0, s, s); g.fillStyle = line;
+  for (let i = 0; i < 8; i++) { const y = i * s / 8; g.fillRect(0, y, s, 1.5); g.fillRect((i % 2) * s / 2 + s / 4, y, 1.5, s / 8); }
+  noise(g, s, s, 600, 0.07);
+};
+const bands = (base, list) => (g, s) => {
+  g.fillStyle = base; g.fillRect(0, 0, s, s); noise(g, s, s, 300, 0.04);
+  list.forEach(([y, h, c]) => { g.fillStyle = c; g.fillRect(0, y * s, s, h * s); });
+};
+function boardPlane(pw, ph, draw, res) {
+  const cw = res || 512, ch = Math.round(cw * ph / pw);
+  const t = new THREE.CanvasTexture(makeCanvas(cw, ch, draw)); t.anisotropy = MAX_ANISO;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(pw, ph), new THREE.MeshBasicMaterial({ map: t }));
+  m.userData.noShadow = true;
+  return m;
+}
+function fitText(g, text, maxW, size, family) {
+  do { g.font = `700 ${size}px ${family || "Poppins, sans-serif"}`; size -= 2; } while (g.measureText(text).width > maxW && size > 8);
+}
+function signPlane(text, pw, ph, bg, fg) {
+  return boardPlane(pw, ph, (g, w, h) => {
+    g.fillStyle = bg; g.fillRect(0, 0, w, h);
+    g.fillStyle = fg; g.textAlign = "center"; g.textBaseline = "middle";
+    fitText(g, text, w * 0.88, Math.round(h * 0.6)); g.fillText(text, w / 2, h / 2 + 2);
+  });
+}
+function put(m, I, x, y, z, ry) { m.position.set(x, y, z); m.rotation.y = ry || 0; I.scene.add(m); return m; }
+const deco = (I, geo, mat, x, y, z) => add(geo, mat, x, y, z, I.scene);
+function solidBox(I, w, h, d, mat, x, y, z) {
+  const m = add(B(w, h, d), mat, x, y, z, I.scene);
+  I.solids.push({ x, z, w, d, h: y + h / 2 });
+  return m;
+}
+function instIn(I, geo, mats, colors, opts) {
+  const im = new THREE.InstancedMesh(geo, new THREE.MeshStandardMaterial(Object.assign({ color: 0xffffff, roughness: 0.6 }, opts)), mats.length);
+  mats.forEach((m, i) => { im.setMatrixAt(i, m); im.setColorAt(i, new THREE.Color(colors[i])); });
+  im.frustumCulled = false; I.scene.add(im);
+  return im;
+}
+const boxM = (x, y, z, sx, sy, sz, ry) => new THREE.Matrix4().compose(new THREE.Vector3(x, y, z),
+  new THREE.Quaternion().setFromEuler(new THREE.Euler(0, ry || 0, 0)), new THREE.Vector3(sx, sy, sz));
+const spot = (I, o) => I.hotspots.push(Object.assign({ r: 2.2 }, o));
+
+function staff(I, x, z, ry, look) {
+  const H = makeHuman(Object.assign({ pants: 0x2b2b2b, hair: 0x3d2b1f, shoes: 0x222222 }, look));
+  H.g.position.set(x, 0, z); H.g.rotation.y = ry; I.scene.add(H.g);
+  if (look.hat) add(new THREE.CylinderGeometry(0.32, 0.27, 0.42, 14), 0xffffff, 0, 2.92, 0, H.g);
+  const ph = rr(0, TAU);
+  I.ticks.push(t => { H.armR.rotation.x = Math.sin(t * 1.6 + ph) * 0.18; H.armL.rotation.x = -Math.sin(t * 1.1 + ph) * 0.08; });
+  return H;
+}
+function chair(I, x, z, ry, seat, leg) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; I.scene.add(g);
+  add(B(0.5, 0.08, 0.5), seat, 0, 0.5, 0, g);
+  add(B(0.5, 0.62, 0.07), seat, 0, 0.84, -0.22, g);
+  for (const [lx, lz] of [[-0.21, -0.21], [0.21, -0.21], [-0.21, 0.21], [0.21, 0.21]]) add(B(0.05, 0.5, 0.05), leg, lx, 0.25, lz, g);
+}
+function diningTable(I, x, z, o) {
+  const r = o.size || 0.8, S = I.scene;
+  if (o.round) add(new THREE.CylinderGeometry(r, r, 0.06, 24), o.top, x, 0.8, z, S);
+  else add(B(r * 2, 0.06, r * 2), o.top, x, 0.8, z, S);
+  if (o.skirt) add(new THREE.CylinderGeometry(r + 0.01, r + 0.07, 0.45, 24, 1, true), o.skirt, x, 0.56, z, S);
+  add(new THREE.CylinderGeometry(0.06, 0.06, 0.78, 8), o.leg, x, 0.39, z, S);
+  add(new THREE.CylinderGeometry(0.35, 0.4, 0.04, 16), o.leg, x, 0.02, z, S);
+  const n = o.chairs || 4;
+  for (let i = 0; i < n; i++) {
+    const a = i * TAU / n + (o.round ? 0.4 : 0);
+    chair(I, x + Math.sin(a) * (r + 0.5), z + Math.cos(a) * (r + 0.5), a + Math.PI, o.seat, o.chairLeg || o.leg);
+  }
+  I.solids.push({ x, z, w: 2 * r + 1.6, d: 2 * r + 1.6, h: 1.2 });
+  if (o.extra) o.extra(x, z);
+}
+function pendant(I, x, z, len, shade, glow) {
+  const h = I.room.h, y = h - len;
+  deco(I, new THREE.CylinderGeometry(0.015, 0.015, len, 4), 0x222222, x, h - len / 2, z);
+  deco(I, new THREE.ConeGeometry(0.42, 0.36, 16, 1, true), M(shade, { side: THREE.DoubleSide }), x, y, z);
+  deco(I, new THREE.SphereGeometry(0.12, 10, 8), Glow(glow || 0xfff1c9), x, y - 0.12, z);
+}
+function plant(I, x, z, s, leaf) {
+  s = s || 1;
+  deco(I, new THREE.CylinderGeometry(0.36 * s, 0.28 * s, 0.6 * s, 12), 0xc96f4a, x, 0.3 * s, z);
+  deco(I, new THREE.IcosahedronGeometry(0.62 * s, 1), M(leaf || 0x3f9b3a, { flatShading: true }), x, 1.1 * s, z);
+  I.obstacles.push({ x, z, r: 0.4 * s });
+}
+function pottedPalms(I, list) {
+  const mats = list.map(([x, z, s]) => m4(x, 0.65, z, 0, rr(0, TAU), 0, s));
+  instIn(I, PALM_TRUNK, mats, list.map(() => 0x9a7b56), { roughness: 1, flatShading: true });
+  instIn(I, PALM_LEAF, mats, list.map(() => 0x4fb33f), { roughness: 0.8, side: THREE.DoubleSide, flatShading: true });
+  list.forEach(([x, z]) => { deco(I, new THREE.CylinderGeometry(0.6, 0.45, 0.7, 14), 0xf4efe6, x, 0.35, z); I.obstacles.push({ x, z, r: 0.7 }); });
+}
+
+function newInterior(o) {
+  const { w, d, h } = o;
+  const S = new THREE.Scene();
+  S.background = new THREE.Color(o.bg || 0x1a1530);
+  const I = { scene: S, room: { w, d, h }, solids: [], obstacles: [], hotspots: [], labels: [], ticks: [],
+    bounds: [-w / 2 + 0.5, w / 2 - 0.5, -d / 2 + 0.5, d / 2 - 0.5], spawn: { x: 0, z: d / 2 - 2.2 }, camDist: o.camDist || 8, camPitch: o.camPitch || 0.5 };
+  S.add(new THREE.HemisphereLight(0xffffff, o.groundLight || 0x8a7a70, o.amb || 0.7));
+  const key = new THREE.DirectionalLight(o.keyColor || 0xfff2e0, o.key || 0.55);
+  key.position.set(w * 0.15, h * 3, d * 0.25); key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
+  const r = Math.max(w, d) * 0.7;
+  Object.assign(key.shadow.camera, { left: -r, right: r, top: r, bottom: -r, near: 0.5, far: h * 6 });
+  key.shadow.bias = -0.0005; key.shadow.normalBias = 0.03;
+  S.add(key, key.target);
+  const wallPlane = (pw, mat, x, z, ry) => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(pw, h), mat); m.position.set(x, h / 2, z); m.rotation.y = ry;
+    m.userData.noCast = true; S.add(m);
+  };
+  const floor = new THREE.Mesh(new THREE.PlaneGeometry(w, d), o.floor); floor.rotation.x = -Math.PI / 2; floor.userData.noCast = true; S.add(floor);
+  // marciapiede attorno alla stanza: quando la camera passa oltre i muri non si vede il vuoto
+  const outside = new THREE.Mesh(new THREE.PlaneGeometry(w + 120, d + 120), new THREE.MeshStandardMaterial({ map: texFrom(concreteCv, (w + 120) / 4, (d + 120) / 4), roughness: 0.95 }));
+  outside.rotation.x = -Math.PI / 2; outside.position.y = -0.04; outside.userData.noCast = true; S.add(outside);
+  deco(I, B(w + 0.6, 0.3, d + 0.6), o.base || 0xffffff, 0, -0.16, 0).userData.noCast = true;
+  const ceil = new THREE.Mesh(new THREE.PlaneGeometry(w, d), o.ceil || M(0xf4f1ea)); ceil.rotation.x = Math.PI / 2; ceil.position.y = h; ceil.userData.noCast = true; S.add(ceil);
+  if (!o.glassBack) wallPlane(w, o.wall, 0, -d / 2, 0);
+  wallPlane(w, o.wall, 0, d / 2, Math.PI);
+  wallPlane(d, o.wall, -w / 2, 0, Math.PI / 2);
+  wallPlane(d, o.wall, w / 2, 0, -Math.PI / 2);
+  // porta d'uscita
+  const trim = o.trim || 0xffffff;
+  // porta fatta di piani rivolti verso l'interno: da fuori non coprono la visuale
+  const doorPart = (pw, ph, mat, y, z) => { const m = put(new THREE.Mesh(new THREE.PlaneGeometry(pw, ph), typeof mat === "number" ? M(mat) : mat), I, 0, y, z, Math.PI); m.userData.noCast = true; };
+  doorPart(3.2, 3.5, trim, 1.75, d / 2 - 0.02);
+  doorPart(2.6, 3.1, GLASS_DARK, 1.55, d / 2 - 0.04);
+  doorPart(0.06, 3.1, trim, 1.55, d / 2 - 0.06);
+  put(signPlane("USCITA", 1.3, 0.38, "#1f9d55", "#ffffff"), I, 0, 3.85, d / 2 - 0.02, Math.PI);
+  spot(I, { exit: true, name: "Uscita", icon: "🚪", x: 0, z: d / 2 - 1, r: 2 });
+  return I;
+}
+function finishInterior(I) {
+  I.scene.traverse(m => {
+    if (!m.isMesh || m.userData.noShadow) return;
+    m.castShadow = !m.userData.noCast && m.position.y < I.room.h - 0.3; // luci a soffitto: niente ombre
+    m.receiveShadow = true;
+  });
+  I.hotspots.forEach(hs => {
+    const el = document.createElement("div");
+    el.className = "label"; el.style.display = "none";
+    el.textContent = hs.icon + " " + hs.name;
+    document.body.appendChild(el);
+    I.labels.push({ el, x: hs.x, y: hs.y || 3.1, z: hs.z, max: 40, hs });
+  });
+  return I;
+}
+const notYours = { label: "Non è ancora casa tua", disabled: true, run() {} };
+
+const INTERIORS = {
+  // ---------- CASA: appartamento vista oceano ----------
+  casa() {
+    const I = newInterior({ w: 16, d: 12, h: 4.6, bg: 0x1d2a33,
+      floor: canvasMat(planks("#e3c29b", "rgba(120,70,30,.35)"), 5, 6, { roughness: 0.6 }),
+      wall: canvasMat(bands("#cdf3e4", [[0, 0.06, "#ffffff"], [0.86, 0.14, "#ffffff"]]), 4, 1), ceil: M(0xfdfcf8), amb: 0.75 });
+    I.welcome = "Sei in casa: un appartamento art déco con vista sull'oceano. Premi E sugli oggetti.";
+    const WX = -0.5;
+    put(boardPlane(7, 2.6, (g, w, h) => {
+      const sk = g.createLinearGradient(0, 0, 0, h * 0.56); sk.addColorStop(0, "#4f9be8"); sk.addColorStop(1, "#ffd9c4");
+      g.fillStyle = sk; g.fillRect(0, 0, w, h * 0.56);
+      const se = g.createLinearGradient(0, h * 0.55, 0, h * 0.8); se.addColorStop(0, "#127fae"); se.addColorStop(1, "#3fe0d0");
+      g.fillStyle = se; g.fillRect(0, h * 0.55, w, h * 0.25);
+      g.fillStyle = "#f3e2b3"; g.fillRect(0, h * 0.8, w, h * 0.2);
+      g.fillStyle = "#fff6d0"; g.beginPath(); g.arc(w * 0.7, h * 0.3, h * 0.08, 0, TAU); g.fill();
+      g.fillStyle = "#ffffff"; g.fillRect(w * 0.38, h * 0.6, w * 0.07, h * 0.03); g.fillRect(w * 0.4, h * 0.57, w * 0.03, h * 0.03);
+      for (const px of [w * 0.1, w * 0.88]) {
+        g.strokeStyle = "#5b4630"; g.lineWidth = w * 0.009;
+        g.beginPath(); g.moveTo(px, h); g.quadraticCurveTo(px + w * 0.02, h * 0.5, px + w * 0.035, h * 0.2); g.stroke();
+        g.fillStyle = "#2f8a3c";
+        for (let k = 0; k < 7; k++) { const a = k * TAU / 7; g.beginPath(); g.ellipse(px + w * 0.035 + Math.cos(a) * w * 0.035, h * 0.2 + Math.sin(a) * h * 0.05, w * 0.04, h * 0.025, a, 0, TAU); g.fill(); }
+      }
+    }, 1024), I, WX, 2.4, -5.97);
+    for (const [fw, fh, x, y] of [[7.4, 0.2, WX, 3.8], [7.6, 0.25, WX, 1.0], [0.2, 2.8, WX - 3.6, 2.4], [0.2, 2.8, WX + 3.6, 2.4], [0.1, 2.6, WX, 2.4]])
+      deco(I, B(fw, fh, 0.16), 0xffffff, x, y, -5.92);
+    const sl = new THREE.PointLight(0xffe2c0, 0.55, 14); sl.position.set(WX, 3, -4); I.scene.add(sl);
+    // cucina
+    solidBox(I, 3.8, 0.95, 1.2, 0xffffff, 4.9, 0.475, -5.4);
+    deco(I, B(3.85, 0.06, 1.25), M(0x3b3b46, { roughness: 0.3 }), 4.9, 0.98, -5.4);
+    deco(I, B(1, 0.02, 0.7), 0x111111, 4.1, 1.02, -5.35);
+    for (const bx of [3.85, 4.35]) deco(I, new THREE.TorusGeometry(0.13, 0.025, 6, 16), Glow(0xff5533), bx, 1.04, -5.35).rotation.x = Math.PI / 2;
+    deco(I, B(3.4, 0.8, 0.5), 0x7fd8d0, 4.9, 3.0, -5.75);
+    solidBox(I, 1.1, 2.3, 1.1, M(0xf2f2f2, { roughness: 0.3 }), 7.35, 1.15, -5.35);
+    deco(I, B(0.06, 0.8, 0.06), 0x555555, 6.86, 1.4, -4.78);
+    // letto
+    solidBox(I, 3.2, 0.45, 2.4, 0x9b6b43, -6.4, 0.225, -4.4);
+    deco(I, B(3.0, 0.3, 2.2), 0xffffff, -6.4, 0.6, -4.4);
+    deco(I, B(2.0, 0.08, 2.26), 0x22b8e6, -5.8, 0.78, -4.4);
+    for (const pz of [-4.95, -3.85]) deco(I, B(0.5, 0.18, 0.8), 0xffe0ec, -7.5, 0.84, pz);
+    deco(I, B(0.15, 1.3, 2.4), 0x9b6b43, -7.95, 0.9, -4.4);
+    solidBox(I, 0.6, 0.6, 0.6, 0xe9d4b4, -7.5, 0.3, -2.7);
+    deco(I, new THREE.CylinderGeometry(0.05, 0.12, 0.4, 10), 0x444444, -7.5, 0.8, -2.7);
+    deco(I, new THREE.CylinderGeometry(0.16, 0.26, 0.3, 14), Glow(0xfff1b8), -7.5, 1.15, -2.7);
+    // salotto
+    const rug = deco(I, new THREE.CircleGeometry(2.2, 32), 0xff9fbf, 4.6, 0.012, 1.6); rug.rotation.x = -Math.PI / 2; rug.userData.noCast = true;
+    solidBox(I, 1.0, 0.45, 3.0, 0xff7a6b, 2.6, 0.225, 1.6);
+    deco(I, B(0.3, 0.95, 3.0), 0xff7a6b, 2.15, 0.7, 1.6);
+    for (const az of [0.12, 3.08]) deco(I, B(1.0, 0.6, 0.24), 0xf0685a, 2.6, 0.52, az);
+    for (const cz of [0.85, 2.35]) deco(I, B(0.8, 0.12, 1.4), 0xffb3a7, 2.7, 0.51, cz);
+    solidBox(I, 0.9, 0.42, 1.5, 0xffffff, 4.6, 0.21, 1.6);
+    solidBox(I, 0.6, 0.6, 2.6, 0x2b3a46, 7.6, 0.3, 1.6);
+    deco(I, B(0.1, 1.2, 2.1), 0x111111, 7.75, 1.45, 1.6);
+    const screen = deco(I, B(0.02, 1.08, 1.98), new THREE.MeshBasicMaterial({ color: 0x10151c }), 7.69, 1.45, 1.6);
+    const cons = deco(I, B(0.4, 0.12, 0.5), 0xffffff, 7.55, 0.66, 0.6);
+    I.tv = 0;
+    I.ticks.push((t, dt) => {
+      cons.visible = state.console;
+      if (I.tv > 0) { I.tv -= dt; screen.material.color.setHSL((t * 0.35) % 1, 0.75, 0.55); }
+      else screen.material.color.setHex(0x10151c);
+    });
+    // quadro "Miami"
+    put(boardPlane(1.8, 1.2, (g, w, h) => {
+      const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, "#ff4fa3"); gr.addColorStop(1, "#ffb86b");
+      g.fillStyle = gr; g.fillRect(0, 0, w, h);
+      g.fillStyle = "#ffe74c"; g.beginPath(); g.arc(w / 2, h * 0.62, h * 0.3, Math.PI, 0); g.fill();
+      g.fillStyle = "#ff4fa3"; for (let i = 0; i < 4; i++) g.fillRect(0, h * 0.42 + i * h * 0.06, w, h * 0.022);
+      g.fillStyle = "#22e1ff"; g.fillRect(0, h * 0.62, w, h * 0.38);
+      g.fillStyle = "#fff"; g.textAlign = "center"; g.font = `${h * 0.2}px Pacifico, cursive`; g.fillText("Miami", w / 2, h * 0.85);
+      g.strokeStyle = "#fff"; g.lineWidth = 14; g.strokeRect(0, 0, w, h);
+    }), I, -7.97, 2.4, 1.5, Math.PI / 2);
+    plant(I, -7.2, 5.0); plant(I, 7.2, 5.0, 1.1);
+    // agente immobiliare (sparisce quando la casa è tua)
+    const agent = staff(I, -2, 2.6, 0, { shirt: 0x1d3557, hair: 0x6b4a33, skin: 0xe0ac69 });
+    I.ticks.push(() => { agent.g.visible = !state.hasHome; });
+    spot(I, { name: "Agente immobiliare", icon: "🔑", x: -2, z: 4, visible: () => !state.hasHome,
+      desc: "«Questo appartamento vista oceano è in vendita. Le piace? Con $100 è suo!»",
+      actions: () => [{ label: "Firma il contratto ($100)", run: () => {
+        if (spend(100)) { state.hasHome = true; log("Hai una casa a South Beach! Ora è tutta tua."); closePanel(); } } }] });
+    spot(I, { name: "Letto", icon: "🛏", x: -5.2, z: -2.2,
+      desc: "Un letto comodo con le lenzuola azzurre. Dalla finestra si sente il mare.",
+      actions: () => state.hasHome ? [
+        { label: "Dormi fino a domattina", run: () => { closePanel(); fadeTo(() => log("Buongiorno Miami! Hai dormito benissimo e ti senti carico."), 900); } },
+        { label: "Fai un pisolino", run: () => log("Un pisolino veloce... ahh, ci voleva.") }
+      ] : [notYours] });
+    spot(I, { name: "Cucina", icon: "🍳", x: 6.2, z: -3.6,
+      desc: () => `Nel frigo ci sono ${state.food} ${state.food === 1 ? "pasto" : "pasti"}. La spesa si fa al Supermercato.`,
+      actions: () => state.hasHome ? [
+        { label: state.food > 0 ? "Mangia qualcosa dal frigo" : "Il frigo è vuoto...", disabled: state.food <= 0,
+          run: () => { state.food--; log("Hai mangiato a casa. Gnam!"); } },
+        { label: "Preparati un caffè cubano", run: () => log("Un cafecito bello forte. Sei sveglissimo!") }
+      ] : [notYours] });
+    spot(I, { name: "Divano e TV", icon: "📺", x: 5.6, z: 3.7,
+      desc: () => state.console ? `Divano, TV e la tua console (${state.games} ${state.games === 1 ? "gioco" : "giochi"}).` : "Un divano morbidissimo davanti alla TV.",
+      actions: () => state.hasHome ? [
+        { label: "Guarda la TV", run: () => { I.tv = 6; log("In TV danno la partita dei Miami Heat!"); } },
+        { label: state.console ? "Gioca alla console" : "Nessuna console (comprala al Sunshine Mall)", disabled: !state.console,
+          run: () => { I.tv = 8; log(state.games ? "Che partita! Hai battuto il tuo record." : "Hai la console ma nessun gioco... compralo al Sunshine Mall!"); } }
+      ] : [notYours] });
+    return I;
+  },
+
+  // ---------- PIZZERIA DA COSTA: trattoria con forno a legna ----------
+  dacosta() {
+    const I = newInterior({ w: 16, d: 14, h: 5, bg: 0x2a1a12, trim: 0x7a4a2a,
+      floor: canvasMat(checker("#f4efe6", "#c8312f", 4), 4, 3.5, { roughness: 0.5 }),
+      wall: canvasMat(bands("#fbe8c8", [[0.62, 0.03, "#ffffff"], [0.65, 0.35, "#b5523b"]]), 4, 1), ceil: M(0x6b4a33), amb: 0.62 });
+    I.welcome = "Profumo di pizza! Benvenuto da Da Costa. Ordina al bancone.";
+    // forno a legna
+    solidBox(I, 4, 1.2, 3, M(0x8a8a8a), -5, 0.6, -5);
+    deco(I, new THREE.SphereGeometry(1.8, 18, 12, 0, TAU, 0, Math.PI / 2), M(0xb5523b, { flatShading: true }), -5, 1.2, -5.2);
+    deco(I, B(1.2, 0.8, 0.3), 0x1a0d08, -5, 1.6, -3.5);
+    const fire = deco(I, B(0.9, 0.5, 0.05), Glow(0xff7a1a), -5, 1.5, -3.34);
+    deco(I, new THREE.CylinderGeometry(0.32, 0.38, 2.4, 10), 0x9a4a35, -5, 3.8, -5.6);
+    const fl = new THREE.PointLight(0xff8a3a, 1.2, 10); fl.position.set(-5, 1.8, -2.8); I.scene.add(fl);
+    I.ticks.push(t => { fl.intensity = 1.1 + Math.sin(t * 13) * 0.15 + Math.sin(t * 7.3) * 0.15; fire.scale.y = 1 + Math.sin(t * 11) * 0.18; });
+    staff(I, -2.4, -5.2, 0, { shirt: 0xffffff, pants: 0x333333, hair: 0x111111, skin: 0xe0ac69, hat: true });
+    solidBox(I, 1.6, 0.9, 1.0, 0xdedede, -1.0, 0.45, -6.2);
+    const dough = deco(I, new THREE.CylinderGeometry(0.35, 0.35, 0.05, 18), 0xf3dfb5, -1.0, 0.93, -6.2);
+    I.ticks.push(t => { dough.rotation.y = t * 2; });
+    // bancone, cassa e menu
+    solidBox(I, 5, 1.1, 1.1, 0x9b6b43, 4, 0.55, -4.6);
+    deco(I, B(5.1, 0.07, 1.2), M(0xf4f1ea, { roughness: 0.3 }), 4, 1.13, -4.6);
+    deco(I, B(0.5, 0.35, 0.4), 0x333333, 2.4, 1.34, -4.6);
+    for (let i = 0; i < 4; i++) deco(I, B(0.7, 0.09, 0.7), i % 2 ? 0xf3e2b3 : 0xe9d6a6, 5.8, 1.21 + i * 0.1, -4.6);
+    staff(I, 3.6, -5.8, 0, { shirt: 0xe63946, hair: 0x3d2b1f, skin: 0xf5cba7 });
+    put(boardPlane(3, 1.8, (g, w, h) => {
+      g.fillStyle = "#2b2b2b"; g.fillRect(0, 0, w, h); g.strokeStyle = "#9b6b43"; g.lineWidth = 16; g.strokeRect(0, 0, w, h);
+      g.fillStyle = "#fff"; g.textAlign = "center"; g.font = "60px Pacifico, cursive"; g.fillText("Menu", w / 2, 76);
+      g.font = "600 32px Poppins, sans-serif";
+      [["Margherita", "$10"], ["Diavola", "$10"], ["Da asporto", "$12"], ["Tiramisù", "$5"]].forEach(([a, b], i) => {
+        g.textAlign = "left"; g.fillText(a, 46, 140 + i * 44); g.textAlign = "right"; g.fillText(b, w - 46, 140 + i * 44);
+      });
+    }), I, 4, 3.1, -6.97);
+    // tavoli con tovaglia a quadretti
+    const cloth = canvasMat(checker("#ffffff", "#d62828", 6), 1, 1);
+    for (const [x, z] of [[-4.5, 1.2], [4.5, 1.2], [0, -1.6]]) {
+      diningTable(I, x, z, { size: 0.75, top: cloth, leg: M(0x3b2a1a), seat: M(0x9b6b43), extra: (tx, tz) => {
+        deco(I, new THREE.CylinderGeometry(0.06, 0.09, 0.3, 8), 0x2f6b3a, tx + 0.2, 0.98, tz);
+        deco(I, new THREE.CylinderGeometry(0.22, 0.22, 0.02, 16), 0xffffff, tx - 0.2, 0.84, tz + 0.1);
+      } });
+      pendant(I, x, z, 1.6, 0x2f6b3a);
+    }
+    const warm = new THREE.PointLight(0xffd8a0, 0.5, 18); warm.position.set(0, 4, 1); I.scene.add(warm);
+    // bandiera italiana
+    [0x1f9d55, 0xffffff, 0xe63946].forEach((c, i) => deco(I, B(0.04, 1.1, 0.6), c, -7.97, 3, -0.6 + i * 0.6));
+    plant(I, -7, 5.8); plant(I, 7, 5.8);
+    spot(I, { name: "Bancone", icon: "🍕", x: 4, z: -3.2,
+      desc: "«Ciao! Cosa ti preparo?» Le pizze escono calde dal forno a legna.",
+      actions: () => [
+        { label: "Mangia una pizza ($10)", run: () => { if (spend(10)) log("Pizza buonissima, croccante al punto giusto!"); } },
+        { label: "Pizza da asporto per casa ($12)", run: () => { if (spend(12)) { state.food++; log("Pizza in scatola: finisce nel frigo di casa."); } } },
+        { label: "Tiramisù ($5)", run: () => { if (spend(5)) log("Il tiramisù della nonna. Spettacolare!"); } }
+      ] });
+    spot(I, { name: "Forno a legna", icon: "🔥", x: -4.2, z: -2.4,
+      desc: "Il pizzaiolo inforna le pizze a 450 gradi. Il fuoco scoppietta.",
+      actions: () => [{ label: "Guarda il pizzaiolo", run: () => log("Il pizzaiolo fa volteggiare l'impasto in aria. Che spettacolo!") }] });
+    return I;
+  },
+
+  // ---------- L'ELITE9: ristorante elegante ----------
+  elite() {
+    const I = newInterior({ w: 20, d: 16, h: 6, bg: 0x0e0a1c, trim: 0xd4af37, camDist: 9,
+      floor: canvasMat(planks("#5a3825", "rgba(0,0,0,.35)"), 6, 8, { roughness: 0.45 }),
+      wall: canvasMat((g, s) => {
+        g.fillStyle = "#2b1d4a"; g.fillRect(0, 0, s, s); noise(g, s, s, 300, 0.05);
+        g.fillStyle = "#c9a34a"; for (let x = 0; x < s; x += 32) g.fillRect(x, 0, 2, s * 0.72);
+        g.fillStyle = "#1c1233"; g.fillRect(0, s * 0.72, s, s * 0.28); g.fillStyle = "#c9a34a"; g.fillRect(0, s * 0.72, s, 3);
+      }, 5, 1), ceil: M(0x1c1433), amb: 0.42, key: 0.3, keyColor: 0xffd8a8, groundLight: 0x3a2a20 });
+    I.welcome = "Luci soffuse e musica jazz: benvenuto da L'Elite9.";
+    const gold = M(0xd4af37, { metalness: 0.8, roughness: 0.3 });
+    const carpet = deco(I, B(2.2, 0.02, 7), 0x9b1d2e, 0, 0.012, 4.3); carpet.userData.noCast = true;
+    // lampadario
+    const cy = 4.6, cz = -1;
+    deco(I, new THREE.CylinderGeometry(0.03, 0.03, 1.4, 6), gold, 0, 5.3, cz);
+    deco(I, new THREE.TorusGeometry(1.3, 0.06, 8, 32), gold, 0, cy, cz).rotation.x = Math.PI / 2;
+    deco(I, new THREE.TorusGeometry(0.7, 0.05, 8, 24), gold, 0, cy + 0.35, cz).rotation.x = Math.PI / 2;
+    for (let k = 0; k < 10; k++) {
+      const a = k * TAU / 10;
+      deco(I, new THREE.SphereGeometry(0.11, 10, 8), Glow(0xfff1c9), Math.cos(a) * 1.3, cy + 0.14, cz + Math.sin(a) * 1.3);
+      deco(I, new THREE.ConeGeometry(0.05, 0.25, 6), Glow(0xe8f4ff), Math.cos(a + 0.3) * 1.1, cy - 0.25, cz + Math.sin(a + 0.3) * 1.1).rotation.x = Math.PI;
+    }
+    const cl = new THREE.PointLight(0xffd8a0, 1.1, 22, 1.5); cl.position.set(0, cy - 0.3, cz); I.scene.add(cl);
+    // tavoli rotondi con candele
+    const flames = [];
+    for (const [x, z] of [[-4, 0.8], [-2.5, -4.6], [1.8, -3.4], [2.4, 1.8]]) diningTable(I, x, z, {
+      round: true, size: 0.85, top: M(0xfaf7f0), skirt: M(0xfaf7f0, { side: THREE.DoubleSide }), leg: gold, seat: M(0x6a1b4d), chairLeg: gold,
+      extra: (tx, tz) => {
+        deco(I, new THREE.CylinderGeometry(0.05, 0.05, 0.25, 8), 0xffffff, tx, 0.95, tz);
+        flames.push(deco(I, new THREE.SphereGeometry(0.05, 8, 6), Glow(0xffc46b), tx, 1.12, tz));
+        for (const s of [-1, 1]) deco(I, new THREE.CylinderGeometry(0.05, 0.03, 0.18, 8), M(0xe8f8ff, { transparent: true, opacity: 0.45, roughness: 0.05 }), tx + s * 0.4, 0.92, tz + 0.2);
+      } });
+    I.ticks.push(t => flames.forEach((f, i) => { f.scale.y = 1.2 + Math.sin(t * 9 + i * 2) * 0.3; }));
+    // pianoforte a coda
+    const black = M(0x0a0a0a, { roughness: 0.15 });
+    solidBox(I, 2.4, 0.9, 1.5, black, -7, 1.0, -6);
+    for (const [lx, lz] of [[-8, -6.5], [-6, -6.5], [-7, -5.4]]) deco(I, new THREE.CylinderGeometry(0.06, 0.06, 0.6, 8), black, lx, 0.3, lz);
+    deco(I, B(2.4, 0.04, 1.5), black, -7, 1.85, -6.4).rotation.x = -0.55;
+    deco(I, B(1.6, 0.06, 0.34), 0xffffff, -7, 1.02, -5.1);
+    for (let i = 0; i < 9; i++) deco(I, B(0.06, 0.05, 0.2), 0x111111, -7.7 + i * 0.175, 1.07, -5.15);
+    solidBox(I, 0.9, 0.5, 0.4, black, -7, 0.25, -4.5);
+    // bar con specchio e bottiglie
+    solidBox(I, 1.2, 1.15, 6.5, M(0x3b2a1a), 8.2, 0.575, -2.5);
+    deco(I, B(1.35, 0.07, 6.6), M(0x222222, { roughness: 0.2 }), 8.2, 1.18, -2.5);
+    deco(I, B(0.05, 0.12, 6.5), gold, 7.58, 0.9, -2.5);
+    deco(I, B(0.04, 2.2, 6.4), M(0x8899aa, { metalness: 0.9, roughness: 0.1 }), 9.96, 2.6, -2.5);
+    const bm = [], bc = [];
+    for (const y of [1.8, 2.5, 3.2]) {
+      deco(I, B(0.4, 0.05, 6.2), gold, 9.75, y, -2.5);
+      for (let z = -5.4; z < 0.4; z += 0.3) { bm.push(boxM(9.75, y + 0.19, z, 1, rr(0.85, 1.15), 1)); bc.push(pick([0x7a4a1a, 0x2f6b3a, 0xe8f8ff, 0xb5523b, 0xd4af37])); }
+    }
+    instIn(I, new THREE.CylinderGeometry(0.07, 0.07, 0.34, 8), bm, bc, { roughness: 0.15 });
+    staff(I, 9.2, -2.5, -Math.PI / 2, { shirt: 0xffffff, pants: 0x111111, hair: 0x111111, skin: 0xc68642 });
+    for (const z of [-4.8, -3.3, -1.8, -0.3]) { deco(I, new THREE.CylinderGeometry(0.28, 0.28, 0.08, 14), M(0x6a1b4d), 7.2, 0.8, z); deco(I, new THREE.CylinderGeometry(0.04, 0.04, 0.8, 6), gold, 7.2, 0.4, z); I.obstacles.push({ x: 7.2, z, r: 0.3 }); }
+    // insegna e applique
+    deco(I, B(7.4, 2, 0.1), 0x140c26, 0, 4.2, -7.95);
+    put(neonSign("L'Elite9", 0xb388ff, 7), I, 0, 4.2, -7.88);
+    for (const z of [-4.5, 0, 4.5]) deco(I, B(0.08, 0.5, 0.3), Glow(0xffd8a0), -9.95, 3, z);
+    // maître
+    solidBox(I, 0.8, 1.15, 0.6, M(0x3b2a1a), -3, 0.575, 5.2);
+    deco(I, new THREE.SphereGeometry(0.09, 8, 6), Glow(0xffd8a0), -3, 1.3, 5.2);
+    staff(I, -3, 4.4, 0, { shirt: 0x111111, pants: 0x111111, hair: 0x555555, skin: 0xf1c27d });
+    plant(I, -9, 7, 1.2, 0x2f8a3c); plant(I, 9, 7, 1.2, 0x2f8a3c);
+    spot(I, { name: "Maître", icon: "🍷", x: -3, z: 6.4,
+      desc: "«Buonasera, un tavolo vicino alla finestra?»",
+      actions: () => [
+        { label: "Cena raffinata ($30)", run: () => { if (spend(30)) log("Aragosta e vista oceano: cena speciale!"); } },
+        { label: "Dessert al cioccolato ($12)", run: () => { if (spend(12)) log("Un fondente caldo che si scioglie in bocca."); } },
+        { label: state.job === "Cameriere" ? "Turno da cameriere" : "Turno da cameriere (serve il lavoro)", disabled: state.job !== "Cameriere",
+          run: () => workShift("Cameriere", 80, "Hai servito ai tavoli tutta la sera.") }
+      ] });
+    spot(I, { name: "Bar", icon: "🍸", x: 6.3, z: -2.5,
+      desc: "Il barman agita lo shaker dietro il bancone dorato.",
+      actions: () => [
+        { label: "Cocktail analcolico ($8)", run: () => { if (spend(8)) log("Un Virgin Mojito freschissimo!"); } },
+        { label: "Acqua frizzante ($3)", run: () => { if (spend(3)) log("Bollicine fresche, ci voleva."); } }
+      ] });
+    spot(I, { name: "Pianoforte", icon: "🎹", x: -7, z: -3.6,
+      desc: "Un pianoforte a coda nero lucido.",
+      actions: () => [{ label: "Suona una melodia", run: () => log("Suoni una melodia jazz. Dai tavoli parte un applauso!") }] });
+    return I;
+  },
+
+  // ---------- SUPERMERCATO: scaffali, frighi, casse ----------
+  supermercato() {
+    const I = newInterior({ w: 24, d: 20, h: 5.5, bg: 0x20302c, camDist: 9,
+      floor: canvasMat(tiles("#f2f2ee", "#d2d2cc", 2), 12, 10, { roughness: 0.35 }),
+      wall: canvasMat(bands("#fafafa", [[0.3, 0.12, "#2a9d8f"], [0.42, 0.03, "#7cff6b"]]), 6, 1), ceil: M(0xeeeeee), amb: 0.9, key: 0.45 });
+    I.welcome = "Benvenuto al Super Market! Prendi quello che ti serve e passa alla cassa.";
+    for (const x of [-9, -4.5, 0, 4.5, 9]) deco(I, B(0.5, 0.04, 16), Glow(0xffffff), x, 5.48, -1);
+    // scaffali con prodotti
+    const PROD = [0xe63946, 0xffd23f, 0x2a9d8f, 0x4dabf7, 0xff7a3d, 0x7b2ff7, 0xffffff, 0x9be564, 0xff4fa3];
+    const pm = [], pc = [];
+    const aisles = [[-7, "Pasta & Riso", "#e63946"], [-2.5, "Snack & Dolci", "#ff7a3d"], [2, "Casa & Igiene", "#4dabf7"]];
+    for (const [ux, label, col] of aisles) {
+      solidBox(I, 0.12, 2.4, 9, 0xd5d5d0, ux, 1.2, -1.5);
+      for (const ly of [0.15, 0.75, 1.35, 1.95]) {
+        deco(I, B(1.3, 0.05, 9), 0xdcdcdc, ux, ly, -1.5);
+        for (const side of [-1, 1]) for (let z = -5.8; z < 2.9; z += 0.34) {
+          const hh = rr(0.22, 0.45); pm.push(boxM(ux + side * 0.4, ly + 0.03 + hh / 2, z, 0.28, hh, 0.28)); pc.push(pick(PROD));
+        }
+      }
+      I.solids.push({ x: ux, z: -1.5, w: 1.4, d: 9, h: 2.5 });
+      deco(I, B(1.4, 2.5, 0.1), parseInt(col.slice(1), 16), ux, 1.25, 3.05);
+      deco(I, new THREE.CylinderGeometry(0.01, 0.01, 1.4, 4), 0x555555, ux, 4.8, 3.2);
+      put(signPlane(label, 2.6, 0.6, col, "#ffffff"), I, ux, 3.8, 3.2);
+    }
+    instIn(I, B(1, 1, 1), pm, pc, { roughness: 0.55 });
+    // frighi lungo la parete di fondo
+    solidBox(I, 16, 2.4, 1.1, 0xffffff, -2, 1.2, -9.45);
+    deco(I, B(15.6, 1.9, 0.04), Glow(0xcdeeff), -2, 1.3, -8.88);
+    for (let x = -10; x <= 6; x += 2) deco(I, B(0.08, 2.2, 0.08), 0xbfc5c9, x, 1.2, -8.85);
+    const fm = [], fc = [];
+    for (let x = -9.8; x < 5.9; x += 0.28) for (const y of [0.6, 1.25, 1.9]) { fm.push(boxM(x, y, -8.8, 1, 1, 1)); fc.push(pick([0xe63946, 0x2a9d8f, 0xffd23f, 0xff7a3d, 0x4dabf7, 0xffffff])); }
+    instIn(I, new THREE.CylinderGeometry(0.08, 0.08, 0.38, 8), fm, fc, { roughness: 0.3 });
+    put(neonSign("Super Market", 0x7cff6b, 8), I, -2, 3.9, -9.95);
+    // frutta e verdura
+    solidBox(I, 2, 0.8, 5.4, 0x9b6b43, 8, 0.4, -2);
+    const om = [], oc = [];
+    [[-4, 0xff8c1a], [-2.6, 0xe63946], [-1.2, 0x9be564], [0.2, 0xffd23f]].forEach(([cz, col]) => {
+      deco(I, B(1.8, 0.3, 1.2), 0xc79a6b, 8, 0.95, cz);
+      for (let i = 0; i < 18; i++) { om.push(boxM(8 + rr(-0.7, 0.7), 1.18 + rnd() * 0.08, cz + rr(-0.45, 0.45), 1, 1, 1)); oc.push(col); }
+    });
+    instIn(I, new THREE.SphereGeometry(0.13, 10, 8), om, oc, { roughness: 0.5 });
+    // casse
+    for (const [cx, open] of [[-8, true], [-3.5, false]]) {
+      solidBox(I, 1.0, 0.95, 3.2, 0xffffff, cx, 0.475, 5);
+      deco(I, B(0.8, 0.03, 2.2), 0x222222, cx, 0.97, 5.4);
+      deco(I, B(0.4, 0.3, 0.05), 0x222222, cx - 0.3, 1.3, 4.2);
+      deco(I, new THREE.CylinderGeometry(0.03, 0.03, 1.6, 6), 0x888888, cx + 0.4, 1.75, 3.6);
+      put(signPlane(open ? "CASSA 1" : "CHIUSA", 0.9, 0.35, open ? "#2a9d8f" : "#888888", "#fff"), I, cx + 0.4, 2.7, 3.6);
+    }
+    staff(I, -9, 4.6, Math.PI / 2, { shirt: 0x2a9d8f, hair: 0xb5651d, skin: 0xffdbac });
+    // carrelli
+    for (const [x, z] of [[5, 8.2], [6.2, 8.2]]) {
+      const g = new THREE.Group(); g.position.set(x, 0, z); I.scene.add(g);
+      add(B(0.6, 0.5, 0.9), M(0xbfc5c9, { metalness: 0.6, roughness: 0.3, transparent: true, opacity: 0.75 }), 0, 0.75, 0, g);
+      add(B(0.62, 0.05, 0.05), 0xe63946, 0, 1.1, 0.5, g);
+      for (const [wx, wz] of [[-0.25, -0.35], [0.25, -0.35], [-0.25, 0.35], [0.25, 0.35]]) add(new THREE.CylinderGeometry(0.06, 0.06, 0.05, 8), 0x222222, wx, 0.07, wz, g).rotation.z = Math.PI / 2;
+      I.obstacles.push({ x, z, r: 0.55 });
+    }
+    spot(I, { name: "Cassa", icon: "🛒", x: -6.6, z: 5.2,
+      desc: "Ogni spesa riempie il frigo di casa: poi puoi mangiare in cucina.",
+      actions: () => [
+        { label: "Spesa completa: 3 pasti ($15)", run: () => { if (spend(15)) { state.food += 3; log(`Carrello pieno! Ora hai ${state.food} pasti in frigo.`); } } },
+        { label: "Snack veloce ($4)", run: () => { if (spend(4)) log("Patatine al volo. Crunch!"); } },
+        { label: state.job === "Commesso" ? "Turno da commesso" : "Turno da commesso (serve il lavoro)", disabled: state.job !== "Commesso",
+          run: () => workShift("Commesso", 50, "Hai sistemato scaffali e servito alla cassa.") }
+      ] });
+    spot(I, { name: "Frutta e verdura", icon: "🍎", x: 5.8, z: -2,
+      desc: "Arance della Florida, mele e banane appena arrivate.",
+      actions: () => [{ label: "Frutta fresca: 1 pasto ($5)", run: () => { if (spend(5)) { state.food++; log("Frutta nel sacchetto: finisce nel frigo di casa."); } } }] });
+    spot(I, { name: "Frigo bibite", icon: "🧃", x: -1, z: -7.6,
+      desc: "Bibite ghiacciate per il caldo di Miami.",
+      actions: () => [{ label: "Bibita fresca ($3)", run: () => { if (spend(3)) log("Ahh, freschissima!"); } }] });
+    return I;
+  },
+
+  // ---------- JOB CENTER: ufficio con sportelli ----------
+  lavoro() {
+    const I = newInterior({ w: 18, d: 14, h: 4.5, bg: 0x1d2433,
+      floor: canvasMat((g, s) => { g.fillStyle = "#6f86a6"; g.fillRect(0, 0, s, s); noise(g, s, s, 2500, 0.1); }, 6, 5, { roughness: 1 }),
+      wall: canvasMat(bands("#eef2f6", [[0.55, 0.04, "#ffcf3a"], [0.82, 0.18, "#c9d3df"]]), 5, 1), ceil: M(0xf7f7f7), amb: 0.85, key: 0.4 });
+    I.welcome = "Job Center: scegli un lavoro allo sportello 1.";
+    for (const x of [-6, -2, 2, 6]) for (const z of [-4, 0, 4]) deco(I, B(1.2, 0.04, 1.2), Glow(0xffffff), x, 4.48, z);
+    let ticket = 7;
+    [[-5, "Sportello 1", true], [0, "Sportello 2", true], [5, "Sportello 3", false]].forEach(([x, label, open]) => {
+      solidBox(I, 3, 1.0, 1.0, 0xd8c3a5, x, 0.5, -3.5);
+      deco(I, B(3.02, 0.6, 0.02), 0x264653, x, 0.45, -2.99);
+      deco(I, B(0.9, 0.6, 0.06), 0x222222, x - 0.5, 1.45, -3.7);
+      deco(I, B(0.84, 0.54, 0.01), Glow(0x7fd3ff), x - 0.5, 1.45, -3.735);
+      deco(I, B(0.6, 0.03, 0.22), 0x333333, x - 0.5, 1.02, -3.3);
+      put(signPlane(label, 2, 0.5, open ? "#264653" : "#888888", "#ffe74c"), I, x, 3.3, -3.5);
+      if (open) staff(I, x + 0.3, -4.6, 0, { shirt: x < 0 ? 0xffd6a5 : 0x9fc9ff, hair: x < 0 ? 0x111111 : 0xb5651d, skin: x < 0 ? 0x8d5524 : 0xffdbac });
+      else put(signPlane("CHIUSO", 1.2, 0.4, "#e63946", "#fff"), I, x, 1.3, -2.97);
+      chair(I, x, -4.7, 0, M(0x333333), M(0x777777));
+    });
+    put(boardPlane(3.4, 1, (g, w, h) => {
+      g.fillStyle = "#111"; g.fillRect(0, 0, w, h); g.fillStyle = "#ff3b3b"; g.textAlign = "center"; g.textBaseline = "middle";
+      g.font = "700 46px 'Courier New', monospace"; g.fillText("ORA SERVIAMO  A-07", w / 2, h / 2);
+    }), I, 0, 3.2, -6.97);
+    // bacheca annunci
+    put(boardPlane(3, 1.8, (g, w, h) => {
+      g.fillStyle = "#c79a6b"; g.fillRect(0, 0, w, h); noise(g, w, h, 1500, 0.15);
+      g.strokeStyle = "#7a4a2a"; g.lineWidth = 14; g.strokeRect(0, 0, w, h);
+      [["CERCASI", "COMMESSO", "$50", "#fff1b8", 30, 30], ["CERCASI", "CAMERIERE", "$80", "#cdf5e5", 270, 50], ["LEZIONI", "DI SURF", "", "#ffc8dd", 150, 160]].forEach(([a, b, c, col, x, y]) => {
+        g.fillStyle = col; g.fillRect(x, y, 200, 120); g.fillStyle = "#e63946"; g.beginPath(); g.arc(x + 100, y + 8, 7, 0, TAU); g.fill();
+        g.fillStyle = "#222"; g.textAlign = "center"; g.font = "700 24px Poppins, sans-serif"; g.fillText(a, x + 100, y + 42); g.fillText(b, x + 100, y + 72);
+        g.font = "700 22px Poppins, sans-serif"; g.fillStyle = "#2a9d8f"; g.fillText(c, x + 100, y + 102);
+      });
+    }), I, -8.97, 2.2, 0, Math.PI / 2);
+    // sala d'attesa
+    for (let z = -0.5; z <= 3.5; z += 1) chair(I, 8.2, z, -Math.PI / 2, M(0x4dabf7), M(0x777777));
+    I.solids.push({ x: 8.2, z: 1.5, w: 0.8, d: 5, h: 1.2 });
+    solidBox(I, 0.5, 1.0, 0.5, 0xf2f2f2, 8.2, 0.5, -5.5);
+    deco(I, new THREE.CylinderGeometry(0.2, 0.2, 0.5, 14), M(0x7fd3ff, { transparent: true, opacity: 0.6, roughness: 0.05 }), 8.2, 1.25, -5.5);
+    solidBox(I, 0.6, 1.4, 0.5, 0xe63946, -3.5, 0.7, 5.3);
+    deco(I, B(0.4, 0.25, 0.02), Glow(0xffe74c), -3.5, 1.15, 5.04);
+    plant(I, -8.2, -6.2, 1.2); plant(I, -8.2, 6.2); plant(I, 8.2, 6.2);
+    spot(I, { name: "Sportello lavoro", icon: "💼", x: -5, z: -1.8,
+      desc: () => (state.job ? `Ora lavori come ${state.job}. ` : "") + "Commesso: turni al Supermercato ($50). Cameriere: turni da L'Elite9 ($80).",
+      actions: () => {
+        const a = [
+          { label: "Diventa Commesso", disabled: state.job === "Commesso", run: () => { state.job = "Commesso"; updateWallet(); log("Assunto! Sei commesso: i turni si fanno alla cassa del Supermercato."); } },
+          { label: "Diventa Cameriere", disabled: state.job === "Cameriere", run: () => { state.job = "Cameriere"; updateWallet(); log("Assunto! Sei cameriere: i turni si fanno da L'Elite9, chiedi al maître."); } }
+        ];
+        if (state.job) a.push({ label: "Lascia il lavoro", run: () => { log(`Hai lasciato il lavoro da ${state.job}.`); state.job = null; updateWallet(); } });
+        return a;
+      } });
+    const TIPS = ["«Con la spesa del Supermercato puoi mangiare a casa e risparmiare.»", "«Il cameriere guadagna di più, ma serve fare i turni da L'Elite9.»",
+      "«Prima di volare via, trovati una casa su Ocean Drive.»", "«Gli amici di Lummus Park adorano la pizza di Da Costa.»"];
+    spot(I, { name: "Consulente", icon: "💬", x: 0, z: -1.8, desc: "Una consulente sorridente ti accoglie.",
+      actions: () => [{ label: "Chiedi un consiglio", run: () => log(pick(TIPS)) }] });
+    spot(I, { name: "Sportello 3", icon: "⏸", x: 5, z: -1.8, desc: "Chiuso per pausa pranzo. Torna più tardi!", actions: () => [] });
+    spot(I, { name: "Bacheca annunci", icon: "📌", x: -7.4, z: 0, desc: "Annunci: «Cercasi commesso $50», «Cercasi cameriere $80», «Lezioni di surf».", actions: () => [] });
+    spot(I, { name: "Distributore d'acqua", icon: "💧", x: 6.8, z: -5.3, desc: "Acqua fresca gratis.",
+      actions: () => [{ label: "Bevi un bicchiere", run: () => log("Glu glu... fresca!") }] });
+    spot(I, { name: "Eliminacode", icon: "🎟", x: -3.5, z: 4, desc: "Prendi il numero e attendi il tuo turno.",
+      actions: () => [{ label: "Prendi il numero", run: () => { ticket++; log(`Hai il numero A-${String(ticket).padStart(2, "0")}. Prego, si accomodi!`); } }] });
+    return I;
+  },
+
+  // ---------- SUNSHINE MALL: galleria con negozi e fontana ----------
+  negozi() {
+    const W = 30, D = 22;
+    const I = newInterior({ w: W, d: D, h: 9, bg: 0x2a2440, camDist: 11,
+      floor: canvasMat((g, s) => {
+        g.fillStyle = "#f7eef0"; g.fillRect(0, 0, s, s);
+        g.strokeStyle = "rgba(160,140,150,.25)"; g.lineWidth = 1.2;
+        for (let i = 0; i < 6; i++) { g.beginPath(); g.moveTo(rnd() * s, 0); g.bezierCurveTo(rnd() * s, s * 0.3, rnd() * s, s * 0.7, rnd() * s, s); g.stroke(); }
+        g.fillStyle = "rgba(0,0,0,.06)"; g.fillRect(0, 0, s, 2); g.fillRect(0, 0, 2, s);
+      }, 10, 7, { roughness: 0.25 }),
+      wall: canvasMat(bands("#fbfbfb", [[0.9, 0.1, "#ffc8dd"]]), 6, 1), ceil: M(0xfdfdfd), amb: 0.95, key: 0.5 });
+    I.welcome = "Benvenuto al Sunshine Mall! Negozi, gelato e una fontana.";
+    deco(I, B(14, 0.04, 8), Glow(0xd9f6ff), 0, 8.98, 1);
+    for (const x of [-7, -3.5, 0, 3.5, 7]) deco(I, B(0.2, 0.3, 8.2), 0xffffff, x, 8.85, 1);
+    // galleria superiore
+    deco(I, B(W, 0.4, 2.6), 0xffffff, 0, 5.6, -D / 2 + 1.3);
+    deco(I, B(W, 1, 0.05), M(0xbfe9ff, { transparent: true, opacity: 0.35 }), 0, 6.3, -D / 2 + 2.58);
+    deco(I, B(W, 0.08, 0.1), 0xd4d4d4, 0, 6.8, -D / 2 + 2.58);
+    [["Food Court", "#ffd23f", -9], ["Beach Wear", "#22e1ff", 0], ["Cinema", "#b388ff", 9]].forEach(([n, c, x]) => {
+      deco(I, B(7, 2.2, 0.05), parseInt(c.slice(1), 16), x, 7.2, -D / 2 + 0.03);
+      put(signPlane(n, 4, 0.7, "#1b1640", c), I, x, 7.7, -D / 2 + 0.07);
+    });
+    // vetrine dei negozi
+    const shopGlass = M(0xbfe9ff, { transparent: true, opacity: 0.22, roughness: 0.05 });
+    function shopFront(x, name, neon, frame, inner) {
+      const z0 = -D / 2, dz = 3, zc = z0 + dz / 2, zf = z0 + dz;
+      for (const s of [-1, 1]) deco(I, B(0.3, 5, dz), frame, x + s * 3.5, 2.5, zc);
+      deco(I, B(7.3, 1.4, dz + 0.2), frame, x, 4.3, zc + 0.1);
+      deco(I, B(6.8, 3.6, 0.05), inner, x, 1.8, z0 + 0.04);
+      deco(I, B(6.7, 3.6, 0.06), shopGlass, x, 1.8, zf);
+      deco(I, B(6.7, 0.04, 2.9), Glow(0xffffff), x, 3.58, zc);
+      put(neonSign(name, neon, 5.5), I, x, 4.3, zf + 0.25);
+      I.solids.push({ x, z: zc, w: 7.3, d: dz, h: 5 });
+    }
+    shopFront(-9, "TechWorld", 0x22e1ff, 0x1d3557, 0x2b3a46);
+    [[-11, 0x22e1ff], [-9, 0xff4fa3], [-7, 0x7cff6b]].forEach(([x, c]) => deco(I, B(1.6, 0.95, 0.06), Glow(c), x, 2.4, -10.85));
+    deco(I, B(3.2, 0.8, 1), 0xffffff, -9, 0.4, -9.2);
+    for (const x of [-10, -9, -8]) deco(I, B(0.5, 0.12, 0.35), x === -9 ? 0x111111 : 0xffffff, x, 0.86, -9.2);
+    staff(I, -6.6, -9.6, 0, { shirt: 0x1d3557, hair: 0x111111, skin: 0xc68642 });
+    shopFront(0, "GameZone", 0xff3cac, 0x7b2ff7, 0x2a1a4a);
+    const gm = [], gcol = [];
+    for (const y of [0.6, 1.3, 2.0, 2.7]) for (let x = -2.8; x <= 0.6; x += 0.3) { gm.push(boxM(x, y, -10.7, 0.22, 0.32, 0.05)); gcol.push(pick([0xe63946, 0x22e1ff, 0xffd23f, 0x7cff6b, 0xff7a3d, 0xffffff])); }
+    instIn(I, B(1, 1, 1), gm, gcol, { roughness: 0.4 });
+    deco(I, B(0.9, 1.9, 0.8), 0x7b2ff7, 2.2, 0.95, -9.6);
+    const arcade = deco(I, B(0.7, 0.5, 0.02), Glow(0x22e1ff), 2.2, 1.45, -9.19);
+    arcade.material = new THREE.MeshBasicMaterial({ color: 0x22e1ff });
+    I.ticks.push(t => arcade.material.color.setHSL(0.5 + Math.sin(t * 2) * 0.15, 1, 0.55));
+    staff(I, 1.2, -10, 0, { shirt: 0xff3cac, hair: 0x7b2ff7, skin: 0xf5cba7 });
+    shopFront(9, "Moda Beach", 0xffe74c, 0xff7a3d, 0xfff1e0);
+    [[7.3, 0xff4fa3], [9, 0xffd23f], [10.7, 0x7cffb2]].forEach(([x, c]) => {
+      const H = makeHuman({ shirt: c, pants: 0xffffff, hair: 0xf4efe6, skin: 0xf4efe6, shoes: 0xffffff });
+      H.g.position.set(x, 0, -9.7); I.scene.add(H.g);
+    });
+    // fontana
+    deco(I, new THREE.CylinderGeometry(2.6, 2.7, 0.6, 32), 0xffffff, 0, 0.3, 0.5);
+    deco(I, new THREE.CylinderGeometry(2.35, 2.35, 0.05, 32), M(0x3fe0d0, { transparent: true, opacity: 0.8, roughness: 0.1 }), 0, 0.55, 0.5);
+    deco(I, new THREE.CylinderGeometry(0.22, 0.3, 1.8, 12), 0xffffff, 0, 1.3, 0.5);
+    deco(I, new THREE.CylinderGeometry(1, 0.4, 0.3, 20), 0xffffff, 0, 2.25, 0.5);
+    const spray = deco(I, new THREE.ConeGeometry(0.9, 1.6, 16, 1, true), new THREE.MeshBasicMaterial({ color: 0xcff8ff, transparent: true, opacity: 0.45, side: THREE.DoubleSide }), 0, 3.0, 0.5);
+    spray.rotation.x = Math.PI; spray.userData.noShadow = true;
+    I.ticks.push(t => { spray.scale.set(1 + Math.sin(t * 5) * 0.06, 1 + Math.sin(t * 3.7) * 0.1, 1 + Math.cos(t * 5) * 0.06); });
+    I.obstacles.push({ x: 0, z: 0.5, r: 2.8 });
+    pottedPalms(I, [[-6, 5.5, 0.45], [6, 5.5, 0.45], [-13, -4, 0.5], [13, -4, 0.5], [-13, 7, 0.45], [13, 7, 0.45]]);
+    for (const x of [-5, 5]) solidBox(I, 0.6, 0.45, 2.4, 0x9b6b43, x, 0.45, 0.5);
+    // gelateria
+    solidBox(I, 1.4, 1.0, 2.6, 0xffffff, -12.8, 0.5, 2);
+    const awn = new THREE.Mesh(B(2, 0.1, 3), awningMat(0xff4fa3, 3)); awn.position.set(-12.8, 2.6, 2); I.scene.add(awn);
+    for (const z of [0.8, 3.2]) deco(I, new THREE.CylinderGeometry(0.04, 0.04, 1.6, 6), 0xdddddd, -12.2, 1.8, z);
+    [0xfff1b8, 0xffc8dd, 0x7b4a2a, 0xcdf5e5].forEach((c, i) => deco(I, new THREE.CylinderGeometry(0.2, 0.2, 0.1, 12), c, -12.6, 1.05, 1.1 + i * 0.6));
+    staff(I, -14, 2, Math.PI / 2, { shirt: 0xffc8dd, hair: 0xffd23f, skin: 0xffdbac });
+    // macchina pesca-peluche
+    solidBox(I, 1.3, 1, 1.3, 0xff4fa3, 13.4, 0.5, 1.5);
+    deco(I, B(1.3, 1.3, 1.3), M(0xbfe9ff, { transparent: true, opacity: 0.25, roughness: 0.05 }), 13.4, 1.65, 1.5);
+    deco(I, B(1.35, 0.3, 1.35), 0xff4fa3, 13.4, 2.45, 1.5);
+    for (let i = 0; i < 8; i++) deco(I, new THREE.SphereGeometry(0.16, 10, 8), pick([0xffd23f, 0x22e1ff, 0x7cff6b, 0xffffff, 0xff7a3d]), 13.4 + rr(-0.4, 0.4), 1.15, 1.5 + rr(-0.4, 0.4));
+    const claw = deco(I, B(0.1, 0.25, 0.1), 0xdddddd, 13.4, 2.1, 1.5);
+    I.ticks.push(t => { claw.position.x = 13.4 + Math.sin(t * 0.9) * 0.4; claw.position.z = 1.5 + Math.cos(t * 0.6) * 0.4; });
+    const shirts = [["Maglietta azzurra", 0x22b8e6], ["Maglietta rosa", 0xff4fa3], ["Camicia hawaiana gialla", 0xffd23f], ["Polo verde menta", 0x7cffb2], ["Canotta bianca", 0xf7f7f7]];
+    spot(I, { name: "TechWorld", icon: "🎮", x: -9, z: -6.4, desc: "Console, TV e cuffie di ultima generazione.",
+      actions: () => [
+        { label: state.console ? "Console (già tua)" : "Console ($300)", disabled: state.console, run: () => { if (spend(300)) { state.console = true; log("Hai una console nuova! Collegala alla TV di casa."); } } },
+        { label: "Cuffie wireless ($40)", run: () => { if (spend(40)) log("Musica a tutto volume sul lungomare!"); } }
+      ] });
+    spot(I, { name: "GameZone", icon: "🕹", x: 0, z: -6.4, desc: () => `Videogiochi per tutti i gusti. Ne hai ${state.games}.`,
+      actions: () => [{ label: "Compra un gioco ($60)", run: () => { if (spend(60)) { state.games++; log(state.console ? "Nuovo gioco! Provalo sulla console di casa." : "Nuovo gioco! Ora ti serve una console da TechWorld."); } } }] });
+    spot(I, { name: "Moda Beach", icon: "👕", x: 9, z: -6.4, desc: "Vestiti da spiaggia: provane uno, lo indossi subito!",
+      actions: () => shirts.map(([n, c]) => ({ label: shirtMat.color.getHex() === c ? `${n} (la indossi)` : `${n} ($25)`, disabled: shirtMat.color.getHex() === c,
+        run: () => { if (spend(25)) { shirtMat.color.setHex(c); log(`Ti sta benissimo la ${n.toLowerCase()}!`); } } })) });
+    spot(I, { name: "Gelateria", icon: "🍦", x: -10.8, z: 2, desc: "Gusti: vaniglia, fragola, cioccolato e menta.",
+      actions: () => ["vaniglia", "fragola", "cioccolato", "menta"].map(f => ({ label: `Cono ${f} ($4)`, run: () => { if (spend(4)) log(`Un cono alla ${f}: perfetto con questo caldo!`); } })) });
+    spot(I, { name: "Fontana", icon: "⛲", x: 0, z: 4.2, desc: "Dicono che chi lancia una moneta torni sempre a Miami.",
+      actions: () => [{ label: "Lancia una moneta ($1)", run: () => { if (spend(1)) log("Plin! Hai espresso un desiderio."); } }] });
+    spot(I, { name: "Pesca-peluche", icon: "🧸", x: 11.9, z: 1.5, desc: "Riuscirai a prendere un peluche?",
+      actions: () => [{ label: "Prova a pescare ($2)", run: () => { if (spend(2)) log(rnd() < 0.3 ? "Preso! Hai vinto un peluche a forma di fenicottero!" : "Uffa, il peluche è scivolato via..."); } }] });
+    return I;
+  },
+
+  // ---------- AEROPORTO: terminal con vetrata sulla pista ----------
+  aeroporto() {
+    const W = 40, D = 22;
+    const I = newInterior({ w: W, d: D, h: 9, bg: 0x8cc4f2, glassBack: true, camDist: 12, camPitch: 0.22,
+      floor: canvasMat(tiles("#e9edf0", "#cfd6db", 2), 20, 11, { roughness: 0.3 }),
+      wall: canvasMat(bands("#f4f6f8", [[0.85, 0.15, "#cfd8e0"]]), 10, 1), ceil: M(0xf2f4f5), amb: 0.95, key: 0.6, groundLight: 0x9aa4ad });
+    I.welcome = "Terminal dell'aeroporto: scegli un banco check-in per partire.";
+    for (let x = -18; x <= 18; x += 4) deco(I, B(0.3, 0.05, 18), Glow(0xffffff), x, 8.97, 0);
+    // vetrata e pista
+    deco(I, B(W, 9, 0.08), M(0xbfe9ff, { transparent: true, opacity: 0.15, roughness: 0.05 }), 0, 4.5, -D / 2);
+    for (let x = -W / 2; x <= W / 2; x += 5) deco(I, B(0.25, 9, 0.3), 0x8a9aa6, x, 4.5, -D / 2);
+    deco(I, B(W, 0.2, 0.3), 0x8a9aa6, 0, 3.2, -D / 2);
+    const tarmac = deco(I, B(260, 0.04, 120), 0x8a8d93, 0, -0.03, -D / 2 - 60); tarmac.userData.noCast = true;
+    const grass = deco(I, B(900, 0.04, 400), 0x7fbf5a, 0, -0.06, -D / 2 - 300); grass.userData.noCast = true;
+    for (let x = -120; x < 120; x += 8) deco(I, B(4, 0.02, 0.3), 0xffd23f, x, 0.0, -D / 2 - 45);
+    buildPlane(I.scene, 4, -33);
+    const far = new THREE.Group(); far.position.set(-70, 0, -95); far.rotation.y = 0.6; I.scene.add(far); buildPlane(far, 0, 0);
+    deco(I, B(3, 3, 19), 0xdfe3e6, -8, 4.6, -20.5);
+    put(signPlane("Gate A1", 3, 0.8, "#ffd23f", "#1b1640"), I, -8, 6.6, -D / 2 + 0.1);
+    put(neonSign("Loddo Intl Airport", 0x22e1ff, 11), I, 0, 6.9, D / 2 - 0.05, Math.PI);
+    // banchi check-in
+    [["Roma", 80, -16], ["Londra", 120, -12], ["New York", 180, -8], ["Tokyo", 250, -4]].forEach(([city, cost, x], i) => {
+      solidBox(I, 3, 1.1, 1.2, 0xf7f7f7, x, 0.55, -4);
+      deco(I, B(3.02, 0.5, 0.02), 0x1d3557, x, 0.6, -3.39);
+      deco(I, B(1, 0.45, 1.2), 0x555a60, x + 2, 0.22, -4);
+      deco(I, new THREE.CylinderGeometry(0.04, 0.04, 2.2, 6), 0x888888, x, 2.2, -4.7);
+      put(signPlane(`${city.toUpperCase()}  $${cost}`, 2.4, 0.6, "#1d3557", "#ffffff"), I, x, 3.4, -4.7);
+      staff(I, x, -5.1, 0, { shirt: 0x1d3557, hair: [0x3d2b1f, 0x111111, 0xb5651d, 0x000000][i], skin: [0xf5cba7, 0xe0ac69, 0xffdbac, 0x8d5524][i] });
+      spot(I, { name: `Check-in ${city}`, icon: "✈", x, z: -2.4, desc: () => `Volo per ${city}: il biglietto costa ${usd(cost)}.` + (state.hasHome ? "" : " Prima di partire serve una casa."),
+        actions: () => [{ label: `Compra il biglietto per ${city} (${usd(cost)})`, run: () => flight(city, cost) }] });
+    });
+    // tabellone partenze
+    deco(I, B(8.3, 3.3, 0.2), 0x111111, 9, 5.2, -2.12);
+    for (const sx of [-3.5, 3.5]) deco(I, new THREE.CylinderGeometry(0.03, 0.03, 2.2, 4), 0x555555, 9 + sx, 7.9, -2.12);
+    put(boardPlane(8, 3, (g, w, h) => {
+      g.fillStyle = "#0b0f1a"; g.fillRect(0, 0, w, h);
+      g.fillStyle = "#ffd23f"; g.font = "700 30px 'Courier New', monospace"; g.textAlign = "left";
+      g.fillText("PARTENZE / DEPARTURES", 20, 40);
+      [["10:15", "ROMA", "A1", "IN ORARIO"], ["11:40", "LONDRA", "A3", "IMBARCO"], ["13:05", "NEW YORK", "B2", "IN ORARIO"], ["16:30", "TOKYO", "B5", "RITARDO"]].forEach((r, i) => {
+        const y = 90 + i * 38; g.fillStyle = "#ffffff"; g.font = "700 24px 'Courier New', monospace";
+        g.fillText(r[0], 20, y); g.fillText(r[1], 120, y); g.fillText(r[2], 300, y);
+        g.fillStyle = r[3] === "RITARDO" ? "#ff5a5a" : r[3] === "IMBARCO" ? "#7cff6b" : "#22e1ff"; g.fillText(r[3], 370, y);
+      });
+    }), I, 9, 5.2, -2.0);
+    // sedute
+    const sm = [], scol = [];
+    for (const z of [3, 5.2, 7.4]) {
+      for (let x = 5; x <= 16; x += 0.78) { sm.push(boxM(x, 0.5, z, 0.65, 0.1, 0.6), boxM(x, 0.82, z + 0.28, 0.65, 0.6, 0.08)); scol.push(0x2f6fdb, 0x2f6fdb); }
+      deco(I, B(11.6, 0.08, 0.1), 0x777777, 10.5, 0.3, z);
+      for (const fx of [5.3, 15.7]) deco(I, B(0.1, 0.3, 0.5), 0x777777, fx, 0.15, z);
+      I.solids.push({ x: 10.5, z, w: 11.8, d: 0.9, h: 1.2 });
+    }
+    instIn(I, B(1, 1, 1), sm, scol, { roughness: 0.5 });
+    // valigie
+    [[-13.6, -2.5, 0xe63946], [-9.4, -2.7, 0xffd23f], [-1.6, -3.2, 0x22e1ff]].forEach(([x, z, c]) => {
+      deco(I, B(0.45, 0.7, 0.3), c, x, 0.35, z); deco(I, B(0.04, 0.4, 0.04), 0x333333, x, 0.9, z);
+    });
+    pottedPalms(I, [[-18, 8.5, 0.5], [18, 8.5, 0.5], [18, -8.5, 0.5]]);
+    spot(I, { name: "Tabellone partenze", icon: "🕒", x: 9, z: -0.3, desc: "Roma 10:15 · Londra 11:40 · New York 13:05 · Tokyo 16:30 (in ritardo).", actions: () => [] });
+    spot(I, { name: "Sala d'attesa", icon: "💺", x: 10.5, z: 9.3, desc: "File di poltroncine blu davanti alla vetrata.",
+      actions: () => [{ label: "Siediti e guarda gli aerei", run: () => log("Dalla vetrata vedi gli aerei rullare sulla pista. Che vista!") }] });
+    return I;
+  }
+};
+function buildInterior(pl) { return finishInterior(INTERIORS[pl.id]()); }
+
+// ---- Entrare e uscire ----
+const fade = document.getElementById("fade");
+function fadeTo(fn, hold) {
+  paused = true; fade.classList.add("on");
+  setTimeout(() => {
+    fn();
+    setTimeout(() => {
+      fade.classList.remove("on");
+      setTimeout(() => { paused = dialogOpen || !panel.classList.contains("hidden"); }, 260);
+    }, hold || 60);
+  }, 280);
+}
+function setWorld(w) {
+  world.labels.forEach(L => { L.el.style.display = "none"; });
+  world = w; w.scene.add(player); snapCam = true;
+}
+function enterPlace(pl) {
+  fadeTo(() => {
+    const I = pl.interior || (pl.interior = buildInterior(pl));
+    setWorld(I); currentPlace = pl;
+    player.position.set(I.spawn.x, 0, I.spawn.z); player.rotation.y = Math.PI;
+    yaw = 0; pitch = I.camPitch; dist = I.camDist;
+    log(I.welcome);
+  });
+}
+const doorPos = pl => pl.group.localToWorld(new THREE.Vector3(0, 0, pl.ld / 2 + 2.6));
+function exitPlace() {
+  const pl = currentPlace;
+  fadeTo(() => {
+    setWorld(OUTDOOR); currentPlace = null;
+    const p = doorPos(pl), face = STRIPS[pl.strip].face;
+    player.position.set(p.x, 0, p.z); player.rotation.y = face * Math.PI / 2;
+    yaw = -face * Math.PI / 2; pitch = 0.32; dist = 15;
+    log(`Sei uscito da ${pl.name}.`);
+  });
+}
 
 // ================= CAMERA IN TERZA PERSONA =================
 let yaw = 1.25, pitch = 0.32, dist = 15, dragging = false, lastX = 0, lastY = 0;
@@ -877,10 +1602,10 @@ canvas.addEventListener("wheel", e => { dist = Math.min(40, Math.max(6, dist + e
 
 // ================= COLLISIONI =================
 function blocked(x, z) {
-  const r = 0.45;
-  if (x < -195 || x > 166 || z < -246 || z > 246) return true;
-  for (const s of solids) if (x > s.x - s.w / 2 - r && x < s.x + s.w / 2 + r && z > s.z - s.d / 2 - r && z < s.z + s.d / 2 + r) return true;
-  for (const o of obstacles) if (Math.hypot(x - o.x, z - o.z) < o.r + r) return true;
+  const r = 0.45, b = world.bounds;
+  if (x < b[0] || x > b[1] || z < b[2] || z > b[3]) return true;
+  for (const s of world.solids) if (x > s.x - s.w / 2 - r && x < s.x + s.w / 2 + r && z > s.z - s.d / 2 - r && z < s.z + s.d / 2 + r) return true;
+  for (const o of world.obstacles) if (Math.hypot(x - o.x, z - o.z) < o.r + r) return true;
   return false;
 }
 
@@ -914,12 +1639,27 @@ function nearestNPC() {
   }
   return best;
 }
+function nearestHotspot() {
+  let best = null, bd = Infinity;
+  for (const hs of world.hotspots) {
+    if (hs.visible && !hs.visible()) continue;
+    const d = Math.hypot(hs.x - player.position.x, hs.z - player.position.z);
+    if (d < hs.r && d < bd) { bd = d; best = hs; }
+  }
+  return best;
+}
 function interact() {
   if (paused) return;
+  if (world !== OUTDOOR) {
+    const hs = nearestHotspot();
+    if (hs) { if (hs.exit) exitPlace(); else openPanel(hs); }
+    return;
+  }
   const n = nearestNPC();
   if (n) { openDialog(n); return; }
   const pl = nearestPlace();
-  if (pl) openPanel(pl);
+  if (!pl) return;
+  if (pl.kind === "park") openPanel(pl); else enterPlace(pl);
 }
 
 // ================= PANNELLO LUOGHI =================
@@ -928,14 +1668,14 @@ function openPanel(pl) {
   paused = true;
   panel.classList.remove("hidden");
   document.getElementById("ptitle").textContent = pl.name;
-  document.getElementById("pdesc").textContent = pl.desc;
+  document.getElementById("pdesc").textContent = typeof pl.desc === "function" ? pl.desc() : pl.desc;
   const box = document.getElementById("pactions");
   box.innerHTML = "";
   pl.actions().forEach(a => {
     const b = document.createElement("button");
     b.textContent = a.label;
     b.disabled = !!a.disabled;
-    b.onclick = () => { a.run(); openPanel(pl); };
+    b.onclick = () => { a.run(); if (!panel.classList.contains("hidden")) openPanel(pl); };
     box.appendChild(b);
   });
 }
@@ -955,10 +1695,11 @@ function end(n, pts) { addFr(n, pts); return null; }
 function pizza(n) { if (spend(10)) { addFr(n, 2); return "thanks"; } return "broke"; }
 function dinner(n) { if (spend(30)) { addFr(n, 3); return "thanks"; } return "broke"; }
 function meet(n) {
-  n.g.position.set(player.position.x + 2, 0, player.position.z + 2);
+  const base = world === OUTDOOR ? player.position : doorPos(currentPlace);
+  n.g.position.set(base.x + 2, 0, base.z + 2);
   n.tx = n.g.position.x; n.tz = n.g.position.z; n.timer = 6;
   addFr(n, 1);
-  log(`${n.name} è corso da te!`);
+  log(world === OUTDOOR ? `${n.name} è corso da te!` : `${n.name} ti aspetta fuori, davanti a ${currentPlace.name}!`);
   return null;
 }
 
@@ -970,11 +1711,11 @@ const T = {
     ["Come va la giornata?", () => "mood"],
     ["Ci vediamo!", () => end(n, 1)]
   ] }),
-  newbie: n => ({ say: "Benvenuto! Per lavorare c'è l'Ufficio lavoro su Collins Avenue, e lì vicino trovi anche il Supermercato.", opts: [
+  newbie: n => ({ say: "Benvenuto! Per lavorare c'è il Job Center su Collins Avenue, e lì vicino trovi anche il Supermercato.", opts: [
     ["Che lavoro mi consigli?", () => "job"],
     ["Grazie, ci vediamo!", () => end(n, 1)]
   ] }),
-  job: n => ({ say: "Il commesso è il lavoro più semplice per iniziare. Il cameriere paga di più, ma è più faticoso.", opts: [
+  job: n => ({ say: "Il commesso fa i turni al Supermercato ($50). Il cameriere lavora da L'Elite9 e prende $80, ma è più faticoso.", opts: [
     ["Capito, grazie!", () => end(n, 1)]
   ] }),
   mood: n => {
@@ -1063,18 +1804,34 @@ const mmBase = document.createElement("canvas"); mmBase.width = mm.width; mmBase
   solids.forEach(s => rect(s.x - s.w / 2, s.z - s.d / 2, s.x + s.w / 2, s.z + s.d / 2, "#f5b8d3"));
 }
 const PLACE_ICON = { casa: "🏠", dacosta: "🍕", elite: "🍷", supermercato: "🛒", lavoro: "💼", negozi: "🛍", aeroporto: "✈", parco: "🌴" };
+function drawArrow(px, pz) {
+  mctx.save(); mctx.translate(px, pz); mctx.rotate(-player.rotation.y);
+  mctx.fillStyle = "#22e1ff"; mctx.strokeStyle = "#1b1640"; mctx.lineWidth = 1.2;
+  mctx.beginPath(); mctx.moveTo(0, 5); mctx.lineTo(3.6, -3.5); mctx.lineTo(0, -1.8); mctx.lineTo(-3.6, -3.5); mctx.closePath(); mctx.fill(); mctx.stroke();
+  mctx.restore();
+}
+function drawRoomMap() {
+  const R = world.room;
+  mctx.fillStyle = "#1b1640"; mctx.fillRect(0, 0, mm.width, mm.height);
+  mctx.setTransform(2, 0, 0, 2, 0, 0);
+  const s = Math.min((MW - 16) / R.w, (MH - 34) / R.d), X = x => MW / 2 + x * s, Z = z => MH / 2 + 8 + z * s;
+  mctx.fillStyle = "#f5e6da"; mctx.fillRect(X(-R.w / 2), Z(-R.d / 2), R.w * s, R.d * s);
+  mctx.fillStyle = "#c9a3d9"; world.solids.forEach(o => mctx.fillRect(X(o.x - o.w / 2), Z(o.z - o.d / 2), o.w * s, o.d * s));
+  mctx.fillStyle = "#1f9d55"; mctx.fillRect(X(-1.3), Z(R.d / 2) - 1.5, 2.6 * s, 3);
+  mctx.textAlign = "center"; mctx.textBaseline = "middle"; mctx.font = "8px sans-serif";
+  world.hotspots.forEach(hs => { if (!hs.exit && (!hs.visible || hs.visible())) mctx.fillText(hs.icon, X(hs.x), Z(hs.z)); });
+  mctx.fillStyle = "#fff"; mctx.font = "600 9px Poppins, sans-serif"; mctx.fillText(currentPlace.name, MW / 2, 11);
+  drawArrow(X(player.position.x), Z(player.position.z));
+}
 function drawMinimap() {
   mctx.setTransform(1, 0, 0, 1, 0, 0);
+  if (world !== OUTDOOR) { drawRoomMap(); return; }
   mctx.drawImage(mmBase, 0, 0);
   mctx.setTransform(2, 0, 0, 2, 0, 0);
   mctx.font = "9px sans-serif"; mctx.textAlign = "center"; mctx.textBaseline = "middle";
   places.forEach(pl => mctx.fillText(PLACE_ICON[pl.id] || "•", mapX(pl.x), mapZ(pl.id === "parco" ? -10 : pl.z)));
   npcs.forEach(n => { mctx.fillStyle = n.friend ? "#ff4fa3" : "#ffffff"; mctx.beginPath(); mctx.arc(mapX(n.g.position.x), mapZ(n.g.position.z), 1.8, 0, TAU); mctx.fill(); });
-  const px = mapX(player.position.x), pz = mapZ(player.position.z), r = player.rotation.y;
-  mctx.save(); mctx.translate(px, pz); mctx.rotate(-r);
-  mctx.fillStyle = "#22e1ff"; mctx.strokeStyle = "#1b1640"; mctx.lineWidth = 1.2;
-  mctx.beginPath(); mctx.moveTo(0, 5); mctx.lineTo(3.6, -3.5); mctx.lineTo(0, -1.8); mctx.lineTo(-3.6, -3.5); mctx.closePath(); mctx.fill(); mctx.stroke();
-  mctx.restore();
+  drawArrow(mapX(player.position.x), mapZ(player.position.z));
 }
 
 // ================= AGGIORNAMENTO =================
@@ -1110,7 +1867,7 @@ function updateCars(dt) {
     const rx = player.position.x - cx, rz = player.position.z - cz;
     const along = rx * hx + rz * hz, lat = Math.abs(rx * hz - rz * hx);
     let target = c.sp;
-    if (along > 0 && along < 10 && lat < 2.6) target = 0;
+    if (world === OUTDOOR && along > 0 && along < 10 && lat < 2.6) target = 0;
     for (const o of cars) {
       if (o === c || o.axis !== c.axis || o.lane !== c.lane) continue;
       const gap = (o.pos - c.pos) * c.dir;
@@ -1138,14 +1895,14 @@ function updateWater(t) {
 }
 
 function updateLabels() {
-  for (const pl of places) {
-    const far = Math.hypot(pl.x - player.position.x, pl.z - player.position.z) > 110;
-    v.set(pl.x, (pl.top || 3) + 1.5, pl.z).project(camera);
+  for (const L of world.labels) {
+    const hide = (L.hs && L.hs.visible && !L.hs.visible()) || Math.hypot(L.x - player.position.x, L.z - player.position.z) > L.max;
+    v.set(L.x, L.y, L.z).project(camera);
     const sy = (-v.y + 1) / 2 * innerHeight;
-    if (far || v.z > 1 || sy < 70) { pl.label.style.display = "none"; continue; }
-    pl.label.style.display = "block";
-    pl.label.style.left = ((v.x + 1) / 2 * innerWidth) + "px";
-    pl.label.style.top = sy + "px";
+    if (hide || v.z > 1 || sy < 70) { L.el.style.display = "none"; continue; }
+    L.el.style.display = "block";
+    L.el.style.left = ((v.x + 1) / 2 * innerWidth) + "px";
+    L.el.style.top = sy + "px";
   }
 }
 
@@ -1165,7 +1922,7 @@ function update(dt) {
     if (len > 0) {
       mx /= len; mz /= len;
       run = (keys.ShiftLeft || keys.ShiftRight) ? 1.7 : 1;
-      const inWater = player.position.x > 142 ? 0.55 : 1;
+      const inWater = world === OUTDOOR && player.position.x > 142 ? 0.55 : 1;
       const sp = 9 * run * inWater * dt;
       const nx = player.position.x + mx * sp;
       const nz = player.position.z + mz * sp;
@@ -1175,35 +1932,43 @@ function update(dt) {
       moving = true;
     }
   }
-  player.position.y = groundY(player.position.x);
+  player.position.y = world === OUTDOOR ? groundY(player.position.x) : 0;
   animateHuman(P, moving, dt, run);
   npcs.forEach(n => updateNPC(n, dt));
   updateCars(dt);
-  updateWater(elapsed);
+  if (world === OUTDOOR) updateWater(elapsed);
+  else world.ticks.forEach(f => f(elapsed, dt));
   clouds.forEach(c => { c.position.z += dt * 2.5; if (c.position.z > 700) c.position.z = -700; });
 
   camTarget.set(player.position.x, player.position.y + 1.7, player.position.z);
   // la camera si avvicina se un edificio si mette tra lei e il giocatore
   const dx = Math.sin(yaw) * Math.cos(pitch), dy = Math.sin(pitch), dz = Math.cos(yaw) * Math.cos(pitch);
   let d = dist;
+  const R = world.room;
   for (let s = 1; s <= dist; s += 0.5) {
     const x = camTarget.x + dx * s, y = camTarget.y + dy * s, z = camTarget.z + dz * s;
-    if (solids.some(o => y < o.h && Math.abs(x - o.x) < o.w / 2 + 0.6 && Math.abs(z - o.z) < o.d / 2 + 0.6)) { d = Math.max(2.5, s - 0.8); break; }
+    // negli interni i muri sono a una faccia: la camera li attraversa (vista "casa di bambola"), ma resta sotto il soffitto
+    if (R && y > R.h - 0.35) { d = Math.max(1.2, s - 0.6); break; }
+    if (world.solids.some(o => y < o.h && Math.abs(x - o.x) < o.w / 2 + 0.6 && Math.abs(z - o.z) < o.d / 2 + 0.6)) { d = Math.max(2.5, s - 0.8); break; }
   }
   camWanted.set(camTarget.x + dx * d, camTarget.y + dy * d, camTarget.z + dz * d);
-  camera.position.lerp(camWanted, 1 - Math.exp(-dt * 10));
+  if (snapCam) { camera.position.copy(camWanted); snapCam = false; }
+  else camera.position.lerp(camWanted, 1 - Math.exp(-dt * 10));
   camera.lookAt(camTarget);
   sky.position.copy(camera.position);
   sun.position.copy(player.position).addScaledVector(SUN_DIR, 220);
   sun.target.position.copy(player.position);
 
-  const n = nearestNPC();
-  const pl = nearestPlace();
+  const n = world === OUTDOOR ? nearestNPC() : null;
+  const pl = world === OUTDOOR ? nearestPlace() : null;
   const near = document.getElementById("near");
   let txt = "";
   if (!paused) {
-    if (n) txt = `Premi <b>E</b> per parlare con ${n.name}`;
-    else if (pl) txt = `Premi <b>E</b>: ${pl.name}`;
+    if (world !== OUTDOOR) {
+      const hs = nearestHotspot();
+      if (hs) txt = hs.exit ? `Premi <b>E</b> per uscire` : `Premi <b>E</b>: ${hs.icon} ${hs.name}`;
+    } else if (n) txt = `Premi <b>E</b> per parlare con ${n.name}`;
+    else if (pl) txt = pl.kind === "park" ? `Premi <b>E</b>: ${pl.name}` : `Premi <b>E</b> per entrare: ${pl.name}`;
   }
   if (near.innerHTML !== txt) near.innerHTML = txt;
 
@@ -1218,7 +1983,7 @@ camera.position.copy(camWanted);
 function animate() {
   const dt = Math.min(clock.getDelta(), 0.05);
   update(dt);
-  renderer.render(scene, camera);
+  renderer.render(world.scene, camera);
   requestAnimationFrame(animate);
 }
 animate();
