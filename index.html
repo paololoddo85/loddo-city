@@ -70,6 +70,38 @@
   .box button:disabled { background: rgba(255, 255, 255, .18); color: rgba(255, 255, 255, .6); cursor: not-allowed; transform: none; }
   .box button.close { background: rgba(255, 255, 255, .14); text-align: center; }
   .hidden { display: none !important; }
+  kbd { background: rgba(255, 255, 255, .16); border-radius: 5px; padding: 1px 7px; font-family: inherit; font-weight: 600; white-space: nowrap; }
+  #speedo { position: fixed; bottom: 64px; left: 50%; transform: translateX(-50%); padding: 8px 18px; border-radius: 999px;
+    font-size: 18px; font-weight: 700; font-variant-numeric: tabular-nums; pointer-events: none; }
+  #speedo b { display: inline-block; width: 26px; text-align: center; border-radius: 6px; margin-right: 6px; background: var(--cyan); color: #1b1640; }
+  #speedo b.rev { background: #ff5a5a; color: #fff; }
+  #rulesBtn { padding: 1px 8px; margin-left: 6px; border: 1px solid rgba(255, 255, 255, .35); border-radius: 999px; background: transparent;
+    color: #fff; font: 600 12px Poppins, sans-serif; cursor: pointer; }
+  .ver { display: inline-block; padding: 3px 11px; border-radius: 999px; background: rgba(34, 225, 255, .14); border: 1px solid rgba(34, 225, 255, .5);
+    color: var(--cyan); font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+
+  #intro { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center; padding: 16px;
+    background: rgba(13, 8, 32, .6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+  #intro .sheet { width: 780px; max-width: 100%; max-height: 100%; overflow-y: auto; padding: 24px 28px; box-sizing: border-box; }
+  #intro .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  #intro h1 { margin: 0; font-family: Pacifico, cursive; font-weight: 400; font-size: 40px; line-height: 1.1;
+    text-shadow: 0 0 4px var(--pink), 0 0 14px var(--pink), 0 3px 0 #b8136a; }
+  #intro .lead { font-size: 15px; line-height: 1.55; margin: 10px 0 4px; color: rgba(255, 255, 255, .92); }
+  #intro h3 { margin: 18px 0 6px; font-size: 12px; letter-spacing: .22em; text-transform: uppercase; color: var(--cyan); }
+  #intro ul { margin: 0; padding-left: 18px; }
+  #intro li, #intro p { font-size: 14px; line-height: 1.55; color: rgba(255, 255, 255, .88); margin: 2px 0; }
+  #intro .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+  #intro .keys { display: grid; grid-template-columns: auto 1fr; gap: 5px 12px; font-size: 14px; align-items: center; }
+  #intro .changes { font-size: 13px; }
+  #intro .changes b { color: var(--mint); }
+  #play { display: block; width: 100%; margin-top: 20px; padding: 14px; border: none; border-radius: 12px; cursor: pointer;
+    background: linear-gradient(90deg, var(--pink), #ff8a5c); color: #fff; font: 700 18px Poppins, sans-serif; }
+  #play:hover { filter: brightness(1.1); }
+  @media (max-width: 620px) {
+    #intro .cols { grid-template-columns: 1fr; }
+    #intro .sheet { padding: 18px 16px; }
+    #intro h1 { font-size: 32px; }
+  }
   #fade { position: fixed; inset: 0; background: #0d0820; opacity: 0; pointer-events: none; transition: opacity .26s; z-index: 5; }
   #fade.on { opacity: 1; }
 
@@ -99,8 +131,82 @@
   <div id="log" class="card">Benvenuto a Miami Beach! Cammina verso un edificio o una persona e premi E.</div>
   <div id="friends" class="card"><h3>Amici</h3><ul id="flist"></ul></div>
 </div>
-<div id="help" class="card"><kbd>WASD</kbd>/<kbd>Frecce</kbd> muovi · <kbd>Shift</kbd> corri · Trascina: ruota · Rotella: zoom · <kbd>E</kbd> entra / usa / siediti / guida · <kbd>Esc</kbd> chiudi</div>
+<div id="help" class="card"><kbd>WASD</kbd>/<kbd>Frecce</kbd> muovi · <kbd>Shift</kbd> corri · Trascina: ruota · Rotella: zoom · <kbd>E</kbd> entra / usa / siediti / guida · <kbd>Esc</kbd> chiudi <button id="rulesBtn" title="Regole (H)">? Regole</button> <span class="ver gameVer"></span></div>
+<div id="speedo" class="card hidden"></div>
 <div id="fade"></div>
+
+<div id="intro">
+  <div class="sheet card">
+    <div class="head">
+      <h1>Loddo City</h1>
+      <span class="ver">Versione <span id="gameVerLong"></span> · <span id="gameDate"></span></span>
+    </div>
+    <p class="lead">Sei appena arrivato a <b>South Beach, Miami</b> con $150 in tasca. Trova una casa, un lavoro e degli amici,
+      e goditi la vita tra palme, neon e oceano.</p>
+
+    <h3>Obiettivi</h3>
+    <ul>
+      <li>🏠 Compra la tua <b>casa</b> su Ocean Drive ($100): ti serve per dormire e per partire in aereo.</li>
+      <li>💼 Trova un <b>lavoro</b> al Job Center e fai un turno al giorno per guadagnare.</li>
+      <li>❤️ Fatti degli <b>amici</b> a Lummus Park: parla con loro, invitali a mangiare.</li>
+      <li>🛍 Spendi bene: spesa, vestiti, console, gelati e viaggi in tutto il mondo.</li>
+    </ul>
+
+    <div class="cols">
+      <div>
+        <h3>Comandi a piedi</h3>
+        <div class="keys">
+          <span><kbd>W A S D</kbd> / <kbd>Frecce</kbd></span><span>cammina</span>
+          <span><kbd>Shift</kbd></span><span>corri</span>
+          <span><kbd>E</kbd></span><span>entra, parla, usa, siediti, sali in macchina</span>
+          <span>Trascina il mouse</span><span>ruota la visuale</span>
+          <span>Rotella</span><span>zoom</span>
+          <span><kbd>Esc</kbd></span><span>chiudi un menu</span>
+          <span><kbd>H</kbd></span><span>apri queste regole</span>
+        </div>
+      </div>
+      <div>
+        <h3>Comandi in macchina</h3>
+        <div class="keys">
+          <span><kbd>W</kbd></span><span>accelera</span>
+          <span><kbd>S</kbd></span><span>frena; tienilo premuto per la <b>retromarcia</b> (R)</span>
+          <span><kbd>A</kbd> <kbd>D</kbd></span><span>sterza</span>
+          <span><kbd>Shift</kbd></span><span>turbo</span>
+          <span><kbd>E</kbd></span><span>scendi: l'auto resta parcheggiata</span>
+        </div>
+      </div>
+    </div>
+
+    <h3>Vita quotidiana</h3>
+    <p>Il tempo scorre: <b>1 secondo = 1 minuto</b> di gioco, con giorno e notte. In basso a sinistra ci sono i tuoi bisogni:
+      se una barra diventa rossa, occupatene.</p>
+    <div class="cols">
+      <ul>
+        <li>🍔 <b>Fame</b>: mangia in pizzeria, al ristorante o dal frigo di casa.</li>
+        <li>⚡ <b>Energia</b>: dormi nel tuo letto o siediti. Se finisce, cammini piano.</li>
+      </ul>
+      <ul>
+        <li>🚿 <b>Igiene</b>: doccia a casa o un tuffo in mare.</li>
+        <li>🎉 <b>Svago</b>: TV, console, piano, amici, guidare, il Mall.</li>
+      </ul>
+    </div>
+
+    <h3>Lavoro</h3>
+    <p>Scegli al Job Center: <b>Commesso</b> ($50, Supermercato), <b>Pizzaiolo</b> ($65, Da Costa) o <b>Cameriere</b> ($80, L'Elite9).
+      Un turno al giorno, dalle 7 alle 22, se hai energia. Durante il turno segui la <b>freccia gialla</b> e premi E:
+      hai 150 secondi, e se sei veloce ricevi la mancia.</p>
+
+    <h3>Novità</h3>
+    <div class="changes">
+      <p><b>1.3.0</b> · Pagina delle regole con la versione del gioco, retromarcia sicura e tachimetro in macchina.</p>
+      <p><b>1.2.0</b> · Vita quotidiana: orologio, bisogni, sedersi, dormire, guidare e turni di lavoro giocabili.</p>
+      <p><b>1.1.0</b> · Si entra nei locali: ogni edificio ha un interno diverso.</p>
+      <p><b>1.0.0</b> · Primo rilascio: South Beach in stile Miami.</p>
+    </div>
+
+    <button id="play">Gioca! 🌴</button>
+  </div>
+</div>
 
 <div id="panel" class="box card hidden">
   <h2 id="ptitle"></h2>
@@ -120,7 +226,21 @@
 // ================= STATO =================
 const state = { money: 150, hasHome: false, job: null, food: 0, console: false, games: 0,
   day: 1, time: 8 * 60, energy: 100, hunger: 90, hygiene: 100, fun: 70, workedToday: false };
-let paused = false;
+// ================= VERSIONE E PAGINA DELLE REGOLE =================
+const GAME_VERSION = "1.3.0", GAME_DATE = "22 novembre 2026";
+document.querySelectorAll(".gameVer").forEach(el => { el.textContent = "v" + GAME_VERSION; });
+document.getElementById("gameDate").textContent = GAME_DATE;
+document.getElementById("gameVerLong").textContent = GAME_VERSION;
+document.title = `Loddo City ${GAME_VERSION} - Miami Beach`;
+const intro = document.getElementById("intro");
+let paused = true; // si parte con le regole aperte
+function openRules() { if (!intro.classList.contains("hidden")) return; intro.classList.remove("hidden"); paused = true; }
+function closeRules() {
+  intro.classList.add("hidden");
+  paused = dialogOpen || !document.getElementById("panel").classList.contains("hidden");
+}
+document.getElementById("play").onclick = closeRules;
+document.getElementById("rulesBtn").onclick = openRules;
 let dialogOpen = false;
 
 const usd = n => "$" + n;
@@ -1695,6 +1815,11 @@ const keys = {};
 addEventListener("keydown", e => {
   keys[e.code] = true;
   if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(e.code)) e.preventDefault();
+  if (!intro.classList.contains("hidden")) {
+    if (["Escape", "Enter", "Space", "KeyH"].includes(e.code)) closeRules();
+    return;
+  }
+  if (e.code === "KeyH" && !e.repeat) { openRules(); return; }
   if (e.code === "Escape") { if (dialogOpen) closeDialog(); else if (!panel.classList.contains("hidden")) closePanel(); }
   if (e.code === "KeyE" && !e.repeat) interact();
   if (sitting && !paused && ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code)) standUp();
@@ -2052,7 +2177,8 @@ function enterCar(c) {
   driving = c; c.driven = true; c.parked = false;
   c.heading = c.g.rotation.y; c.speed = 0;
   player.visible = false; dist = 15;
-  log("Sei al volante! W/S accelera e frena, A/D sterza, Shift turbo, E per scendere.");
+  document.getElementById("speedo").classList.remove("hidden");
+  log("Sei al volante! W accelera, S frena e fa retromarcia, A/D sterza, Shift turbo, E per scendere.");
 }
 function exitCar() {
   const c = driving, a = c.heading, x = c.g.position.x, z = c.g.position.z;
@@ -2061,18 +2187,23 @@ function exitCar() {
   const free = spots.find(([px, pz]) => !blocked(px, pz));
   if (!free) { log("Non c'è spazio per scendere qui!"); return; }
   driving = null; c.driven = false; c.parked = true; c.speed = 0;
+  document.getElementById("speedo").classList.add("hidden");
   player.visible = true;
   player.position.set(free[0], 0, free[1]);
   log("Sei sceso dalla macchina. La lasci parcheggiata qui.");
 }
-function carBlocked(c, x, z, a) {
+// controlla solo il lato verso cui ti muovi: così, se tocchi un muro col muso, puoi sempre fare retromarcia
+function carBlocked(c, x, z, a, dir) {
   const fx = Math.cos(a), fz = -Math.sin(a);
-  for (const t of [-1.9, 0, 1.9]) {
+  for (const t of [0, 1.9 * dir]) {
     const px = x + fx * t, pz = z + fz * t;
     if (px > 140 || blocked(px, pz, 0.9)) return true;
   }
-  for (const o of cars) if (o !== c && Math.hypot(o.g.position.x - x, o.g.position.z - z) < 3.6) return true;
-  for (const n of npcs) if (Math.hypot(n.g.position.x - x, n.g.position.z - z) < 2.4) return true;
+  // macchine e persone bloccano solo se ti stai avvicinando
+  const ox = c.g.position.x, oz = c.g.position.z;
+  const closer = (p, r) => Math.hypot(p.x - x, p.z - z) < r && Math.hypot(p.x - x, p.z - z) < Math.hypot(p.x - ox, p.z - oz);
+  for (const o of cars) if (o !== c && closer(o.g.position, 3.6)) return true;
+  for (const n of npcs) if (closer(n.g.position, 2.4)) return true;
   return false;
 }
 const wrapAngle = a => Math.atan2(Math.sin(a), Math.cos(a));
@@ -2082,21 +2213,24 @@ function driveCar(c, dt) {
   const turbo = keys.ShiftLeft || keys.ShiftRight, max = turbo ? 34 : 22;
   if (paused) { c.speed *= Math.exp(-4 * dt); }
   else if (up) c.speed += (c.speed < 0 ? 30 : 13) * dt;
-  else if (down) c.speed -= (c.speed > 0 ? 30 : 9) * dt;
+  else if (down) c.speed -= (c.speed > 0 ? 30 : 10) * dt;   // S: prima frena, poi retromarcia
   else c.speed *= Math.exp(-1.1 * dt);
-  c.speed = Math.max(-8, Math.min(max, c.speed));
+  c.speed = Math.max(-11, Math.min(max, c.speed));
   if (Math.abs(c.speed) < 0.05 && !up && !down) c.speed = 0;
   if (!paused) c.heading += (lf - rt) * Math.min(1, Math.abs(c.speed) / 5) * 1.8 * dt * Math.sign(c.speed);
   const a = c.heading, nx = c.g.position.x + Math.cos(a) * c.speed * dt, nz = c.g.position.z - Math.sin(a) * c.speed * dt;
-  if (carBlocked(c, nx, nz, a)) c.speed *= -0.25;
+  if (c.speed !== 0 && carBlocked(c, nx, nz, a, Math.sign(c.speed))) c.speed = 0;
   else c.g.position.set(nx, 0, nz);
+  const kmh = Math.round(Math.abs(c.speed) * 3.6), gear = c.speed < -0.3 ? "R" : c.speed > 0.3 ? "D" : "N";
+  const sp = document.getElementById("speedo"), html = `<b class="${gear === "R" ? "rev" : ""}">${gear}</b> ${kmh} km/h`;
+  if (sp.innerHTML !== html) sp.innerHTML = html;
   c.g.rotation.y = a;
   // ruote che girano e leggero rollio in curva
   c.g.rotation.x = (lf - rt) * Math.min(1, Math.abs(c.speed) / 20) * 0.04;
   player.position.set(c.g.position.x, 0, c.g.position.z);
   player.rotation.y = Math.atan2(Math.cos(a), -Math.sin(a));
   if (!dragging && Math.abs(c.speed) > 1) {
-    const want = Math.atan2(-Math.cos(a) * Math.sign(c.speed), Math.sin(a) * Math.sign(c.speed));
+    const want = Math.atan2(-Math.cos(a), Math.sin(a)); // sempre dietro l'auto, anche in retromarcia
     yaw += wrapAngle(want - yaw) * Math.min(1, dt * 2.2);
   }
 }
