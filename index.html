@@ -102,6 +102,65 @@
     #intro .sheet { padding: 18px 16px; }
     #intro h1 { font-size: 32px; }
   }
+
+  /* ---- telefono ---- */
+  #phoneBtn { position: fixed; right: 12px; bottom: 64px; padding: 8px 14px; border-radius: 999px; font: 700 14px Poppins, sans-serif;
+    color: #fff; cursor: pointer; display: flex; gap: 6px; align-items: center; }
+  #phoneBtn .badge { background: var(--pink); border-radius: 999px; padding: 0 7px; font-size: 12px; }
+  #phoneBtn .badge:empty { display: none; }
+  #phone { position: fixed; right: 18px; bottom: 112px; width: 290px; height: 560px; max-height: calc(100vh - 130px); z-index: 6;
+    border-radius: 40px; padding: 11px; box-sizing: border-box; background: var(--frame, #222); box-shadow: 0 18px 50px rgba(10, 5, 30, .55), inset 0 0 0 2px rgba(255,255,255,.18); }
+  #phScreen { position: relative; width: 100%; height: 100%; border-radius: 30px; overflow: hidden; background: var(--wall);
+    display: flex; flex-direction: column; color: #fff; font-size: 13px; }
+  #phStatus { display: flex; justify-content: space-between; align-items: center; padding: 9px 18px 4px; font-weight: 700; font-size: 12px; }
+  #phStatus .notch { width: 70px; height: 18px; border-radius: 0 0 12px 12px; background: var(--frame, #222); margin-top: -10px; }
+  #phStatus .punch { width: 10px; height: 10px; border-radius: 50%; background: #000; margin-top: -2px; }
+  #phBody { flex: 1; overflow-y: auto; padding: 6px 14px 10px; display: flex; flex-direction: column; }
+  #phHome { width: 100px; height: 5px; border-radius: 9px; background: rgba(255,255,255,.75); margin: 6px auto 8px; cursor: pointer; flex: none; }
+  .phBrand { text-align: center; font-weight: 700; letter-spacing: .1em; font-size: 11px; opacity: .8; margin: 4px 0 2px; }
+  .phClock { text-align: center; font-size: 46px; font-weight: 300; line-height: 1.1; margin: 6px 0 14px; text-shadow: 0 2px 12px rgba(0,0,0,.25); }
+  .phGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px 8px; margin-top: 6px; }
+  .phApp { display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer; font-size: 11px; font-weight: 600; position: relative; }
+  .phApp i { font-style: normal; width: 54px; height: 54px; border-radius: var(--icon, 15px); display: flex; align-items: center; justify-content: center;
+    font-size: 27px; background: rgba(255,255,255,.22); box-shadow: 0 3px 10px rgba(0,0,0,.18); }
+  .phApp b { position: absolute; top: -4px; right: 8px; background: #ff3b30; border-radius: 999px; padding: 0 6px; font-size: 11px; }
+  .phTitle { font-size: 20px; font-weight: 700; margin: 2px 0 8px; display: flex; align-items: center; gap: 8px; }
+  .phTitle span { cursor: pointer; font-size: 18px; opacity: .85; }
+  .phRow { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; margin: 4px 0; border-radius: 14px;
+    background: rgba(0,0,0,.22); cursor: pointer; }
+  .phRow small { display: block; opacity: .7; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; }
+  .phRow.off { cursor: default; opacity: .75; }
+  .phNote { opacity: .8; line-height: 1.45; margin: 6px 0; }
+  .chat { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 5px; padding: 4px 0; min-height: 120px; }
+  .bub { max-width: 80%; padding: 7px 11px; border-radius: 16px; line-height: 1.35; background: rgba(255,255,255,.9); color: #1b1640; align-self: flex-start; }
+  .bub.me { align-self: flex-end; background: var(--accent, #22e1ff); color: #fff; }
+  .bub.typing { opacity: .7; font-style: italic; }
+  .quick { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
+  .quick button, .phBtn { border: none; border-radius: 999px; padding: 6px 10px; background: rgba(255,255,255,.92); color: #1b1640; font: 600 11px Poppins, sans-serif; cursor: pointer; }
+  .phBtn { display: block; width: 100%; margin: 5px 0; padding: 9px; font-size: 13px; background: var(--accent, #22e1ff); color: #fff; }
+  .phBtn.ghost { background: rgba(255,255,255,.2); }
+  #phScreen canvas { width: 100%; border-radius: 12px; background: #000; touch-action: none; display: block; }
+  .calling { text-align: center; margin-top: 40px; }
+  .calling .av { width: 90px; height: 90px; border-radius: 50%; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 40px;
+    background: rgba(255,255,255,.25); animation: ring 1s infinite; }
+  @keyframes ring { 50% { transform: scale(1.08); box-shadow: 0 0 0 12px rgba(255,255,255,.08); } }
+  .gal { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .gal div { border-radius: 12px; padding: 8px; background: rgba(0,0,0,.25); text-align: center; font-size: 11px; }
+  .gal div span { display: block; font-size: 30px; }
+
+  /* ---- console sulla TV ---- */
+  #arcade { position: fixed; inset: 0; z-index: 7; display: flex; align-items: center; justify-content: center; background: rgba(8, 5, 24, .78); padding: 12px; }
+  #arcade .tv { background: #111; border-radius: 18px; padding: 14px 14px 10px; box-shadow: 0 0 0 3px #333, 0 20px 60px rgba(0,0,0,.6), 0 0 60px rgba(34,225,255,.25);
+    width: min(680px, calc((100vh - 90px) * 1.6)); max-width: 100%; box-sizing: border-box; }
+  #arcade canvas { width: 100%; display: block; border-radius: 8px; background: #000; touch-action: none; }
+  #arcade .bar2 { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 9px; font-size: 13px; color: rgba(255,255,255,.8); flex-wrap: wrap; }
+  #arcade .bar2 b { color: var(--cyan); }
+  #arcade button { border: none; border-radius: 999px; padding: 7px 16px; background: linear-gradient(90deg, var(--pink), #ff8a5c); color: #fff; font: 600 13px Poppins, sans-serif; cursor: pointer; }
+  #fade .msg { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+    font-size: 22px; font-weight: 700; text-align: center; padding: 20px; }
+  #fade .msg .plane { font-size: 54px; animation: fly 2.2s ease-in-out infinite; }
+  @keyframes fly { 0% { transform: translateX(-90px) rotate(-8deg); } 50% { transform: translateX(90px) rotate(6deg); } 100% { transform: translateX(-90px) rotate(-8deg); } }
+  @media (max-width: 760px) { #phone { right: 50%; transform: translateX(50%); bottom: 70px; } }
   #fade { position: fixed; inset: 0; background: #0d0820; opacity: 0; pointer-events: none; transition: opacity .26s; z-index: 5; }
   #fade.on { opacity: 1; }
 
@@ -133,7 +192,11 @@
 </div>
 <div id="help" class="card"><kbd>WASD</kbd>/<kbd>Frecce</kbd> muovi · <kbd>Shift</kbd> corri · Trascina: ruota · Rotella: zoom · <kbd>E</kbd> entra / usa / siediti / guida · <kbd>Esc</kbd> chiudi <button id="rulesBtn" title="Regole (H)">? Regole</button> <span class="ver gameVer"></span></div>
 <div id="speedo" class="card hidden"></div>
-<div id="fade"></div>
+<button id="phoneBtn" class="card" title="Telefono (P)">📱 <span id="phoneLbl">Telefono</span> <span class="badge" id="phoneBadge"></span></button>
+<div id="phone" class="hidden"><div id="phScreen"><div id="phStatus"></div><div id="phBody"></div><div id="phHome" title="Home"></div></div></div>
+<div id="arcade" class="hidden"><div class="tv"><canvas id="arcCv" width="640" height="400"></canvas>
+  <div class="bar2"><span id="arcInfo"></span><span><button id="arcAgain">Rigioca</button> <button id="arcQuit">Spegni (Esc)</button></span></div></div></div>
+<div id="fade"><div class="msg" id="fadeMsg"></div></div>
 
 <div id="intro">
   <div class="sheet card">
@@ -149,7 +212,8 @@
       <li>🏠 Compra la tua <b>casa</b> su Ocean Drive ($100): ti serve per dormire e per partire in aereo.</li>
       <li>💼 Trova un <b>lavoro</b> al Job Center e fai un turno al giorno per guadagnare.</li>
       <li>❤️ Fatti degli <b>amici</b> a Lummus Park: parla con loro, invitali a mangiare.</li>
-      <li>🛍 Spendi bene: spesa, vestiti, console, gelati e viaggi in tutto il mondo.</li>
+      <li>🛍 Spendi bene: spesa, vestiti, telefono, console e videogiochi, gelati.</li>
+      <li>✈ <b>Viaggia</b>: dall'aeroporto voli davvero a Roma, Londra, New York e Tokyo.</li>
     </ul>
 
     <div class="cols">
@@ -162,6 +226,7 @@
           <span>Trascina il mouse</span><span>ruota la visuale</span>
           <span>Rotella</span><span>zoom</span>
           <span><kbd>Esc</kbd></span><span>chiudi un menu</span>
+          <span><kbd>P</kbd></span><span>apri il telefono (se ce l'hai)</span>
           <span><kbd>H</kbd></span><span>apri queste regole</span>
         </div>
       </div>
@@ -196,8 +261,24 @@
       Un turno al giorno, dalle 7 alle 22, se hai energia. Durante il turno segui la <b>freccia gialla</b> e premi E:
       hai 150 secondi, e se sei veloce ricevi la mancia.</p>
 
+    <h3>Telefono, console e viaggi</h3>
+    <div class="cols">
+      <ul>
+        <li>📱 Compra un <b>telefono</b> al Phone Center del Sunshine Mall: iPhone, Samsung Galaxy, Google Pixel o Xiaomi.
+          Con <kbd>P</kbd> lo apri: <b>chiami</b> e <b>scrivi</b> agli amici (ti rispondono e ti scrivono anche loro),
+          giochi a Snake, Flappy Flamingo e Tris, e guardi foto e souvenir.</li>
+      </ul>
+      <ul>
+        <li>🎮 Da GameZone compri giochi veri per la console: <b>Ocean Drive Racer</b>, <b>Galaxy Defender</b>, <b>Neon Bricks</b>
+          e <b>Neon Hockey</b>. Li giochi sulla TV di casa con frecce/WASD e Spazio.</li>
+        <li>✈ In aeroporto il biglietto è andata e ritorno: arrivi davvero a destinazione, la visiti, mangi, compri souvenir
+          e fai foto. Per tornare prendi il taxi per l'aeroporto.</li>
+      </ul>
+    </div>
+
     <h3>Novità</h3>
     <div class="changes">
+      <p><b>1.4.0</b> · Telefono con chiamate, messaggi e giochini; giochi della console giocabili; viaggi veri a Roma, Londra, New York e Tokyo.</p>
       <p><b>1.3.0</b> · Pagina delle regole con la versione del gioco, retromarcia sicura e tachimetro in macchina.</p>
       <p><b>1.2.0</b> · Vita quotidiana: orologio, bisogni, sedersi, dormire, guidare e turni di lavoro giocabili.</p>
       <p><b>1.1.0</b> · Si entra nei locali: ogni edificio ha un interno diverso.</p>
@@ -224,10 +305,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
 // ================= STATO =================
-const state = { money: 150, hasHome: false, job: null, food: 0, console: false, games: 0,
-  day: 1, time: 8 * 60, energy: 100, hunger: 90, hygiene: 100, fun: 70, workedToday: false };
+const state = { money: 150, hasHome: false, job: null, food: 0, console: false, games: [],
+  day: 1, time: 8 * 60, energy: 100, hunger: 90, hygiene: 100, fun: 70, workedToday: false,
+  phone: null, chats: {}, unread: 0, msgDay: {}, best: {}, souvenirs: [], photos: [], travel: null };
 // ================= VERSIONE E PAGINA DELLE REGOLE =================
-const GAME_VERSION = "1.3.0", GAME_DATE = "22 novembre 2026";
+const GAME_VERSION = "1.4.0", GAME_DATE = "23 novembre 2026";
 document.querySelectorAll(".gameVer").forEach(el => { el.textContent = "v" + GAME_VERSION; });
 document.getElementById("gameDate").textContent = GAME_DATE;
 document.getElementById("gameVerLong").textContent = GAME_VERSION;
@@ -237,8 +319,13 @@ let paused = true; // si parte con le regole aperte
 function openRules() { if (!intro.classList.contains("hidden")) return; intro.classList.remove("hidden"); paused = true; }
 function closeRules() {
   intro.classList.add("hidden");
-  paused = dialogOpen || !document.getElementById("panel").classList.contains("hidden");
+  paused = uiBusy();
 }
+// c'è un menu aperto? (pannello, dialogo, telefono, console, regole)
+function uiBusy() {
+  return dialogOpen || !document.getElementById("panel").classList.contains("hidden") || phoneOpen || arcadeOpen || !intro.classList.contains("hidden");
+}
+let phoneOpen = false, arcadeOpen = false;
 document.getElementById("play").onclick = closeRules;
 document.getElementById("rulesBtn").onclick = openRules;
 let dialogOpen = false;
@@ -269,10 +356,6 @@ function act(o) {
   if (o.min) passTime(o.min);
   if (o.text) log(o.text);
   return true;
-}
-function flight(city, cost) {
-  if (!state.hasHome) { log("Prima trova una casa!"); return; }
-  if (spend(cost)) log(`Sei volato a ${city}! (Per ora è solo una scena.)`);
 }
 
 // ================= RENDERER, CIELO, LUCI =================
@@ -1129,9 +1212,10 @@ function newInterior(o) {
     bounds: [-w / 2 + 0.5, w / 2 - 0.5, -d / 2 + 0.5, d / 2 - 0.5], spawn: { x: 0, z: d / 2 - 2.2 }, camDist: o.camDist || 8, camPitch: o.camPitch || 0.5 };
   S.add(new THREE.HemisphereLight(0xffffff, o.groundLight || 0x8a7a70, o.amb || 0.7));
   const key = new THREE.DirectionalLight(o.keyColor || 0xfff2e0, o.key || 0.55);
-  key.position.set(w * 0.15, h * 3, d * 0.25); key.castShadow = true; key.shadow.mapSize.set(1024, 1024);
+  const lh = o.open ? 30 : h;
+  key.position.set(w * 0.15, lh * 3, d * 0.25); key.castShadow = true; key.shadow.mapSize.set(o.open ? 2048 : 1024, o.open ? 2048 : 1024);
   const r = Math.max(w, d) * 0.7;
-  Object.assign(key.shadow.camera, { left: -r, right: r, top: r, bottom: -r, near: 0.5, far: h * 6 });
+  Object.assign(key.shadow.camera, { left: -r, right: r, top: r, bottom: -r, near: 0.5, far: lh * 6 });
   key.shadow.bias = -0.0005; key.shadow.normalBias = 0.03;
   S.add(key, key.target);
   const wallPlane = (pw, mat, x, z, ry) => {
@@ -1143,6 +1227,7 @@ function newInterior(o) {
   const outside = new THREE.Mesh(new THREE.PlaneGeometry(w + 120, d + 120), new THREE.MeshStandardMaterial({ map: texFrom(concreteCv, (w + 120) / 4, (d + 120) / 4), roughness: 0.95 }));
   outside.rotation.x = -Math.PI / 2; outside.position.y = -0.04; outside.userData.noCast = true; S.add(outside);
   deco(I, B(w + 0.6, 0.3, d + 0.6), o.base || 0xffffff, 0, -0.16, 0).userData.noCast = true;
+  if (o.open) return I; // all'aperto: niente soffitto, muri e porta
   const ceil = new THREE.Mesh(new THREE.PlaneGeometry(w, d), o.ceil || M(0xf4f1ea)); ceil.rotation.x = Math.PI / 2; ceil.position.y = h; ceil.userData.noCast = true; S.add(ceil);
   if (!o.glassBack) wallPlane(w, o.wall, 0, -d / 2, 0);
   wallPlane(w, o.wall, 0, d / 2, Math.PI);
@@ -1277,11 +1362,13 @@ const INTERIORS = {
         { label: "Preparati un caffè cubano", run: () => act({ energy: 15, min: 10, text: "Un cafecito bello forte. Sei sveglissimo!" }) }
       ] : [notYours] });
     spot(I, { name: "Divano e TV", icon: "📺", x: 5.6, z: 3.7,
-      desc: () => state.console ? `Divano, TV e la tua console (${state.games} ${state.games === 1 ? "gioco" : "giochi"}).` : "Un divano morbidissimo davanti alla TV.",
+      desc: () => state.console ? `Divano, TV e la tua console (${state.games.length} ${state.games.length === 1 ? "gioco" : "giochi"}).` : "Un divano morbidissimo davanti alla TV.",
       actions: () => state.hasHome ? [
         { label: "Guarda la TV (1 ora)", run: () => { I.tv = 6; act({ fun: 25, energy: 5, min: 60, text: "In TV danno la partita dei Miami Heat!" }); } },
-        { label: state.console ? "Gioca alla console" : "Nessuna console (comprala al Sunshine Mall)", disabled: !state.console,
-          run: () => { I.tv = 8; act(state.games ? { fun: 40, min: 60, text: "Che partita! Hai battuto il tuo record." } : { fun: 5, min: 10, text: "Hai la console ma nessun gioco... compralo al Sunshine Mall!" }); } }
+        ...(!state.console ? [{ label: "Nessuna console (comprala al Sunshine Mall)", disabled: true, run() {} }]
+          : !state.games.length ? [{ label: "Nessun gioco: comprali da GameZone al Mall", disabled: true, run() {} }]
+          : state.games.map(id => ({ label: `🎮 Gioca a ${CONSOLE_GAMES[id].name}` + (state.best[id] ? ` (record ${state.best[id]})` : ""),
+              run: () => { closePanel(); I.tv = 1e9; openArcade(id, () => { I.tv = 0; }); } })))
       ] : [notYours] });
     return I;
   },
@@ -1667,8 +1754,22 @@ const INTERIORS = {
         { label: state.console ? "Console (già tua)" : "Console ($300)", disabled: state.console, run: () => { if (spend(300)) { state.console = true; log("Hai una console nuova! Collegala alla TV di casa."); } } },
         { label: "Cuffie wireless ($40)", run: () => act({ cost: 40, fun: 20, text: "Musica a tutto volume sul lungomare!" }) }
       ] });
-    spot(I, { name: "GameZone", icon: "🕹", x: 0, z: -6.4, desc: () => `Videogiochi per tutti i gusti. Ne hai ${state.games}.`,
-      actions: () => [{ label: "Compra un gioco ($60)", run: () => { if (spend(60)) { state.games++; log(state.console ? "Nuovo gioco! Provalo sulla console di casa." : "Nuovo gioco! Ora ti serve una console da TechWorld."); } } }] });
+    // chiosco dei telefoni
+    solidBox(I, 1.2, 1.05, 1.6, 0xffffff, 13.9, 0.525, -1.1);
+    deco(I, B(1.25, 0.05, 1.65), 0x1b1640, 13.9, 1.08, -1.1);
+    [0x111111, 0xdadde2, 0x2f6fdb, 0x7cffb2].forEach((c, i) => deco(I, B(0.32, 0.03, 0.18), c, 13.8, 1.12, -1.65 + i * 0.37));
+    put(signPlane("PHONE CENTER", 1.6, 0.4, "#22e1ff", "#1b1640"), I, 14.95, 2.4, -1.1, -Math.PI / 2);
+    staff(I, 14.5, 0.3, -Math.PI / 2, { shirt: 0x22e1ff, hair: 0x3d2b1f, skin: 0xe0ac69 });
+    spot(I, { name: "Phone Center", icon: "📱", x: 12.3, z: -1.2, desc: () => (state.phone ? `Hai un ${PHONES[state.phone].name}. ` : "") +
+        "Telefoni di tutte le marche: chiami e scrivi agli amici, fai foto in viaggio e giochi ai giochini.",
+      actions: () => Object.entries(PHONES).map(([id, ph]) => ({ label: state.phone === id ? `${ph.name} (è il tuo)` : `${ph.name} (${usd(ph.price)}) · ${ph.tag}`,
+        disabled: state.phone === id, run: () => buyPhone(id) })) });
+    spot(I, { name: "GameZone", icon: "🕹", x: 0, z: -6.4, desc: () => `Videogiochi per console: si giocano sulla TV di casa. Ne hai ${state.games.length} su ${Object.keys(CONSOLE_GAMES).length}.`,
+      actions: () => Object.entries(CONSOLE_GAMES).map(([id, cg]) => {
+        const own = state.games.includes(id);
+        return { label: own ? `${cg.name} (già tuo)` : `${cg.name} (${usd(cg.price)}) · ${cg.genre}`, disabled: own,
+          run: () => { if (spend(cg.price)) { state.games.push(id); log(state.console ? `Hai comprato ${cg.name}! Giocaci sulla TV di casa.` : `Hai comprato ${cg.name}! Ora ti serve una console da TechWorld.`); } } };
+      }) });
     spot(I, { name: "Moda Beach", icon: "👕", x: 9, z: -6.4, desc: "Vestiti da spiaggia: provane uno, lo indossi subito!",
       actions: () => shirts.map(([n, c]) => ({ label: shirtMat.color.getHex() === c ? `${n} (la indossi)` : `${n} ($25)`, disabled: shirtMat.color.getHex() === c,
         run: () => { if (spend(25)) { shirtMat.color.setHex(c); log(`Ti sta benissimo la ${n.toLowerCase()}!`); } } })) });
@@ -1702,15 +1803,15 @@ const INTERIORS = {
     put(signPlane("Gate A1", 3, 0.8, "#ffd23f", "#1b1640"), I, -8, 6.6, -D / 2 + 0.1);
     put(neonSign("Loddo Intl Airport", 0x22e1ff, 11), I, 0, 6.9, D / 2 - 0.05, Math.PI);
     // banchi check-in
-    [["Roma", 80, -16], ["Londra", 120, -12], ["New York", 180, -8], ["Tokyo", 250, -4]].forEach(([city, cost, x], i) => {
+    Object.entries(DESTS).map(([id, D], i) => [D.name, D.cost, -16 + i * 4, id]).forEach(([city, cost, x, id], i) => {
       solidBox(I, 3, 1.1, 1.2, 0xf7f7f7, x, 0.55, -4);
       deco(I, B(3.02, 0.5, 0.02), 0x1d3557, x, 0.6, -3.39);
       deco(I, B(1, 0.45, 1.2), 0x555a60, x + 2, 0.22, -4);
       deco(I, new THREE.CylinderGeometry(0.04, 0.04, 2.2, 6), 0x888888, x, 2.2, -4.7);
       put(signPlane(`${city.toUpperCase()}  $${cost}`, 2.4, 0.6, "#1d3557", "#ffffff"), I, x, 3.4, -4.7);
       staff(I, x, -5.1, 0, { shirt: 0x1d3557, hair: [0x3d2b1f, 0x111111, 0xb5651d, 0x000000][i], skin: [0xf5cba7, 0xe0ac69, 0xffdbac, 0x8d5524][i] });
-      spot(I, { name: `Check-in ${city}`, icon: "✈", x, z: -2.4, desc: () => `Volo per ${city}: il biglietto costa ${usd(cost)}.` + (state.hasHome ? "" : " Prima di partire serve una casa."),
-        actions: () => [{ label: `Compra il biglietto per ${city} (${usd(cost)})`, run: () => flight(city, cost) }] });
+      spot(I, { name: `Check-in ${city}`, icon: "✈", x, z: -2.4, desc: () => `${DESTS[id].blurb} Andata e ritorno ${usd(cost)}, ${DESTS[id].hours} ore di volo.` + (state.hasHome ? "" : " Prima di partire serve una casa."),
+        actions: () => [{ label: `Parti per ${city} (${usd(cost)})`, run: () => travelTo(id) }] });
     });
     // tabellone partenze
     deco(I, B(8.3, 3.3, 0.2), 0x111111, 9, 5.2, -2.12);
@@ -1758,7 +1859,7 @@ function fadeTo(fn, hold) {
     fn();
     setTimeout(() => {
       fade.classList.remove("on");
-      setTimeout(() => { paused = dialogOpen || !panel.classList.contains("hidden"); }, 260);
+      setTimeout(() => { paused = uiBusy(); }, 260);
     }, hold || 60);
   }, 280);
 }
@@ -1819,7 +1920,9 @@ addEventListener("keydown", e => {
     if (["Escape", "Enter", "Space", "KeyH"].includes(e.code)) closeRules();
     return;
   }
+  if (miniKey(e)) return;
   if (e.code === "KeyH" && !e.repeat) { openRules(); return; }
+  if (e.code === "KeyP" && !e.repeat && !dialogOpen && panel.classList.contains("hidden")) { togglePhone(); return; }
   if (e.code === "Escape") { if (dialogOpen) closeDialog(); else if (!panel.classList.contains("hidden")) closePanel(); }
   if (e.code === "KeyE" && !e.repeat) interact();
   if (sitting && !paused && ["KeyW", "KeyA", "KeyS", "KeyD", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.code)) standUp();
@@ -1904,7 +2007,7 @@ function openPanel(pl) {
     box.appendChild(b);
   });
 }
-function closePanel() { panel.classList.add("hidden"); paused = false; }
+function closePanel() { panel.classList.add("hidden"); paused = uiBusy(); }
 document.getElementById("closePanel").onclick = closePanel;
 
 // ================= DIALOGHI =================
@@ -1920,6 +2023,7 @@ function end(n, pts) { addFr(n, pts); need("fun", 6); return null; }
 function pizza(n) { if (act({ cost: 10, hunger: 45, fun: 15, min: 40 })) { addFr(n, 2); return "thanks"; } return "broke"; }
 function dinner(n) { if (act({ cost: 30, hunger: 70, fun: 25, min: 90 })) { addFr(n, 3); return "thanks"; } return "broke"; }
 function meet(n) {
+  if (state.travel) { log(`Sei a ${DESTS[state.travel].name}! ${n.name} ti aspetta a Miami.`); addFr(n, 1); return null; }
   const base = world === OUTDOOR ? player.position : doorPos(currentPlace);
   n.g.position.set(base.x + 2, 0, base.z + 2);
   n.tx = n.g.position.x; n.tz = n.g.position.z; n.timer = 6;
@@ -1955,16 +2059,25 @@ const T = {
   },
   park: n => ({ say: "Certo! Ti aspetto al parco, vicino alla spiaggia.", opts: [["A dopo!", () => end(n, 0)]] }),
   thanks: n => ({ say: "Buonissima! Grazie per l'invito!", opts: [["A presto!", () => end(n, 0)]] }),
-  broke: n => ({ say: "Mi piacerebbe, ma adesso non ho soldi nemmeno io...", opts: [["Capisco, ci vediamo", () => end(n, 0)]] })
+  broke: n => ({ say: "Mi piacerebbe, ma adesso non ho soldi nemmeno io...", opts: [["Capisco, ci vediamo", () => end(n, 0)]] }),
+  // al telefono
+  call: n => ({ say: "📞 «Pronto? Oh, ciao! Che bello sentirti!»", opts: [
+    ["Come va la giornata?", () => "mood"],
+    ...(state.travel ? [[`Sono a ${DESTS[state.travel].name}, è bellissimo!`, () => { addFr(n, 1); return "abroad"; }]] : []),
+    ["Ti chiamavo solo per salutarti. Ciao!", () => end(n, 1)]
+  ] }),
+  sleepy: n => ({ say: "📞 «Mmh... pronto? Ma è notte fonda! Richiamami domani...»", opts: [["Scusa! Buonanotte", () => end(n, 0)]] }),
+  abroad: n => ({ say: `«Che invidia! Portami un souvenir da ${DESTS[state.travel].name}!»`, opts: [["Promesso, ciao!", () => end(n, 0)]] })
 };
 
-function openDialog(n) {
-  talking = n;
+let viaPhone = false; // la conversazione è al telefono?
+function openDialog(n, start) {
+  talking = n; viaPhone = !!start;
   dialogOpen = true;
   paused = true;
   dlg.classList.remove("hidden");
   document.getElementById("dname").textContent = n.name + (n.friend ? " ♥" : "");
-  showNode(n, "greet");
+  showNode(n, start || "greet");
 }
 function showNode(n, key) {
   const node = T[key](n);
@@ -1986,7 +2099,7 @@ function showNode(n, key) {
 function closeDialog() {
   dlg.classList.add("hidden");
   dialogOpen = false;
-  paused = false;
+  paused = uiBusy();
   talking = null;
 }
 
@@ -2002,8 +2115,8 @@ function renderFriends() {
     const li = document.createElement("li");
     li.innerHTML = `<span>${n.name} <span class="hearts">${"♥".repeat(Math.ceil(n.fr / 2))}</span></span>`;
     const b = document.createElement("button");
-    b.textContent = "Chiama";
-    b.onclick = () => { if (!paused) openDialog(n); };
+    b.textContent = "📞 Chiama";
+    b.onclick = () => { if (!paused) callFriend(n); };
     li.appendChild(b);
     ul.appendChild(li);
   });
@@ -2042,7 +2155,7 @@ function drawRoomMap() {
   const s = Math.min((MW - 16) / R.w, (MH - 34) / R.d), X = x => MW / 2 + x * s, Z = z => MH / 2 + 8 + z * s;
   mctx.fillStyle = "#f5e6da"; mctx.fillRect(X(-R.w / 2), Z(-R.d / 2), R.w * s, R.d * s);
   mctx.fillStyle = "#c9a3d9"; world.solids.forEach(o => mctx.fillRect(X(o.x - o.w / 2), Z(o.z - o.d / 2), o.w * s, o.d * s));
-  mctx.fillStyle = "#1f9d55"; mctx.fillRect(X(-1.3), Z(R.d / 2) - 1.5, 2.6 * s, 3);
+  if (!world.open) { mctx.fillStyle = "#1f9d55"; mctx.fillRect(X(-1.3), Z(R.d / 2) - 1.5, 2.6 * s, 3); }
   mctx.textAlign = "center"; mctx.textBaseline = "middle"; mctx.font = "8px sans-serif";
   world.hotspots.forEach(hs => { if (!hs.exit && (!hs.visible || hs.visible())) mctx.fillText(hs.icon, X(hs.x), Z(hs.z)); });
   mctx.fillStyle = "#fff"; mctx.font = "600 9px Poppins, sans-serif"; mctx.fillText(currentPlace.name, MW / 2, 11);
@@ -2466,6 +2579,7 @@ function update(dt) {
   if (P.carry) { P.armL.rotation.x = P.armR.rotation.x = -1.25; }
   if (!paused && !fade.classList.contains("on")) tickLife(dt, moving && run > 1);
   updateShift(dt);
+  updatePhone(dt);
   hudTimer -= dt;
   if (hudTimer <= 0) { hudTimer = 0.25; updateHUD(); if (world === OUTDOOR) updateSky(); }
   npcs.forEach(n => updateNPC(n, dt));
@@ -2501,6 +2615,1023 @@ function update(dt) {
 
   updateLabels();
   drawMinimap();
+}
+
+// ================= MINIGIOCHI (telefono e console) =================
+// Ogni gioco: init(G), update(G, dt, inp), draw(G, g). G.over = true quando la partita finisce.
+const R = Math.random;
+const RP = arr => arr[Math.floor(R() * arr.length)];
+function rrect(g, x, y, w, h, r) {
+  g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+}
+function hudText(g, text, x, y, size, color, align) {
+  g.fillStyle = color || "#fff"; g.font = `700 ${size}px Poppins, sans-serif`; g.textAlign = align || "left"; g.textBaseline = "alphabetic"; g.fillText(text, x, y);
+}
+const L = inp => inp.press.ArrowLeft || inp.press.KeyA, Rt = inp => inp.press.ArrowRight || inp.press.KeyD;
+const Up = inp => inp.press.ArrowUp || inp.press.KeyW, Dn = inp => inp.press.ArrowDown || inp.press.KeyS;
+const Fire = inp => inp.press.Space || inp.press.Enter;
+
+// ---- giochi del telefono (240 x 360) ----
+const PHONE_GAMES = {
+  snake: { id: "snake", phone: true, name: "Snake", icon: "🐍", desc: "Mangia le mele e non morderti la coda. Frecce/WASD o tocca lo schermo per girare.",
+    init(G) {
+      G.cs = 20; G.cols = 12; G.rows = 18; G.body = [{ x: 5, y: 9 }, { x: 4, y: 9 }, { x: 3, y: 9 }];
+      G.dir = { x: 1, y: 0 }; G.next = G.dir; G.step = 0; G.speed = 0.17; this.food(G);
+    },
+    food(G) { do { G.food = { x: Math.floor(R() * G.cols), y: Math.floor(R() * G.rows) }; } while (G.body.some(b => b.x === G.food.x && b.y === G.food.y)); },
+    update(G, dt, inp) {
+      const set = (x, y) => { if (x !== -G.dir.x || y !== -G.dir.y) G.next = { x, y }; };
+      if (L(inp)) set(-1, 0); if (Rt(inp)) set(1, 0); if (Up(inp)) set(0, -1); if (Dn(inp)) set(0, 1);
+      for (const t of inp.taps) {
+        const h = G.body[0], dx = t.x - (h.x + 0.5) * G.cs, dy = t.y - (h.y + 0.5) * G.cs;
+        if (G.dir.x) set(0, dy < 0 ? -1 : 1); else set(dx < 0 ? -1 : 1, 0);
+      }
+      G.step += dt; if (G.step < G.speed) return; G.step = 0; G.dir = G.next;
+      const h = { x: G.body[0].x + G.dir.x, y: G.body[0].y + G.dir.y };
+      if (h.x < 0 || h.y < 0 || h.x >= G.cols || h.y >= G.rows || G.body.some(b => b.x === h.x && b.y === h.y)) { G.over = true; return; }
+      G.body.unshift(h);
+      if (h.x === G.food.x && h.y === G.food.y) { G.score++; G.speed = Math.max(0.075, G.speed - 0.005); this.food(G); } else G.body.pop();
+    },
+    draw(G, g) {
+      g.fillStyle = "#123d2a"; g.fillRect(0, 0, G.w, G.h);
+      g.fillStyle = "#16492f"; for (let x = 0; x < G.cols; x++) for (let y = 0; y < G.rows; y++) if ((x + y) % 2) g.fillRect(x * 20, y * 20, 20, 20);
+      g.fillStyle = "#ff4545"; g.beginPath(); g.arc(G.food.x * 20 + 10, G.food.y * 20 + 11, 7, 0, TAU); g.fill();
+      g.fillStyle = "#3fbf3f"; g.fillRect(G.food.x * 20 + 9, G.food.y * 20 + 1, 3, 5);
+      G.body.forEach((b, i) => { g.fillStyle = i ? (i % 2 ? "#7cff6b" : "#5fe04f") : "#d4ff9c"; rrect(g, b.x * 20 + 1, b.y * 20 + 1, 18, 18, 5); g.fill(); });
+      const h = G.body[0]; g.fillStyle = "#111"; g.fillRect(h.x * 20 + 6 + G.dir.x * 3, h.y * 20 + 6 + G.dir.y * 3, 3, 3); g.fillRect(h.x * 20 + 11 + G.dir.x * 3, h.y * 20 + 6 + G.dir.y * 3, 3, 3);
+      hudText(g, "🍎 " + G.score, 8, 20, 15);
+    } },
+
+  flappy: { id: "flappy", phone: true, name: "Flappy Flamingo", icon: "🦩", desc: "Fai volare il fenicottero tra le palme. Spazio o tocca per sbattere le ali.",
+    init(G) { G.y = 170; G.vy = 0; G.pipes = []; G.timer = 0; G.started = false; G.t = 0; },
+    update(G, dt, inp) {
+      G.t += dt;
+      if (Fire(inp) || Up(inp) || inp.taps.length) { G.vy = -250; G.started = true; }
+      if (!G.started) { G.y = 170 + Math.sin(G.t * 3) * 6; return; }
+      G.vy += 720 * dt; G.y += G.vy * dt;
+      G.timer -= dt;
+      if (G.timer <= 0) { G.timer = 1.55; G.pipes.push({ x: G.w + 30, gy: 95 + R() * 150, passed: false }); }
+      for (const p of G.pipes) {
+        p.x -= 115 * dt;
+        if (!p.passed && p.x + 20 < 70) { p.passed = true; G.score++; }
+        if (Math.abs(p.x - 70) < 20 + 10 && Math.abs(G.y - p.gy) > 56 - 10) G.over = true;
+      }
+      G.pipes = G.pipes.filter(p => p.x > -40);
+      if (G.y > G.h - 34 || G.y < -20) G.over = true;
+    },
+    draw(G, g) {
+      const sk = g.createLinearGradient(0, 0, 0, G.h); sk.addColorStop(0, "#ff7eb6"); sk.addColorStop(0.55, "#ffcf8a"); sk.addColorStop(1, "#ffe6b8");
+      g.fillStyle = sk; g.fillRect(0, 0, G.w, G.h);
+      g.fillStyle = "#fff3c4"; g.beginPath(); g.arc(170, 120, 30, 0, TAU); g.fill();
+      g.fillStyle = "#2bb3c9"; g.fillRect(0, G.h - 70, G.w, 40);
+      for (const p of G.pipes) {
+        g.fillStyle = "#9a7b56"; g.fillRect(p.x - 12, 0, 24, p.gy - 56); g.fillRect(p.x - 12, p.gy + 56, 24, G.h);
+        g.fillStyle = "rgba(0,0,0,.15)"; for (let y = p.gy + 64; y < G.h; y += 12) g.fillRect(p.x - 12, y, 24, 3);
+        g.fillStyle = "#3f9b3a";
+        for (const [y, s] of [[p.gy - 56, -1], [p.gy + 56, 1]]) for (let k = -2; k <= 2; k++) { g.beginPath(); g.ellipse(p.x + k * 9, y, 14, 7, k * 0.35, 0, TAU); g.fill(); }
+      }
+      g.fillStyle = "#f3e2b3"; g.fillRect(0, G.h - 32, G.w, 32);
+      // fenicottero
+      g.save(); g.translate(70, G.y); g.rotate(Math.max(-0.5, Math.min(0.9, G.vy / 600)));
+      g.strokeStyle = "#ff4fa3"; g.lineWidth = 3; g.beginPath(); g.moveTo(-2, 8); g.lineTo(-4, 20); g.moveTo(3, 8); g.lineTo(4, 20); g.stroke();
+      g.fillStyle = "#ff6fb5"; g.beginPath(); g.ellipse(0, 0, 13, 9, 0, 0, TAU); g.fill();
+      g.fillStyle = "#ff3d9a"; g.beginPath(); g.ellipse(-3, -1 + Math.sin(G.t * 20) * 3, 8, 4, -0.4, 0, TAU); g.fill();
+      g.strokeStyle = "#ff6fb5"; g.lineWidth = 4; g.beginPath(); g.moveTo(9, -3); g.quadraticCurveTo(16, -12, 12, -18); g.stroke();
+      g.fillStyle = "#ff6fb5"; g.beginPath(); g.arc(13, -19, 4.5, 0, TAU); g.fill();
+      g.fillStyle = "#222"; g.beginPath(); g.moveTo(16, -20); g.lineTo(22, -16); g.lineTo(16, -16); g.fill();
+      g.fillStyle = "#111"; g.fillRect(13, -21, 2, 2);
+      g.restore();
+      hudText(g, G.score, G.w / 2, 46, 34, "#fff", "center");
+      if (!G.started) hudText(g, "Tocca o premi Spazio", G.w / 2, 240, 15, "#7a2a55", "center");
+    } },
+
+  tris: { id: "tris", phone: true, name: "Tris", icon: "⭕", desc: "Sfida il telefono a tris: 5 round. Tocca una casella (o frecce + Spazio).",
+    LINES: [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]],
+    init(G) { G.round = 1; G.you = 0; G.cpu = 0; this.reset(G); },
+    reset(G) { G.b = Array(9).fill(""); G.cur = 4; G.turn = G.round % 2 ? "X" : "O"; G.cpuT = 0.6; G.pause = 0; G.msg = G.turn === "X" ? "Tocca a te!" : "Pensa il telefono..."; },
+    win(b) {
+      for (const [a, c, d] of this.LINES) if (b[a] && b[a] === b[c] && b[a] === b[d]) return b[a];
+      return b.every(x => x) ? "draw" : null;
+    },
+    cpuMove(b) {
+      const empty = b.map((v, i) => v ? -1 : i).filter(i => i >= 0);
+      if (R() < 0.22) return RP(empty);
+      for (const m of ["O", "X"]) for (const ln of this.LINES) {
+        const vals = ln.map(i => b[i]);
+        if (vals.filter(v => v === m).length === 2 && vals.includes("")) return ln[vals.indexOf("")];
+      }
+      if (!b[4]) return 4;
+      const corners = [0, 2, 6, 8].filter(i => !b[i]);
+      return corners.length ? RP(corners) : RP(empty);
+    },
+    place(G, i, m) {
+      G.b[i] = m;
+      const w = this.win(G.b);
+      if (w) {
+        if (w === "X") { G.you++; G.msg = "Round vinto! 🎉"; } else if (w === "O") { G.cpu++; G.msg = "Round perso..."; } else G.msg = "Pareggio!";
+        G.score = G.you; G.pause = 1.4; G.turn = null;
+      } else { G.turn = m === "X" ? "O" : "X"; G.cpuT = 0.55; G.msg = G.turn === "X" ? "Tocca a te!" : "Pensa il telefono..."; }
+    },
+    update(G, dt, inp) {
+      if (G.pause > 0) {
+        G.pause -= dt;
+        if (G.pause <= 0) {
+          if (G.round >= 5) { G.over = true; G.overMsg = G.you > G.cpu ? `Hai vinto ${G.you}-${G.cpu}! 🏆` : G.you < G.cpu ? `Hai perso ${G.you}-${G.cpu}` : `Pareggio ${G.you}-${G.cpu}`; }
+          else { G.round++; this.reset(G); }
+        }
+        return;
+      }
+      if (G.turn === "O") { G.cpuT -= dt; if (G.cpuT <= 0) this.place(G, this.cpuMove(G.b), "O"); return; }
+      if (L(inp)) G.cur = (G.cur + 8) % 9; if (Rt(inp)) G.cur = (G.cur + 1) % 9;
+      if (Up(inp)) G.cur = (G.cur + 6) % 9; if (Dn(inp)) G.cur = (G.cur + 3) % 9;
+      let pick = Fire(inp) ? G.cur : -1;
+      for (const t of inp.taps) {
+        const cx = Math.floor((t.x - 15) / 70), cy = Math.floor((t.y - 80) / 70);
+        if (cx >= 0 && cx < 3 && cy >= 0 && cy < 3) { G.cur = cy * 3 + cx; pick = G.cur; }
+      }
+      if (pick >= 0 && !G.b[pick]) this.place(G, pick, "X");
+    },
+    draw(G, g) {
+      g.fillStyle = "#1b1640"; g.fillRect(0, 0, G.w, G.h);
+      hudText(g, `Round ${G.round}/5`, G.w / 2, 28, 16, "#22e1ff", "center");
+      hudText(g, `Tu (X) ${G.you}  —  ${G.cpu} Telefono (O)`, G.w / 2, 54, 13, "#fff", "center");
+      for (let i = 0; i < 9; i++) {
+        const x = 15 + (i % 3) * 70, y = 80 + Math.floor(i / 3) * 70;
+        g.fillStyle = i === G.cur && G.turn === "X" ? "rgba(34,225,255,.25)" : "rgba(255,255,255,.08)";
+        rrect(g, x + 3, y + 3, 64, 64, 10); g.fill();
+        g.lineWidth = 7; g.lineCap = "round";
+        if (G.b[i] === "X") { g.strokeStyle = "#ff4fa3"; g.beginPath(); g.moveTo(x + 18, y + 18); g.lineTo(x + 52, y + 52); g.moveTo(x + 52, y + 18); g.lineTo(x + 18, y + 52); g.stroke(); }
+        if (G.b[i] === "O") { g.strokeStyle = "#ffd23f"; g.beginPath(); g.arc(x + 35, y + 35, 18, 0, TAU); g.stroke(); }
+      }
+      hudText(g, G.msg, G.w / 2, 320, 16, "#fff", "center");
+    } }
+};
+
+// ---- giochi della console (640 x 400) ----
+function drawTopCar(g, x, y, col, w, h) {
+  w = w || 34; h = h || 60;
+  g.fillStyle = "rgba(0,0,0,.3)"; rrect(g, x - w / 2 + 3, y + 4, w, h, 8); g.fill();
+  g.fillStyle = col; rrect(g, x - w / 2, y, w, h, 8); g.fill();
+  g.fillStyle = "#1b2633"; rrect(g, x - w / 2 + 5, y + 12, w - 10, 12, 3); g.fill(); rrect(g, x - w / 2 + 5, y + h - 18, w - 10, 9, 3); g.fill();
+  g.fillStyle = "rgba(255,255,255,.25)"; g.fillRect(x - w / 2 + 5, y + 26, w - 10, h - 46);
+  g.fillStyle = "#fff6c0"; g.fillRect(x - w / 2 + 3, y + 1, 7, 4); g.fillRect(x + w / 2 - 10, y + 1, 7, 4);
+}
+const CONSOLE_GAMES = {
+  racer: { id: "racer", name: "Ocean Drive Racer", genre: "corse", price: 60, controls: "← → cambia corsia",
+    RX: l => 240 + l * 80,
+    init(G) { G.lane = 1; G.x = this.RX(1); G.cars = []; G.speed = 250; G.dist = 0; G.spawn = 0.6; G.scroll = 0; G.palms = [0, 130, 260, 390].map(y => ({ y })); },
+    update(G, dt, inp) {
+      if (L(inp) && G.lane > 0) G.lane--; if (Rt(inp) && G.lane < 3) G.lane++;
+      for (const t of inp.taps) { if (t.x < G.w / 2 && G.lane > 0) G.lane--; else if (t.x >= G.w / 2 && G.lane < 3) G.lane++; }
+      G.x += (this.RX(G.lane) - G.x) * Math.min(1, dt * 14);
+      G.speed += dt * 8; G.dist += G.speed * dt; G.scroll = (G.scroll + G.speed * dt) % 60; G.score = Math.floor(G.dist / 25);
+      for (const p of G.palms) { p.y += G.speed * dt; if (p.y > G.h + 40) p.y -= 520; }
+      G.spawn -= dt;
+      if (G.spawn <= 0) {
+        G.spawn = Math.max(0.32, 1.0 - G.speed / 1000) + R() * 0.35;
+        const lane = Math.floor(R() * 4);
+        if (!G.cars.some(c => c.y < 40)) G.cars.push({ lane, y: -70, v: 0.3 + R() * 0.35, col: RP(["#22e1ff", "#ffd23f", "#7cff6b", "#ffffff", "#b388ff", "#ff7a3d"]) });
+      }
+      for (const c of G.cars) c.y += G.speed * c.v * dt;
+      G.cars = G.cars.filter(c => c.y < G.h + 80);
+      for (const c of G.cars) if (Math.abs(this.RX(c.lane) - G.x) < 32 && Math.abs(c.y - 310) < 56) G.over = true;
+    },
+    draw(G, g) {
+      g.fillStyle = "#ffc8dd"; g.fillRect(0, 0, 190, G.h);
+      g.fillStyle = "#f3e2b3"; g.fillRect(530, 0, 50, G.h); g.fillStyle = "#17b3c9"; g.fillRect(580, 0, 60, G.h);
+      g.fillStyle = "#d6cfc2"; g.fillRect(170, 0, 30, G.h); g.fillRect(520, 0, 12, G.h);
+      for (let y = -60 + G.scroll; y < G.h; y += 120) { g.fillStyle = "#bde0fe"; g.fillRect(20, y, 130, 90); g.fillStyle = "#3f8fa8"; for (let k = 0; k < 3; k++) g.fillRect(34 + k * 40, y + 18, 26, 22); }
+      g.fillStyle = "#3c3f46"; g.fillRect(200, 0, 320, G.h);
+      g.fillStyle = "#ffd23f"; for (const x of [280, 360, 440]) for (let y = -60 + G.scroll; y < G.h; y += 60) g.fillRect(x - 2, y, 4, 30);
+      g.fillStyle = "#fff"; g.fillRect(203, 0, 3, G.h); g.fillRect(514, 0, 3, G.h);
+      for (const p of G.palms) for (const x of [186, 548]) {
+        g.fillStyle = "rgba(0,0,0,.2)"; g.beginPath(); g.arc(x + 6, p.y + 6, 22, 0, TAU); g.fill();
+        g.fillStyle = "#3f9b3a"; for (let k = 0; k < 6; k++) { g.beginPath(); g.ellipse(x + Math.cos(k) * 12, p.y + Math.sin(k) * 12, 16, 6, k, 0, TAU); g.fill(); }
+        g.fillStyle = "#9a7b56"; g.beginPath(); g.arc(x, p.y, 5, 0, TAU); g.fill();
+      }
+      for (const c of G.cars) drawTopCar(g, this.RX(c.lane), c.y, c.col);
+      drawTopCar(g, G.x, 282, "#ff4fa3");
+      g.fillStyle = "rgba(13,8,32,.6)"; rrect(g, 10, 10, 170, 56, 12); g.fill();
+      hudText(g, `${G.score} m`, 22, 36, 20, "#7cffb2"); hudText(g, `${Math.round(G.speed / 3)} km/h`, 22, 58, 14, "#fff");
+    } },
+
+  galaxy: { id: "galaxy", name: "Galaxy Defender", genre: "sparatutto", price: 60, controls: "← → muovi · Spazio spara",
+    init(G) { G.x = 320; G.shots = []; G.bombs = []; G.lives = 3; G.wave = 0; G.cool = 0; G.inv = 0; G.bombT = 1; G.stars = Array.from({ length: 70 }, () => ({ x: R() * 640, y: R() * 400, s: R() * 2 + 0.5 })); this.wave(G); },
+    wave(G) { G.wave++; G.en = []; for (let r = 0; r < 4; r++) for (let c = 0; c < 8; c++) G.en.push({ x: 110 + c * 58, y: 50 + r * 38, r }); G.dir = 1; G.ev = 30 + G.wave * 14; },
+    update(G, dt, inp) {
+      const lf = keys.ArrowLeft || keys.KeyA, rt = keys.ArrowRight || keys.KeyD;
+      G.x = Math.max(24, Math.min(616, G.x + ((rt ? 1 : 0) - (lf ? 1 : 0)) * 330 * dt));
+      for (const t of inp.taps) { G.x = t.x; G.cool = 0; }
+      G.cool -= dt; G.inv -= dt;
+      if ((keys.Space || inp.taps.length) && G.cool <= 0) { G.shots.push({ x: G.x, y: 352 }); G.cool = 0.32; }
+      for (const s of G.shots) s.y -= 540 * dt;
+      G.shots = G.shots.filter(s => s.y > -10);
+      let mn = 999, mx = -999;
+      for (const e of G.en) { mn = Math.min(mn, e.x); mx = Math.max(mx, e.x); }
+      const drop = (mx > 610 && G.dir > 0) || (mn < 30 && G.dir < 0);
+      if (drop) G.dir *= -1;
+      for (const e of G.en) { e.x += G.dir * G.ev * dt; if (drop) e.y += 16; }
+      for (const s of G.shots) for (const e of G.en) if (!e.dead && Math.abs(s.x - e.x) < 20 && Math.abs(s.y - e.y) < 15) { e.dead = true; s.y = -99; G.score += (4 - e.r) * 10; }
+      G.en = G.en.filter(e => !e.dead);
+      G.bombT -= dt;
+      if (G.bombT <= 0 && G.en.length) { G.bombT = Math.max(0.35, 1.1 - G.wave * 0.1); const e = RP(G.en); G.bombs.push({ x: e.x, y: e.y + 10 }); }
+      for (const b of G.bombs) {
+        b.y += 210 * dt;
+        if (G.inv <= 0 && Math.abs(b.x - G.x) < 20 && b.y > 345 && b.y < 378) { b.y = 999; G.lives--; G.inv = 1.5; if (G.lives <= 0) G.over = true; }
+      }
+      G.bombs = G.bombs.filter(b => b.y < 410);
+      if (G.en.some(e => e.y > 330)) G.over = true;
+      if (!G.en.length) this.wave(G);
+    },
+    draw(G, g) {
+      g.fillStyle = "#05031a"; g.fillRect(0, 0, G.w, G.h);
+      g.fillStyle = "#fff"; for (const s of G.stars) { s.y = (s.y + s.s * 0.4) % 400; g.globalAlpha = s.s / 2.5; g.fillRect(s.x, s.y, s.s, s.s); } g.globalAlpha = 1;
+      const cols = ["#ff4fa3", "#ffd23f", "#7cff6b", "#22e1ff"];
+      const wob = Math.floor(performance.now() / 300) % 2;
+      for (const e of G.en) {
+        g.fillStyle = cols[e.r];
+        g.fillRect(e.x - 12, e.y - 6, 24, 12); g.fillRect(e.x - 8, e.y - 11, 16, 5);
+        g.fillRect(e.x - 16, e.y + (wob ? 0 : 4), 4, 8); g.fillRect(e.x + 12, e.y + (wob ? 0 : 4), 4, 8);
+        g.fillStyle = "#05031a"; g.fillRect(e.x - 7, e.y - 3, 4, 4); g.fillRect(e.x + 3, e.y - 3, 4, 4);
+      }
+      g.fillStyle = "#7cffb2"; for (const s of G.shots) g.fillRect(s.x - 2, s.y - 10, 4, 12);
+      g.fillStyle = "#ff5a5a"; for (const b of G.bombs) g.fillRect(b.x - 3, b.y - 6, 6, 12);
+      if (G.inv <= 0 || Math.floor(G.inv * 10) % 2) {
+        g.fillStyle = "#22e1ff"; g.beginPath(); g.moveTo(G.x, 340); g.lineTo(G.x + 20, 375); g.lineTo(G.x - 20, 375); g.closePath(); g.fill();
+        g.fillStyle = "#ff4fa3"; g.fillRect(G.x - 4, 375, 8, 5);
+      }
+      hudText(g, `Punti ${G.score}`, 14, 26, 16); hudText(g, `Ondata ${G.wave}`, 320, 26, 16, "#ffd23f", "center"); hudText(g, "❤".repeat(G.lives), 626, 26, 16, "#ff4fa3", "right");
+    } },
+
+  bricks: { id: "bricks", name: "Neon Bricks", genre: "arcade", price: 50, controls: "← → muovi · Spazio lancia",
+    init(G) { G.px = 320; G.lives = 3; G.level = 1; this.bricks(G); this.ball(G); },
+    bricks(G) { G.br = []; for (let r = 0; r < 5; r++) for (let c = 0; c < 10; c++) G.br.push({ x: 8 + c * 62.4, y: 46 + r * 24, r }); },
+    ball(G) { G.stuck = true; G.bx = G.px; G.by = 352; G.vx = 0; G.vy = 0; },
+    update(G, dt, inp) {
+      const lf = keys.ArrowLeft || keys.KeyA, rt = keys.ArrowRight || keys.KeyD;
+      G.px = Math.max(48, Math.min(592, G.px + ((rt ? 1 : 0) - (lf ? 1 : 0)) * 500 * dt));
+      for (const t of inp.taps) G.px = Math.max(48, Math.min(592, t.x));
+      if (G.stuck) {
+        G.bx = G.px; G.by = 352;
+        if (Fire(inp) || inp.taps.length) { G.stuck = false; const sp = 330 + G.level * 30; G.vx = (R() < 0.5 ? -1 : 1) * sp * 0.5; G.vy = -sp; }
+        return;
+      }
+      G.bx += G.vx * dt; G.by += G.vy * dt;
+      if (G.bx < 7) { G.bx = 7; G.vx = Math.abs(G.vx); } if (G.bx > 633) { G.bx = 633; G.vx = -Math.abs(G.vx); }
+      if (G.by < 7) { G.by = 7; G.vy = Math.abs(G.vy); }
+      if (G.vy > 0 && G.by > 354 && G.by < 372 && Math.abs(G.bx - G.px) < 52) {
+        const sp = Math.hypot(G.vx, G.vy), a = (G.bx - G.px) / 52 * 1.05;
+        G.vx = Math.sin(a) * sp; G.vy = -Math.cos(a) * sp;
+      }
+      for (const b of G.br) if (!b.dead && G.bx > b.x - 6 && G.bx < b.x + 64 && G.by > b.y - 6 && G.by < b.y + 24) {
+        b.dead = true; G.score += 10 * (5 - b.r);
+        const fromSide = G.bx < b.x || G.bx > b.x + 58; if (fromSide) G.vx = -G.vx; else G.vy = -G.vy;
+        break;
+      }
+      G.br = G.br.filter(b => !b.dead);
+      if (G.by > G.h + 10) { G.lives--; if (G.lives <= 0) G.over = true; else this.ball(G); }
+      if (!G.br.length) { G.level++; this.bricks(G); this.ball(G); }
+    },
+    draw(G, g) {
+      g.fillStyle = "#0d0820"; g.fillRect(0, 0, G.w, G.h);
+      const cols = ["#ff3cac", "#ff7a3d", "#ffe74c", "#7cff6b", "#22e1ff"];
+      g.shadowBlur = 12;
+      for (const b of G.br) { g.fillStyle = g.shadowColor = cols[b.r]; rrect(g, b.x, b.y, 58, 18, 5); g.fill(); }
+      g.fillStyle = g.shadowColor = "#ff4fa3"; rrect(g, G.px - 48, 362, 96, 12, 6); g.fill();
+      g.fillStyle = g.shadowColor = "#fff"; g.beginPath(); g.arc(G.bx, G.by, 7, 0, TAU); g.fill();
+      g.shadowBlur = 0;
+      hudText(g, `Punti ${G.score}`, 14, 30, 15); hudText(g, `Livello ${G.level}`, 320, 30, 15, "#22e1ff", "center"); hudText(g, "❤".repeat(G.lives), 626, 30, 15, "#ff4fa3", "right");
+      if (G.stuck) hudText(g, "Premi Spazio per lanciare", 320, 300, 18, "rgba(255,255,255,.8)", "center");
+    } },
+
+  hockey: { id: "hockey", name: "Neon Hockey", genre: "sport", price: 40, controls: "↑ ↓ muovi · arriva a 7",
+    init(G) { G.py = 200; G.cy = 200; G.you = 0; G.cpu = 0; this.serve(G, 1); },
+    serve(G, dir) { G.bx = 320; G.by = 200; const a = (R() - 0.5) * 0.9, sp = 300; G.vx = Math.cos(a) * sp * dir; G.vy = Math.sin(a) * sp; G.wait = 0.9; },
+    update(G, dt, inp) {
+      const up = keys.ArrowUp || keys.KeyW, dn = keys.ArrowDown || keys.KeyS;
+      G.py = Math.max(44, Math.min(356, G.py + ((dn ? 1 : 0) - (up ? 1 : 0)) * 400 * dt));
+      for (const t of inp.taps) G.py = Math.max(44, Math.min(356, t.y));
+      const target = G.vx > 0 ? G.by : 200, cs = 230 + Math.min(G.you, 6) * 12;
+      G.cy += Math.max(-cs * dt, Math.min(cs * dt, target - G.cy));
+      if (G.wait > 0) { G.wait -= dt; return; }
+      G.bx += G.vx * dt; G.by += G.vy * dt;
+      if (G.by < 10) { G.by = 10; G.vy = Math.abs(G.vy); } if (G.by > 390) { G.by = 390; G.vy = -Math.abs(G.vy); }
+      if (G.vx < 0 && G.bx < 48 && G.bx > 22 && Math.abs(G.by - G.py) < 50) { G.vx = Math.min(720, Math.abs(G.vx) * 1.07); G.vy += (G.by - G.py) * 5; }
+      if (G.vx > 0 && G.bx > 592 && G.bx < 618 && Math.abs(G.by - G.cy) < 50) { G.vx = -Math.min(720, Math.abs(G.vx) * 1.07); G.vy += (G.by - G.cy) * 5; }
+      if (G.bx < -12) { G.cpu++; this.serve(G, -1); }
+      if (G.bx > 652) { G.you++; G.score = G.you; this.serve(G, 1); }
+      if (G.you >= 7 || G.cpu >= 7) { G.over = true; G.overMsg = G.you >= 7 ? `Hai vinto ${G.you}-${G.cpu}! 🏆` : `Ha vinto la CPU ${G.cpu}-${G.you}`; }
+    },
+    draw(G, g) {
+      g.fillStyle = "#0b1a3a"; g.fillRect(0, 0, G.w, G.h);
+      g.strokeStyle = "rgba(34,225,255,.35)"; g.lineWidth = 3; g.setLineDash([12, 10]); g.beginPath(); g.moveTo(320, 0); g.lineTo(320, 400); g.stroke(); g.setLineDash([]);
+      g.beginPath(); g.arc(320, 200, 60, 0, TAU); g.stroke();
+      g.strokeStyle = "rgba(255,79,163,.4)"; g.strokeRect(4, 130, 40, 140); g.strokeRect(596, 130, 40, 140);
+      hudText(g, G.you, 250, 70, 54, "rgba(255,79,163,.85)", "center"); hudText(g, G.cpu, 390, 70, 54, "rgba(255,231,76,.85)", "center");
+      g.shadowBlur = 16;
+      g.fillStyle = g.shadowColor = "#ff4fa3"; rrect(g, 24, G.py - 44, 14, 88, 7); g.fill();
+      g.fillStyle = g.shadowColor = "#ffe74c"; rrect(g, 602, G.cy - 44, 14, 88, 7); g.fill();
+      g.fillStyle = g.shadowColor = "#fff"; g.beginPath(); g.arc(G.bx, G.by, 9, 0, TAU); g.fill();
+      g.shadowBlur = 0;
+      hudText(g, "TU", 60, 390, 13, "#ff4fa3"); hudText(g, "CPU", 580, 390, 13, "#ffe74c", "right");
+    } }
+};
+
+// ---- motore comune ----
+let mini = null;
+function startMini(def, cv, info) {
+  stopMini();
+  const g = cv.getContext("2d");
+  const G = { w: cv.width, h: cv.height, score: 0, over: false };
+  def.init(G);
+  const token = {};
+  mini = { def, G, cv, g, info, token, last: performance.now(), played: 0, press: {}, taps: [] };
+  cv.onpointerdown = e => {
+    if (!mini || mini.cv !== cv) return;
+    const r = cv.getBoundingClientRect();
+    mini.taps.push({ x: (e.clientX - r.left) * cv.width / r.width, y: (e.clientY - r.top) * cv.height / r.height });
+    e.preventDefault();
+  };
+  const loop = now => {
+    if (!mini || mini.token !== token) return;
+    const m = mini, dt = Math.min(0.05, (now - m.last) / 1000); m.last = now;
+    if (!m.G.over) {
+      m.played += dt;
+      m.def.update(m.G, dt, { press: m.press, taps: m.taps });
+      if (m.G.over) finishMini();
+    } else if (m.taps.length || m.press.Space || m.press.Enter) restartMini();
+    m.press = {}; m.taps = [];
+    m.def.draw(m.G, m.g);
+    if (m.G.over) drawGameOver(m);
+    m.raf = requestAnimationFrame(loop);
+  };
+  mini.raf = requestAnimationFrame(loop);
+  if (info) info();
+}
+function drawGameOver(m) {
+  const { g, G, def } = m, s = G.w / 320;
+  g.fillStyle = "rgba(10,6,30,.72)"; g.fillRect(0, 0, G.w, G.h);
+  hudText(g, G.overMsg || "GAME OVER", G.w / 2, G.h / 2 - 34 * s, Math.round(28 * s), "#ff4fa3", "center");
+  hudText(g, `Punti: ${G.score}`, G.w / 2, G.h / 2 + 4 * s, Math.round(20 * s), "#fff", "center");
+  hudText(g, `Record: ${state.best[def.id] || 0}`, G.w / 2, G.h / 2 + 30 * s, Math.round(15 * s), "#22e1ff", "center");
+  hudText(g, "Spazio o tocca per rigiocare", G.w / 2, G.h / 2 + 62 * s, Math.round(12 * s), "rgba(255,255,255,.75)", "center");
+}
+// il tempo passato a giocare diverte (e fa passare le ore)
+function miniReward(m) {
+  if (m.played < 3) return;
+  const mult = m.def.phone ? ((PHONES[state.phone] || {}).fun || 1) : 1.25;
+  need("fun", Math.min(35, m.played * 0.6) * mult);
+  passTime(Math.round(m.played * 2));
+  m.played = 0;
+}
+function finishMini() {
+  const m = mini, id = m.def.id, rec = m.G.score > (state.best[id] || 0);
+  if (rec) state.best[id] = m.G.score;
+  miniReward(m);
+  log(rec ? `Nuovo record a ${m.def.name}: ${m.G.score}! 🏆` : `Partita finita a ${m.def.name}: ${m.G.score} punti.`);
+  if (m.info) m.info();
+}
+function restartMini() {
+  if (!mini) return;
+  const G = { w: mini.cv.width, h: mini.cv.height, score: 0, over: false };
+  mini.def.init(G); mini.G = G;
+  if (mini.info) mini.info();
+}
+function stopMini() {
+  if (!mini) return;
+  if (!mini.G.over) miniReward(mini);
+  cancelAnimationFrame(mini.raf); mini.cv.onpointerdown = null; mini = null;
+  updateHUD();
+}
+// tasti quando è aperto il telefono o la console: true = gestito qui
+function miniKey(e) {
+  if (!arcadeOpen && !phoneOpen) return false;
+  if (e.code === "Escape") {
+    if (arcadeOpen) closeArcade();
+    else if (mini) { stopMini(); renderPhone("games"); }
+    else if (phView !== "home") renderPhone("home");
+    else closePhone();
+    return true;
+  }
+  if (phoneOpen && e.code === "KeyP" && !e.repeat) { closePhone(); return true; }
+  if (mini && !e.repeat) mini.press[e.code] = true;
+  return true;
+}
+
+// ---- console sulla TV di casa ----
+const arcade = document.getElementById("arcade"), arcCv = document.getElementById("arcCv"), arcInfo = document.getElementById("arcInfo");
+let arcClose = null;
+function openArcade(id, onClose) {
+  const def = CONSOLE_GAMES[id];
+  arcadeOpen = true; paused = true; arcClose = onClose || null;
+  arcade.classList.remove("hidden");
+  startMini(def, arcCv, () => { arcInfo.innerHTML = `<b>${def.name}</b> · ${def.controls} · Record: ${state.best[id] || 0}`; });
+}
+function closeArcade() {
+  stopMini();
+  arcade.classList.add("hidden"); arcadeOpen = false;
+  if (arcClose) arcClose(); arcClose = null;
+  paused = uiBusy();
+}
+document.getElementById("arcQuit").onclick = closeArcade;
+document.getElementById("arcAgain").onclick = () => restartMini();
+
+// ================= TELEFONO =================
+const PHONES = {
+  xiaomi: { name: "Xiaomi Redmi Note", price: 120, tag: "economico", frame: "#2b2f36", accent: "#ff6a00", icon: "14px", fun: 1, notch: "punch",
+    wall: "linear-gradient(160deg,#ff7a3d,#ffb347 55%,#ffd86b)" },
+  pixel: { name: "Google Pixel", price: 220, tag: "foto nitidissime", frame: "#e4e7eb", accent: "#4285f4", icon: "50%", fun: 1.1, notch: "punch",
+    wall: "linear-gradient(160deg,#4285f4,#34a853 60%,#fbbc05)" },
+  samsung: { name: "Samsung Galaxy S", price: 320, tag: "schermo enorme", frame: "#1d2433", accent: "#1f6bff", icon: "18px", fun: 1.2, notch: "punch",
+    wall: "linear-gradient(160deg,#1428a0,#7b2ff7 55%,#22e1ff)" },
+  iphone: { name: "iPhone Pro", price: 450, tag: "il top, più svago", frame: "#c9c3b8", accent: "#0a84ff", icon: "14px", fun: 1.3, notch: "notch",
+    wall: "linear-gradient(160deg,#ff4fa3,#7b2ff7 55%,#22b8e6)" }
+};
+state.unreadBy = {};
+const phoneEl = document.getElementById("phone"), phBody = document.getElementById("phBody"), phStatus = document.getElementById("phStatus");
+let phView = "home", phArg = null, phTimer = 200, callTimer = null;
+
+function buyPhone(id) {
+  const ph = PHONES[id], first = !state.phone;
+  if (!spend(ph.price)) return;
+  state.phone = id; updatePhoneBtn();
+  log(first ? `Hai un ${ph.name} nuovo! Premi P (o il bottone 📱) per usarlo.` : `Hai cambiato telefono: ora usi un ${ph.name}.`);
+}
+function updatePhoneBtn() {
+  const n = Object.values(state.unreadBy).reduce((a, b) => a + b, 0);
+  document.getElementById("phoneBadge").textContent = n ? n : "";
+  document.getElementById("phoneLbl").textContent = state.phone ? PHONES[state.phone].name.split(" ")[0] : "Telefono";
+  document.getElementById("phoneBtn").style.opacity = state.phone ? 1 : 0.6;
+}
+function togglePhone() { if (phoneOpen) closePhone(); else openPhone(); }
+function openPhone(view, arg) {
+  if (!state.phone) { log("Non hai un telefono: compralo al Phone Center del Sunshine Mall."); return false; }
+  if (!phoneOpen && (paused || fade.classList.contains("on"))) return false;
+  const ph = PHONES[state.phone];
+  phoneEl.style.setProperty("--frame", ph.frame); phoneEl.style.setProperty("--accent", ph.accent);
+  phoneEl.style.setProperty("--icon", ph.icon); phoneEl.style.setProperty("--wall", ph.wall);
+  phoneOpen = true; paused = true;
+  phoneEl.classList.remove("hidden");
+  renderPhone(view || "home", arg);
+  return true;
+}
+function closePhone() {
+  stopMini(); clearTimeout(callTimer);
+  phoneEl.classList.add("hidden"); phoneOpen = false;
+  paused = uiBusy();
+}
+document.getElementById("phoneBtn").onclick = () => togglePhone();
+document.getElementById("phHome").onclick = () => { if (phoneOpen) renderPhone("home"); };
+
+const el = (tag, cls, html, click) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; if (click) e.onclick = click; return e; };
+const friends = () => npcs.filter(n => n.friend);
+const isNight = () => state.time < 7 * 60 || state.time >= 23 * 60;
+function phTitle(text, back) { phBody.appendChild(el("div", "phTitle", (back ? "<span>‹</span>" : "") + text, back ? () => renderPhone(back) : null)); }
+function renderPhone(view, arg) {
+  if (view !== "game" && mini && mini.def.phone) stopMini();
+  clearTimeout(callTimer);
+  phView = view; phArg = arg;
+  const ph = PHONES[state.phone];
+  phStatus.innerHTML = `<span>${hhmm(state.time)}</span><span class="${ph.notch}"></span><span>📶 🔋</span>`;
+  phBody.innerHTML = "";
+  const V = PHONE_VIEWS[view];
+  V(arg);
+  updatePhoneBtn();
+}
+const PHONE_VIEWS = {
+  home() {
+    const ph = PHONES[state.phone];
+    phBody.appendChild(el("div", "phBrand", ph.name.toUpperCase()));
+    phBody.appendChild(el("div", "phClock", hhmm(state.time)));
+    phBody.appendChild(el("div", "phBrand", `Giorno ${state.day} · ${state.travel ? DESTS[state.travel].flag + " " + DESTS[state.travel].name : "🌴 Miami Beach"}`));
+    const grid = el("div", "phGrid");
+    const unread = Object.values(state.unreadBy).reduce((a, b) => a + b, 0);
+    [["📞", "Telefono", "calls"], ["💬", "Messaggi", "chats", unread], ["🎮", "Giochi", "games"], ["📷", "Fotocamera", "camera"], ["🖼", "Galleria", "gallery"], ["💳", "Portafoglio", "wallet"]]
+      .forEach(([i, n, v, badge]) => grid.appendChild(el("div", "phApp", `<i>${i}</i>${n}${badge ? `<b>${badge}</b>` : ""}`, () => renderPhone(v))));
+    phBody.appendChild(grid);
+  },
+  calls() {
+    phTitle("Telefono", "home");
+    const fr = friends();
+    if (!fr.length) phBody.appendChild(el("p", "phNote", "Nessun contatto. Fatti degli amici a Lummus Park: ti daranno il loro numero!"));
+    fr.forEach(n => phBody.appendChild(el("div", "phRow", `<span>👤 <b>${n.name}</b><small>${"♥".repeat(Math.ceil(n.fr / 2))}</small></span><span>📞</span>`, () => renderPhone("calling", n))));
+  },
+  calling(n) {
+    phBody.appendChild(el("div", "calling", `<div class="av">👤</div><div class="phTitle" style="justify-content:center">${n.name}</div><div class="phNote">Chiamata in corso...</div>`));
+    phBody.appendChild(el("button", "phBtn ghost", "📵 Riaggancia", () => renderPhone("calls")));
+    callTimer = setTimeout(() => {
+      closePhone(); passTime(5);
+      openDialog(n, isNight() ? "sleepy" : "call");
+    }, 1700);
+  },
+  chats() {
+    phTitle("Messaggi", "home");
+    const fr = friends();
+    if (!fr.length) phBody.appendChild(el("p", "phNote", "Nessuna chat. Quando avrai degli amici potrai scrivergli da qui."));
+    fr.forEach(n => {
+      const c = state.chats[n.name] || [], last = c[c.length - 1], un = state.unreadBy[n.name] || 0;
+      phBody.appendChild(el("div", "phRow", `<span>💬 <b>${n.name}</b><small>${last ? (last.me ? "Tu: " : "") + last.t : "Scrivi un messaggio..."}</small></span>${un ? `<span class="badge" style="background:#ff3b30;border-radius:999px;padding:0 7px">${un}</span>` : ""}`,
+        () => renderPhone("chat", n)));
+    });
+  },
+  chat(n) {
+    phTitle(n.name, "chats");
+    state.unreadBy[n.name] = 0;
+    const box = el("div", "chat");
+    (state.chats[n.name] || []).forEach(m => box.appendChild(el("div", "bub" + (m.me ? " me" : ""), m.t)));
+    if (n.typing) box.appendChild(el("div", "bub typing", `${n.name} sta scrivendo...`));
+    phBody.appendChild(box);
+    const q = el("div", "quick");
+    QUICK().forEach(([text, kind]) => q.appendChild(el("button", null, text, () => sendMsg(n, text, kind))));
+    phBody.appendChild(q);
+    box.scrollTop = box.scrollHeight;
+  },
+  games() {
+    phTitle("Giochi", "home");
+    Object.values(PHONE_GAMES).forEach(d => phBody.appendChild(el("div", "phRow", `<span>${d.icon} <b>${d.name}</b><small>Record: ${state.best[d.id] || 0}</small></span><span>▶</span>`, () => renderPhone("game", d.id))));
+    phBody.appendChild(el("p", "phNote", "Giocare ti diverte: più bello è il telefono, più svago ti dà."));
+  },
+  game(id) {
+    const d = PHONE_GAMES[id];
+    phTitle(d.icon + " " + d.name, "games");
+    const cv = el("canvas"); cv.width = 240; cv.height = 360; phBody.appendChild(cv);
+    const info = el("p", "phNote", d.desc); phBody.appendChild(info);
+    phBody.appendChild(el("button", "phBtn", "↻ Rigioca", () => restartMini()));
+    startMini(d, cv);
+  },
+  camera() {
+    phTitle("Fotocamera", "home");
+    const s = photoSubject();
+    phBody.appendChild(el("div", "calling", `<div class="av" style="animation:none;border-radius:16px;width:180px;height:120px">${s.e}</div><div class="phNote">${s.n}</div>`));
+    const got = state.photos.some(p => p.n === s.n);
+    phBody.appendChild(el("button", "phBtn", got ? "📸 Hai già questa foto" : "📸 Scatta", () => {
+      if (got) return;
+      state.photos.push(s); need("fun", 8 * PHONES[state.phone].fun); passTime(2);
+      log(`📸 Foto scattata: ${s.n}. La trovi in Galleria.`); renderPhone("camera");
+    }));
+    phBody.appendChild(el("p", "phNote", "Avvicinati a un monumento per fotografarlo. Ogni foto nuova ti mette di buon umore!"));
+  },
+  gallery() {
+    phTitle("Galleria", "home");
+    phBody.appendChild(el("div", "phBrand", `📸 FOTO (${state.photos.length})`));
+    const g1 = el("div", "gal");
+    state.photos.forEach(p => g1.appendChild(el("div", null, `<span>${p.e}</span>${p.n}`)));
+    phBody.appendChild(state.photos.length ? g1 : el("p", "phNote", "Nessuna foto. Usa la Fotocamera in giro per il mondo!"));
+    phBody.appendChild(el("div", "phBrand", `🧳 SOUVENIR (${state.souvenirs.length})`));
+    const g2 = el("div", "gal");
+    state.souvenirs.forEach(p => g2.appendChild(el("div", null, `<span>${p.e}</span>${p.n}<br><small>${p.given ? "regalato a " + p.given : "da " + p.from}</small>`)));
+    phBody.appendChild(state.souvenirs.length ? g2 : el("p", "phNote", "Nessun souvenir. Comprali in viaggio e regalali agli amici!"));
+  },
+  wallet() {
+    phTitle("Portafoglio", "home");
+    const visited = Object.values(DESTS).filter(D => D.visited).map(D => D.flag + " " + D.name);
+    [["💵 Soldi", usd(state.money)], ["💼 Lavoro", state.job || "nessuno"], ["🏠 Casa", state.hasHome ? "Ocean Drive" : "non ancora"],
+     ["🎮 Giochi console", state.games.length], ["✈ Viaggi", visited.length ? visited.join(", ") : "nessuno"]]
+      .forEach(([a, b]) => phBody.appendChild(el("div", "phRow off", `<span>${a}</span><span><b>${b}</b></span>`)));
+  }
+};
+
+// ---- messaggi ----
+const QUICK = () => [
+  ["Ciao! Come stai? 😊", "hi"], ["Ci vediamo a Lummus Park?", "park"], ["Usciamo insieme? 🍕", "out"],
+  ...(state.travel ? [[`Indovina dove sono? ${DESTS[state.travel].flag}`, "travel"]] : []), ["Buonanotte! 🌙", "night"]
+];
+const REPLY = {
+  hi: n => RP(["Ciao! Tutto bene, tu? 😄", "Benissimo! Stavo pensando proprio a te", "Tutto ok! Che fai di bello?", "Ehi! Sto prendendo il sole a South Beach ☀️", n.p.mood]),
+  park: () => RP(["Sì! Ci vediamo a Lummus Park 🌴", "Volentieri, porto il pallone da beach volley! 🏐", "Ok, ti aspetto vicino alle palme"]),
+  out: n => n.fr >= 2 && !state.travel ? "Sììì! Arrivo subito, dove sei? 🏃" : state.travel ? "Ma se sei in viaggio! 😂 Usciamo quando torni" : "Magari un'altra volta, dobbiamo ancora conoscerci meglio 😉",
+  night: () => RP(["Buonanotte anche a te! 🌙", "Sogni d'oro! 💤", "Notte! Domani ci sentiamo"]),
+  travel: () => RP([`${DESTS[state.travel].name}?! Che invidia! Mandami una foto 📸`, `Wow, ${DESTS[state.travel].name}! Mi porti un souvenir? 🎁`])
+};
+const INCOMING = ["Ehi, come va? 😊", "Stasera c'è un tramonto pazzesco sulla spiaggia 🌅", "Hai fame? Da Costa fa la pizza più buona di Miami 🍕",
+  "Ho appena battuto il mio record a Snake! 🐍", "Ci vediamo a Lummus Park oggi?", "Hai visto com'è bello il mare oggi? 🌊", "Mi annoio... usciamo? 😅"];
+function pushMsg(n, me, t) { (state.chats[n.name] = state.chats[n.name] || []).push({ me, t }); if (state.chats[n.name].length > 40) state.chats[n.name].shift(); }
+function sendMsg(n, text, kind) {
+  if (n.typing) return;
+  pushMsg(n, true, text); passTime(1);
+  if (state.msgDay[n.name] !== state.day) { state.msgDay[n.name] = state.day; addFr(n, 1); }
+  const asleep = isNight() && kind !== "night";
+  n.typing = !asleep;
+  renderPhone("chat", n);
+  setTimeout(() => {
+    n.typing = false;
+    pushMsg(n, false, asleep ? "😴 (dorme: ti risponderà domattina)" : REPLY[kind](n));
+    if (phoneOpen && phView === "chat" && phArg === n) renderPhone("chat", n);
+    else { state.unreadBy[n.name] = (state.unreadBy[n.name] || 0) + 1; updatePhoneBtn(); log(`📱 ${n.name} ti ha risposto.`); }
+    if (kind === "out" && !asleep && n.fr >= 2 && !state.travel) setTimeout(() => { meet(n); if (phoneOpen) closePhone(); }, 900);
+  }, asleep ? 400 : 1100 + R() * 1300);
+}
+function callFriend(n) {
+  if (!state.phone) { log("Per chiamare ti serve un telefono: compralo al Phone Center del Sunshine Mall."); return; }
+  if (openPhone("calling", n) === false) return;
+}
+// ogni tanto un amico ti scrive
+function updatePhone(dt) {
+  if (!state.phone || paused) return;
+  phTimer -= dt;
+  if (phTimer > 0) return;
+  phTimer = 150 + R() * 200;
+  const fr = friends();
+  if (!fr.length || isNight()) return;
+  const n = RP(fr);
+  pushMsg(n, false, RP(INCOMING));
+  state.unreadBy[n.name] = (state.unreadBy[n.name] || 0) + 1;
+  updatePhoneBtn();
+  log(`📱 Nuovo messaggio da ${n.name}! Premi P per leggerlo.`);
+}
+function photoSubject() {
+  if (state.travel) {
+    const D = DESTS[state.travel];
+    let best = null, bd = 10;
+    for (const hs of world.hotspots) if (hs.photo) { const d = Math.hypot(hs.x - player.position.x, hs.z - player.position.z); if (d < bd) { bd = d; best = hs; } }
+    return best ? { n: `${best.photo} (${D.name})`, e: best.pe || D.flag } : { n: `In giro per ${D.name}`, e: D.flag };
+  }
+  if (world === OUTDOOR) return player.position.x > 92 ? { n: "La spiaggia di South Beach", e: "🏖" } : { n: "Ocean Drive, Miami", e: "🌴" };
+  return { n: currentPlace.name, e: "📍" };
+}
+// regali: i souvenir si possono regalare agli amici
+{
+  const mood = T.mood;
+  T.mood = n => {
+    const node = mood(n), gift = state.souvenirs.find(s => !s.given);
+    if (gift && !viaPhone) node.opts.splice(node.opts.length - 1, 0, [`🎁 Regala: ${gift.e} ${gift.n}`, () => { gift.given = n.name; addFr(n, 3); need("fun", 10); return "gift"; }]);
+    return node;
+  };
+  T.gift = n => ({ say: "Per me?! Grazie, è bellissimo! ❤", opts: [["Figurati, a presto!", () => end(n, 0)]] });
+}
+updatePhoneBtn();
+
+// ================= VIAGGI =================
+function skyTexture(top, bottom) {
+  const t = new THREE.CanvasTexture(makeCanvas(4, 256, (g, w, h) => { const gr = g.createLinearGradient(0, 0, 0, h); gr.addColorStop(0, top); gr.addColorStop(1, bottom); g.fillStyle = gr; g.fillRect(0, 0, w, h); }));
+  return t;
+}
+// una piazza all'aperto: stesse regole degli interni, ma senza muri né soffitto
+function newCity(o) {
+  const I = newInterior(Object.assign({ h: 200, open: true, camDist: 14, camPitch: 0.3, amb: 0.85, key: 0.75 }, o));
+  I.open = true;
+  I.scene.background = skyTexture(o.skyTop, o.skyBottom);
+  I.spawn = { x: 0, z: o.d / 2 - 4 };
+  return I;
+}
+function crowd(I, n, looks) {
+  const W = I.room.w / 2 - 3, D = I.room.d / 2 - 3;
+  for (let i = 0, tries = 0; i < n && tries < 200; tries++) {
+    const x = rr(-W, W), z = rr(-D, D - 6);
+    if (I.solids.some(s => Math.abs(x - s.x) < s.w / 2 + 1.2 && Math.abs(z - s.z) < s.d / 2 + 1.2) || I.obstacles.some(o => Math.hypot(x - o.x, z - o.z) < o.r + 1.2)
+      || I.hotspots.some(h => Math.hypot(x - h.x, z - h.z) < 2.5) || Math.hypot(x - I.spawn.x, z - I.spawn.z) < 4) continue;
+    staff(I, x, z, rr(0, TAU), { shirt: pick(looks.shirts), pants: pick(looks.pants || [0x264653, 0x1d3557, 0x2b2b2b, 0xe9c46a]), hair: pick([0x111111, 0x3d2b1f, 0xb5651d, 0x555555, 0xe8c07d]),
+      skin: pick([0xf5cba7, 0xffdbac, 0xe0ac69, 0xc68642, 0x8d5524]), shoes: pick([0xffffff, 0x222222]) });
+    I.obstacles.push({ x, z, r: 0.5 }); i++;
+  }
+}
+// palazzi tutto intorno alla piazza
+function cityEdge(I, o) {
+  const W = I.room.w / 2, D = I.room.d / 2;
+  const sides = [[-W - 6, W + 6, -D - 6, true], [-W - 6, W + 6, D + 6, true], [-D, D, -W - 6, false], [-D, D, W + 6, false]];
+  for (const [a0, a1, fixed, alongX] of sides) {
+    for (let a = a0; a < a1;) {
+      const len = rr(o.len[0], o.len[1]), h = rr(o.h[0], o.h[1]);
+      const m = facadeBox(alongX ? len : 10, h, alongX ? 10 : len, o.style, pick(o.walls), o.glass, o.trim, o.roof);
+      m.position.set(alongX ? a + len / 2 : fixed, h / 2, alongX ? fixed : a + len / 2); I.scene.add(m);
+      I.solids.push({ x: m.position.x, z: m.position.z, w: alongX ? len : 10, d: alongX ? 10 : len, h });
+      a += len + 0.4;
+    }
+  }
+}
+function taxi(I, x, z, col, ry) {
+  const c = buildCar(col, false); I.scene.add(c); c.position.set(x, 0, z); c.rotation.y = ry || 0;
+  add(B(0.9, 0.35, 0.5), Glow(0xffe74c), 0, 1.95, 0, c);
+  I.solids.push({ x, z, w: 4.6, d: 4.6, h: 1.6 });
+  spot(I, { name: "Taxi per l'aeroporto", icon: "🚕", x, z: z - 3, desc: () => `Il volo di ritorno per Miami è già pagato (${DESTS[state.travel].hours} ore).`,
+    actions: () => [{ label: "Torna a Miami ✈", run: returnHome }] });
+}
+function souvenirShop(I, x, z, items, awn) {
+  solidBox(I, 3.4, 1.0, 1.6, 0x9b6b43, x, 0.5, z);
+  const a = new THREE.Mesh(B(3.8, 0.12, 2.2), awningMat(awn || 0xe63946, 4)); a.position.set(x, 2.6, z); I.scene.add(a);
+  for (const sx of [-1.7, 1.7]) deco(I, new THREE.CylinderGeometry(0.05, 0.05, 2.1, 6), 0xdddddd, x + sx, 1.55, z - 0.8);
+  items.forEach((it, i) => deco(I, B(0.4, 0.4, 0.4), pick([0xffd23f, 0x22e1ff, 0xff4fa3, 0x7cff6b]), x - 1 + i, 1.2, z));
+  staff(I, x, z - 1.4, 0, { shirt: 0xffffff, hair: 0x3d2b1f, skin: 0xe0ac69 });
+  spot(I, { name: "Souvenir", icon: "🎁", x, z: z + 1.9, desc: "Ricordini da portare a casa o da regalare agli amici.",
+    actions: () => items.map(([e, n, p]) => ({ label: `${e} ${n} (${usd(p)})`, run: () => {
+      if (spend(p)) { state.souvenirs.push({ e, n, from: DESTS[state.travel].name }); need("fun", 6); log(`Hai comprato: ${e} ${n}. Puoi regalarlo a un amico!`); } } })) });
+}
+function hotel(I, x, z, ry, name, color) {
+  const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; I.scene.add(g);
+  const b = facadeBox(12, 14, 9, "deco", color, 0x3f6f8f, 0xffffff, 0xe9e4dc); b.position.y = 7; g.add(b);
+  const s = signPlane(name, 6, 1.1, "#1b1640", "#ffe74c"); s.position.set(0, 4.2, 4.56); g.add(s);
+  const d = new THREE.Mesh(B(2.6, 3, 0.1), GLASS_DARK); d.position.set(0, 1.5, 4.52); g.add(d);
+  const front = new THREE.Vector3(0, 0, 6.6).applyAxisAngle(new THREE.Vector3(0, 1, 0), ry);
+  const half = Math.abs(Math.sin(ry)) > 0.5 ? [9, 12] : [12, 9];
+  I.solids.push({ x, z, w: half[0], d: half[1], h: 14 });
+  spot(I, { name, icon: "🛏", x: x + front.x, z: z + front.z, desc: () => `Energia: ${Math.round(state.energy)}%. Una camera per riposarti.`,
+    actions: () => [{ label: "Dormi 8 ore ($30)", run: () => { if (act({ cost: 30, energy: 100, hunger: -15, hygiene: 30, min: 480 })) log("Che dormita in hotel! Sei pronto per esplorare."); } },
+      { label: "Doccia in camera ($5)", run: () => act({ cost: 5, hygiene: 100, min: 15, text: "Doccia fatta: ti senti come nuovo." }) }] });
+}
+function food(I, x, z, name, icon, menu) {
+  spot(I, { name, icon, x, z, desc: "Cucina tipica del posto.", actions: () => menu.map(([n, p, h, f]) => ({ label: `${n} (${usd(p)})`,
+    run: () => act({ cost: p, hunger: h, fun: f || 8, min: 25, text: `${n}: buonissimo!` }) })) });
+}
+function umbrellaPine(I, x, z, s) {
+  deco(I, new THREE.CylinderGeometry(0.25 * s, 0.35 * s, 6 * s, 8), 0x7a5a3a, x, 3 * s, z);
+  const top = deco(I, new THREE.IcosahedronGeometry(3 * s, 1), M(0x3f7a35, { flatShading: true }), x, 6.6 * s, z); top.scale.y = 0.35;
+  I.obstacles.push({ x, z, r: 0.5 });
+}
+
+const DESTS = {
+  roma: { name: "Roma", flag: "🏛", cost: 80, hours: 10, blurb: "La Città Eterna: Colosseo, fontane e carbonara.",
+    build() {
+      const I = newCity({ w: 64, d: 54, skyTop: "#4f9be8", skyBottom: "#ffe2c4", groundLight: 0xc9a27a,
+        floor: canvasMat(tiles("#8d7f73", "#6e6258", 8), 16, 14, { roughness: 0.95 }) });
+      I.welcome = "Benvenuto a Roma! Visita il Colosseo, lancia una moneta nella fontana e mangia una carbonara.";
+      cityEdge(I, { style: "deco", walls: [0xe8b878, 0xd9895b, 0xf0d08a, 0xc9704a, 0xf4e2c0], glass: 0x3f6f8f, trim: 0xf6efe0, roof: 0xb5523b, len: [8, 14], h: [10, 18] });
+      // Colosseo
+      const arches = makeCanvas(256, 256, (g, w, h) => {
+        g.fillStyle = "#d9c3a0"; g.fillRect(0, 0, w, h); noise(g, w, h, 900, 0.08);
+        g.fillStyle = "#4a3a2a";
+        for (let r = 0; r < 3; r++) for (let k = 0; k < 2; k++) { const x = 20 + k * 128, y = 30 + r * 75; g.fillRect(x, y + 18, 88, 42); g.beginPath(); g.arc(x + 44, y + 18, 44, Math.PI, 0); g.fill(); }
+        g.fillStyle = "#c8b08a"; for (let r = 0; r < 4; r++) g.fillRect(0, r * 75 + 14, w, 8);
+      });
+      const tex = new THREE.CanvasTexture(arches); tex.wrapS = THREE.RepeatWrapping; tex.repeat.set(10, 1);
+      const cm = new THREE.MeshStandardMaterial({ map: tex, side: THREE.DoubleSide, roughness: 0.95 });
+      const CZ = -14;
+      deco(I, new THREE.CylinderGeometry(11, 11, 11, 48, 1, true), cm, 0, 5.5, CZ);
+      const tex2 = tex.clone(); tex2.needsUpdate = true; tex2.repeat.set(5.5, 0.35);
+      deco(I, new THREE.CylinderGeometry(11.02, 11.02, 4, 48, 1, true, -0.4, Math.PI * 1.15), new THREE.MeshStandardMaterial({ map: tex2, side: THREE.DoubleSide, roughness: 0.95 }), 0, 13, CZ);
+      deco(I, new THREE.CylinderGeometry(7.5, 7.5, 7, 40, 1, true), M(0xb89f7c, { side: THREE.DoubleSide }), 0, 3.5, CZ);
+      I.obstacles.push({ x: 0, z: CZ, r: 11.6 });
+      spot(I, { name: "Colosseo", icon: "🏛", x: 0, z: CZ + 13.8, y: 4, photo: "Il Colosseo", pe: "🏛", desc: "L'anfiteatro più famoso del mondo: quasi 2000 anni di storia.",
+        actions: () => [{ label: "Visita guidata ($12, 1 ora)", run: () => act({ cost: 12, fun: 30, energy: -8, min: 60, text: "Gladiatori, leoni e 50.000 spettatori: che storia!" }) }] });
+      // fontana
+      const FX = -19, FZ = 9;
+      deco(I, B(12, 7, 1.5), M(0xeae2d0), FX, 3.5, FZ - 4.6);
+      for (const cx of [-4.5, -1.5, 1.5, 4.5]) deco(I, new THREE.CylinderGeometry(0.4, 0.4, 6, 10), 0xf4efe6, FX + cx, 3.5, FZ - 3.6);
+      const statue = makeHuman({ shirt: 0xf4efe6, pants: 0xf4efe6, hair: 0xf4efe6, skin: 0xf4efe6, shoes: 0xf4efe6 });
+      statue.g.position.set(FX, 1.2, FZ - 3.4); statue.armR.rotation.x = -2.2; I.scene.add(statue.g);
+      deco(I, new THREE.CylinderGeometry(5, 5.2, 0.8, 32, 1, false, 0, Math.PI), M(0xf4efe6), FX, 0.4, FZ - 3.2).rotation.y = -Math.PI / 2;
+      const water = deco(I, new THREE.CylinderGeometry(4.6, 4.6, 0.1, 32, 1, false, 0, Math.PI), M(0x3fe0d0, { transparent: true, opacity: 0.85, roughness: 0.1 }), FX, 0.72, FZ - 3.2);
+      water.rotation.y = -Math.PI / 2;
+      I.ticks.push(t => { water.material.color.setHSL(0.48, 0.7, 0.5 + Math.sin(t * 2) * 0.05); });
+      I.solids.push({ x: FX, z: FZ - 3, w: 12, d: 6, h: 3 });
+      spot(I, { name: "Fontana", icon: "⛲", x: FX, z: FZ + 3.2, photo: "La fontana", pe: "⛲", desc: "Si dice che chi lancia una moneta tornerà a Roma.",
+        actions: () => [{ label: "Lancia una moneta ($1)", run: () => act({ cost: 1, fun: 8, min: 3, text: "Plin! Tornerai sicuramente a Roma." }) }] });
+      // trattoria con tavolini
+      const tr = facadeBox(12, 9, 8, "deco", 0xf0d08a, 0x3f6f8f, 0xffffff, 0xb5523b); tr.position.set(22, 4.5, 6); I.scene.add(tr);
+      I.solids.push({ x: 22, z: 6, w: 12, d: 8, h: 9 });
+      const aw = new THREE.Mesh(B(10, 0.12, 2.4), awningMat(0x2e8b57, 10)); aw.position.set(22, 3.2, 1.1); I.scene.add(aw);
+      put(signPlane("Trattoria Er Cupolone", 6, 0.9, "#2e8b57", "#ffffff"), I, 22, 4.4, 1.94, Math.PI);
+      for (const tx of [18, 22.5]) diningTable(I, tx, -2.2, { top: 0xffffff, leg: 0x333333, seat: 0x2e8b57, chairs: 2, size: 0.6 });
+      food(I, 26.5, -0.6, "Trattoria", "🍝", [["Carbonara", 14, 60, 12], ["Supplì", 4, 20], ["Pizza al taglio", 6, 30], ["Gelato al pistacchio", 4, 10, 10]]);
+      umbrellaPine(I, -26, -18, 1.1); umbrellaPine(I, 26, -18, 1); umbrellaPine(I, -26, 18, 0.9);
+      souvenirShop(I, -6, 16, [["🏛", "Mini Colosseo", 10], ["🛵", "Vespa in miniatura", 12], ["👕", "Maglietta I ❤ Roma", 15]], 0x2e8b57);
+      hotel(I, 24, 19.5, -Math.PI / 2, "Hotel Trastevere", 0xd9895b);
+      taxi(I, 7, 22, 0xffffff, Math.PI / 2);
+      crowd(I, 12, { shirts: [0xffffff, 0x1d3557, 0xe63946, 0x2e8b57, 0xffd23f] });
+      return I;
+    } },
+
+  londra: { name: "Londra", flag: "💂", cost: 120, hours: 9, blurb: "Big Ben, autobus rossi e tè delle cinque.",
+    build() {
+      const I = newCity({ w: 64, d: 54, skyTop: "#8a9bb0", skyBottom: "#dfe5ea", amb: 0.95, key: 0.5,
+        floor: canvasMat(tiles("#9fa3a6", "#7d8184", 4), 16, 14, { roughness: 0.95 }) });
+      I.welcome = "Benvenuto a Londra! Guarda il Big Ben, sali sulla ruota panoramica e prova il fish & chips.";
+      cityEdge(I, { style: "deco", walls: [0xa0513a, 0xb86b4b, 0xe8dcc4, 0x8c4632, 0xf2ece0], glass: 0x2f4f6f, trim: 0xffffff, roof: 0x4a5560, len: [7, 12], h: [11, 18] });
+      // Big Ben
+      const BX = -18, BZ = -14;
+      const stone = canvasMat((g, s) => { g.fillStyle = "#c9b27c"; g.fillRect(0, 0, s, s); noise(g, s, s, 400, 0.06); g.fillStyle = "rgba(90,70,30,.35)"; for (let x = 0; x < s; x += 16) g.fillRect(x, 0, 3, s); }, 2, 8);
+      deco(I, B(5, 30, 5), stone, BX, 15, BZ);
+      deco(I, B(6, 6, 6), M(0xd8c290), BX, 25.5, BZ);
+      const roof = deco(I, new THREE.ConeGeometry(4.3, 9, 4), M(0x3d4a52, { flatShading: true }), BX, 33, BZ); roof.rotation.y = Math.PI / 4;
+      deco(I, new THREE.CylinderGeometry(0.1, 0.1, 3, 6), 0xd4af37, BX, 39, BZ);
+      const face = () => boardPlane(4.4, 4.4, (g, w, h) => {
+        g.fillStyle = "#d4af37"; g.fillRect(0, 0, w, h); g.fillStyle = "#fbf6e6"; g.beginPath(); g.arc(w / 2, h / 2, w * 0.44, 0, TAU); g.fill();
+        g.fillStyle = "#222"; for (let k = 0; k < 12; k++) { const a = k * TAU / 12; g.fillRect(w / 2 + Math.cos(a) * w * 0.37 - 4, h / 2 + Math.sin(a) * h * 0.37 - 4, 8, 8); }
+        g.strokeStyle = "#222"; g.lineWidth = 12; g.lineCap = "round";
+        g.beginPath(); g.moveTo(w / 2, h / 2); g.lineTo(w / 2, h * 0.2); g.moveTo(w / 2, h / 2); g.lineTo(w * 0.7, h * 0.58); g.stroke();
+      }, 256);
+      [[0, 3.02], [Math.PI, -3.02], [Math.PI / 2, 0], [-Math.PI / 2, 0]].forEach(([ry, dz], i) => {
+        const f = face(); f.position.set(BX + (i === 2 ? 3.02 : i === 3 ? -3.02 : 0), 25.5, BZ + dz); f.rotation.y = ry; I.scene.add(f);
+      });
+      I.solids.push({ x: BX, z: BZ, w: 6, d: 6, h: 40 });
+      spot(I, { name: "Big Ben", icon: "🕰", x: BX, z: BZ + 5.5, y: 5, photo: "Il Big Ben", pe: "🕰", desc: "La torre dell'orologio più famosa del mondo. Dong, dong!",
+        actions: () => [{ label: "Ascolta i rintocchi (10 min)", run: () => act({ fun: 12, min: 10, text: "DONG... DONG... Che emozione!" }) }] });
+      // ruota panoramica
+      const EX = 17, EZ = -19;
+      const wheel = new THREE.Group(); wheel.position.set(EX, 15, EZ); I.scene.add(wheel);
+      add(new THREE.TorusGeometry(13, 0.3, 8, 64), 0xf4f4f4, 0, 0, 0, wheel);
+      add(new THREE.TorusGeometry(12.3, 0.12, 6, 64), 0xdddddd, 0, 0, 0, wheel);
+      for (let k = 0; k < 16; k++) {
+        const a = k * TAU / 16;
+        const sp = add(new THREE.CylinderGeometry(0.06, 0.06, 13, 4), 0xdddddd, Math.cos(a) * 6.5, Math.sin(a) * 6.5, 0, wheel); sp.rotation.z = a - Math.PI / 2;
+        add(new THREE.SphereGeometry(0.7, 12, 8), M(0xbfe9ff, { roughness: 0.1 }), Math.cos(a) * 13, Math.sin(a) * 13, 0.6, wheel);
+      }
+      add(new THREE.CylinderGeometry(0.8, 0.8, 1.6, 16), 0xaaaaaa, 0, 0, 0, wheel).rotation.x = Math.PI / 2;
+      for (const s of [-1, 1]) { const leg = deco(I, new THREE.CylinderGeometry(0.3, 0.4, 17, 8), 0xdddddd, EX + s * 4, 7.5, EZ - 1); leg.rotation.z = s * 0.26; }
+      I.ticks.push((t) => { wheel.rotation.z = t * 0.05; });
+      I.solids.push({ x: EX, z: EZ - 1, w: 11, d: 3, h: 2 });
+      spot(I, { name: "Ruota panoramica", icon: "🎡", x: EX, z: EZ + 4, photo: "La ruota panoramica", pe: "🎡", desc: "Un giro di mezz'ora con vista su tutta Londra.",
+        actions: () => [{ label: "Fai un giro ($20, 30 min)", run: () => act({ cost: 20, fun: 30, min: 30, text: "Da lassù si vede tutta Londra: che spettacolo!" }) }] });
+      // autobus a due piani
+      const bus = new THREE.Group(); bus.position.set(2, 0, 4); bus.rotation.y = 0.2; I.scene.add(bus);
+      add(B(10, 4.2, 2.6), M(0xd7261e, { roughness: 0.4 }), 0, 2.5, 0, bus);
+      for (const y of [1.9, 3.7]) add(B(9.4, 0.9, 2.64), GLASS_DARK, 0, y, 0, bus);
+      add(B(10.02, 0.25, 2.66), 0xffffff, 0, 2.85, 0, bus);
+      for (const [wx, wz] of [[-3.4, 1.3], [3.4, 1.3], [-3.4, -1.3], [3.4, -1.3]]) add(new THREE.CylinderGeometry(0.5, 0.5, 0.3, 14), 0x1b1b1b, wx, 0.5, wz, bus).rotation.x = Math.PI / 2;
+      I.solids.push({ x: 2, z: 4, w: 10.5, d: 4.5, h: 4.6 });
+      // cabina telefonica
+      deco(I, B(1.2, 2.7, 1.2), M(0xd7261e), -8, 1.35, 13);
+      for (const [gw, gd] of [[0.9, 1.24], [1.24, 0.9]]) deco(I, B(gw, 1.5, gd), M(0x9fc3d6, { roughness: 0.2 }), -8, 1.45, 13);
+      deco(I, B(1.3, 0.25, 1.3), M(0xd7261e), -8, 2.8, 13);
+      I.solids.push({ x: -8, z: 13, w: 1.3, d: 1.3, h: 3 });
+      spot(I, { name: "Cabina rossa", icon: "☎", x: -8, z: 15, photo: "La cabina rossa", pe: "☎", desc: "La classica cabina telefonica rossa. Perfetta per una foto!", actions: () => [] });
+      // pub
+      const pub = facadeBox(12, 8, 8, "deco", 0x1f4d3a, 0xffd27a, 0xd4af37, 0x333333); pub.position.set(23, 4, 7); I.scene.add(pub);
+      I.solids.push({ x: 23, z: 7, w: 12, d: 8, h: 8 });
+      put(signPlane("The Royal Oak", 6, 1, "#1f4d3a", "#d4af37"), I, 23, 4.6, 2.94, Math.PI);
+      food(I, 23, 1.2, "Pub The Royal Oak", "🍺", [["Fish & chips", 14, 60, 10], ["Tè con scones", 8, 20, 10], ["Colazione inglese", 12, 55]]);
+      souvenirShop(I, -18, 3, [["🕰", "Mini Big Ben", 10], ["🚌", "Bus rosso giocattolo", 12], ["☂", "Ombrello con la bandiera", 15]], 0x1d3557);
+      hotel(I, -24, 19.5, Math.PI / 2, "The Kensington", 0xe8dcc4);
+      taxi(I, 9, 22, 0x111111, Math.PI / 2);
+      crowd(I, 12, { shirts: [0x1d3557, 0x2b2b2b, 0x8a9bb0, 0xd7261e, 0xf4f1de] });
+      return I;
+    } },
+
+  newyork: { name: "New York", flag: "🗽", cost: 180, hours: 3, blurb: "Grattacieli, Times Square e la Statua della Libertà.",
+    build() {
+      const I = newCity({ w: 64, d: 54, skyTop: "#3b7dd8", skyBottom: "#cfe6ff",
+        floor: canvasMat(tiles("#8c8c8c", "#6e6e6e", 4), 16, 14, { roughness: 0.95 }) });
+      I.welcome = "Benvenuto a New York! Times Square, i grattacieli e il traghetto per la Statua della Libertà.";
+      // grattacieli (niente lato sud: lì c'è il porto)
+      const W = 32, D = 27;
+      for (const [x0, x1, z, alongX] of [[-W - 6, W + 6, D + 7, true], [-D, D, -W - 7, false], [-D, D, W + 7, false]])
+        for (let a = x0; a < x1;) {
+          const len = rr(9, 14), h = rr(30, 85);
+          const m = facadeBox(alongX ? len : 12, h, alongX ? 12 : len, "glass", pick([0x5aa6b8, 0x4a7fa6, 0x7f9fb8, 0x3f6f8f]), pick([0xdfe3e6, 0x8a8f96, 0x333a44]), 0, 0x8a8f96);
+          m.position.set(alongX ? a + len / 2 : z, h / 2, alongX ? z : a + len / 2); I.scene.add(m); a += len + 0.5;
+          I.solids.push({ x: m.position.x, z: m.position.z, w: alongX ? len : 12, d: alongX ? 12 : len, h });
+        }
+      // maxischermi di Times Square
+      const ads = [["LODDO COLA", "#e63946"], ["BROADWAY", "#7b2ff7"], ["I ❤ NY", "#ffffff"], ["NYC", "#22e1ff"], ["SALE 50%", "#ffd23f"], ["MIAMI ✈ NYC", "#ff4fa3"]];
+      const screens = [];
+      ads.forEach(([t, c], i) => {
+        const left = i < 3, z = -14 + (i % 3) * 13;
+        const s = signPlane(t, 10, 6, "#0b0f1a", c); s.position.set(left ? -W - 0.9 : W + 0.9, 11 + (i % 2) * 7, z); s.rotation.y = left ? Math.PI / 2 : -Math.PI / 2; I.scene.add(s);
+        screens.push(s);
+      });
+      I.ticks.push(t => screens.forEach((s, i) => { s.material.color.setHSL(0, 0, 0.75 + Math.sin(t * 3 + i) * 0.25); }));
+      // porto e Statua della Libertà
+      const sea = deco(I, B(900, 0.1, 700), M(0x2b6fa0, { roughness: 0.2 }), 0, -0.01, -D - 350); sea.userData.noCast = true;
+      deco(I, B(64, 0.1, 0.14), 0x333333, 0, 1.08, -D + 0.3);
+      for (let x = -31; x <= 31; x += 2) deco(I, B(0.1, 1.1, 0.1), 0x333333, x, 0.55, -D + 0.3);
+      const lib = new THREE.Group(); lib.position.set(-25, 0, -190); lib.scale.setScalar(2.8); I.scene.add(lib);
+      add(new THREE.CylinderGeometry(9, 10, 1.5, 24), 0x7fbf5a, 0, 0.5, 0, lib);
+      add(B(5, 5, 5), 0xcfc6b4, 0, 3.5, 0, lib);
+      add(B(3.6, 3, 3.6), 0xd9d0be, 0, 7.5, 0, lib);
+      const green = M(0x6fb89c, { roughness: 0.7 });
+      add(new THREE.CylinderGeometry(1.0, 1.7, 7, 16), green, 0, 12.5, 0, lib);
+      add(new THREE.SphereGeometry(0.9, 16, 12), green, 0, 16.6, 0, lib);
+      for (let k = 0; k < 7; k++) { const sp = add(new THREE.ConeGeometry(0.15, 1, 6), green, Math.sin(k * 0.45 - 1.35) * 0.9, 17.4, Math.cos(k * 0.45 - 1.35) * 0.3, lib); sp.rotation.z = -(k * 0.45 - 1.35) * 0.8; }
+      const arm = add(new THREE.CylinderGeometry(0.3, 0.35, 4, 10), green, 1.2, 17.5, 0, lib); arm.rotation.z = -0.15;
+      add(new THREE.SphereGeometry(0.5, 10, 8), Glow(0xffd23f), 1.55, 19.8, 0, lib);
+      add(B(0.7, 1.4, 0.3), green, -1.1, 13.5, 0.9, lib);
+      spot(I, { name: "Traghetto per la Statua", icon: "🗽", x: -10, z: -D + 2, photo: "La Statua della Libertà", pe: "🗽", desc: "Il simbolo di New York, al centro della baia.",
+        actions: () => [{ label: "Prendi il traghetto ($18, 1 ora)", run: () => act({ cost: 18, fun: 32, min: 60, text: "Dal traghetto la Statua della Libertà è enorme!" }) }] });
+      // carretto degli hot dog
+      deco(I, B(2.4, 1.1, 1.3), 0xdddddd, -12, 0.75, 8); deco(I, new THREE.CylinderGeometry(0.4, 0.4, 0.2, 14), 0x222222, -12.8, 0.25, 8.7).rotation.x = Math.PI / 2;
+      const umb = deco(I, new THREE.ConeGeometry(1.8, 0.7, 12), M(0xffd23f), -12, 2.9, 8); umb.userData.noShadow = false;
+      deco(I, new THREE.CylinderGeometry(0.04, 0.04, 1.6, 6), 0xdddddd, -12, 2.1, 8);
+      I.solids.push({ x: -12, z: 8, w: 2.6, d: 1.5, h: 1.4 });
+      staff(I, -12, 6.9, 0, { shirt: 0xe63946, hair: 0x111111, skin: 0xc68642 });
+      food(I, -12, 10.2, "Hot dog & pizza", "🌭", [["Hot dog", 6, 30], ["Trancio di pizza NY", 5, 28], ["Bagel al salmone", 7, 35], ["Pretzel", 4, 18]]);
+      // teatro di Broadway
+      const th = facadeBox(14, 12, 6, "deco", 0x7b2ff7, 0xffd27a, 0xffd23f, 0x333333); th.position.set(18, 6, 8); I.scene.add(th);
+      I.solids.push({ x: 18, z: 8, w: 14, d: 6, h: 12 });
+      put(neonSign("Broadway", 0xffe74c, 9), I, 18, 7.5, 11.1);
+      spot(I, { name: "Musical a Broadway", icon: "🎭", x: 18, z: 12.6, photo: "Broadway", pe: "🎭", desc: "Lo spettacolo più famoso della città, stasera in scena.",
+        actions: () => [{ label: "Guarda il musical ($40, 2 ore)", run: () => act({ cost: 40, fun: 50, min: 120, text: "Che spettacolo! Canti e balli fino all'ultimo applauso." }) }] });
+      spot(I, { name: "Terrazza panoramica", icon: "🏙", x: 24, z: -6, photo: "Lo skyline di Manhattan", pe: "🏙", desc: "Ascensore veloce fino all'86° piano del grattacielo.",
+        actions: () => [{ label: "Sali in cima ($25, 45 min)", run: () => act({ cost: 25, fun: 30, min: 45, text: "Da quassù le auto sembrano formiche!" }) }] });
+      souvenirShop(I, 4, 13, [["🗽", "Mini Statua della Libertà", 12], ["🍎", "Mela I ❤ NY", 8], ["🧢", "Cappellino di New York", 15]], 0x1d3557);
+      hotel(I, -24, 19.5, Math.PI / 2, "Hotel Manhattan", 0xbde0fe);
+      [[6, 3, 0.1], [-4, -6, 1.6]].forEach(([x, z, ry]) => { const c = buildCar(0xffd23f, false); I.scene.add(c); c.position.set(x, 0, z); c.rotation.y = ry; I.solids.push({ x, z, w: 4.4, d: 4.4, h: 1.6 }); });
+      taxi(I, 9, 22, 0xffd23f, Math.PI / 2);
+      crowd(I, 14, { shirts: [0x2b2b2b, 0x1d3557, 0xffffff, 0xe63946, 0x22b8e6, 0xffd23f] });
+      return I;
+    } },
+
+  tokyo: { name: "Tokyo", flag: "🗾", cost: 250, hours: 14, blurb: "Templi, ciliegi in fiore, neon e ramen.",
+    build() {
+      const I = newCity({ w: 64, d: 54, skyTop: "#6aa8f0", skyBottom: "#ffe0ec",
+        floor: canvasMat(tiles("#b9b2aa", "#9a938b", 4), 16, 14, { roughness: 0.95 }) });
+      I.welcome = "Benvenuto a Tokyo! Il tempio, la torre rossa, il ramen e la sala giochi ti aspettano.";
+      cityEdge(I, { style: "glass", walls: [0x5aa6b8, 0x7f9fb8, 0xb388ff, 0x4a7fa6], glass: 0xdfe3e6, trim: 0, roof: 0x8a8f96, len: [7, 12], h: [14, 34] });
+      // insegne verticali al neon
+      [["ラーメン", 0xff3cac], ["カラオケ", 0x22e1ff], ["ゲーム", 0x7cff6b], ["寿司", 0xffe74c], ["東京", 0xff7a3d], ["ネオン", 0xb388ff]].forEach(([t, c], i) => {
+        const s = boardPlane(1.6, 6, (g, w, h) => {
+          g.fillStyle = "#0b0f1a"; g.fillRect(0, 0, w, h); g.fillStyle = hex(c); g.shadowColor = hex(c); g.shadowBlur = 20;
+          g.textAlign = "center"; g.textBaseline = "middle"; g.font = "700 80px 'Yu Gothic', 'Meiryo', 'Hiragino Sans', sans-serif";
+          [...t].forEach((ch, k) => g.fillText(ch, w / 2, h / (t.length + 1) * (k + 1)));
+        }, 128);
+        const right = i >= 3; s.position.set(right ? 32.6 : -32.6, 9, -15 + (i % 3) * 14); s.rotation.y = right ? -Math.PI / 2 : Math.PI / 2; I.scene.add(s);
+      });
+      // torii e pagoda
+      const TX = -16, TZ = -8, red = M(0xd7261e, { roughness: 0.6 });
+      for (const s of [-1, 1]) deco(I, new THREE.CylinderGeometry(0.4, 0.45, 7, 14), red, TX + s * 3, 3.5, TZ);
+      deco(I, B(9, 0.6, 0.8), red, TX, 7.1, TZ); deco(I, B(10, 0.35, 1), 0x222222, TX, 7.55, TZ); deco(I, B(7.6, 0.4, 0.5), red, TX, 5.8, TZ);
+      for (const s of [-1, 1]) I.obstacles.push({ x: TX + s * 3, z: TZ, r: 0.6 });
+      const PZ = -19;
+      for (let k = 0; k < 4; k++) {
+        const s = 1 - k * 0.18, y = k * 3.6;
+        deco(I, B(7 * s, 3, 7 * s), M(0xc0392b), TX, y + 1.5, PZ);
+        const rf = deco(I, new THREE.ConeGeometry(7.2 * s, 1.4, 4), M(0x2b2b2b, { flatShading: true }), TX, y + 3.5, PZ); rf.rotation.y = Math.PI / 4;
+      }
+      deco(I, new THREE.CylinderGeometry(0.1, 0.15, 3, 6), 0xd4af37, TX, 16.5, PZ);
+      I.solids.push({ x: TX, z: PZ, w: 7.4, d: 7.4, h: 16 });
+      spot(I, { name: "Tempio", icon: "⛩", x: TX, z: TZ + 2.4, photo: "Il tempio", pe: "⛩", desc: "Un antico tempio buddista con la sua pagoda a cinque tetti.",
+        actions: () => [{ label: "Prega e suona la campana (15 min)", run: () => act({ fun: 15, energy: 10, min: 15, text: "Dong... Ti senti calmo e pieno di energia." }) },
+          { label: "Pesca un omikuji ($1)", run: () => act({ cost: 1, fun: 6, min: 2, text: RP(["Grande fortuna! 大吉", "Buona fortuna! 吉", "Piccola fortuna... 小吉"]) }) }] });
+      // torre rossa e bianca
+      const TWX = 20, TWZ = -20;
+      for (let k = 0; k < 6; k++) {
+        const r0 = 5 - k * 0.8, r1 = 5 - (k + 1) * 0.8;
+        deco(I, new THREE.CylinderGeometry(r1, r0, 6, 4, 2, true), new THREE.MeshStandardMaterial({ color: k % 2 ? 0xffffff : 0xff4a1c, wireframe: true }), TWX, 3 + k * 6, TWZ).rotation.y = Math.PI / 4;
+      }
+      deco(I, B(4, 2, 4), 0xff4a1c, TWX, 14, TWZ); deco(I, B(2.2, 1.4, 2.2), 0xffffff, TWX, 26, TWZ);
+      deco(I, new THREE.CylinderGeometry(0.1, 0.2, 8, 6), 0xff4a1c, TWX, 40, TWZ);
+      I.solids.push({ x: TWX, z: TWZ, w: 8, d: 8, h: 40 });
+      spot(I, { name: "Torre di Tokyo", icon: "🗼", x: TWX, z: TWZ + 6, photo: "La torre di Tokyo", pe: "🗼", desc: "La torre rossa e bianca, alta 333 metri.",
+        actions: () => [{ label: "Sali all'osservatorio ($20, 40 min)", run: () => act({ cost: 20, fun: 28, min: 40, text: "Nelle giornate limpide da qui si vede il monte Fuji!" }) }] });
+      // ciliegi in fiore
+      const pink = M(0xffb7d5, { flatShading: true });
+      [[-26, 6], [-6, -10], [6, -12], [-26, -2], [28, 4], [-2, 18]].forEach(([x, z]) => {
+        deco(I, new THREE.CylinderGeometry(0.2, 0.3, 3, 7), 0x5b4033, x, 1.5, z);
+        for (let k = 0; k < 4; k++) deco(I, new THREE.IcosahedronGeometry(rr(1.1, 1.6), 1), pink, x + rr(-1, 1), rr(3.2, 4.2), z + rr(-1, 1));
+        I.obstacles.push({ x, z, r: 0.5 });
+      });
+      // locali
+      const ramen = facadeBox(10, 7, 7, "deco", 0x2b2b2b, 0xffd27a, 0xd7261e, 0x222222); ramen.position.set(23, 3.5, 8); I.scene.add(ramen);
+      I.solids.push({ x: 23, z: 8, w: 10, d: 7, h: 7 });
+      for (let k = 0; k < 5; k++) deco(I, B(0.9, 1, 0.05), M(0xf4efe6), 19.4 + k * 1.8, 2.6, 11.55);
+      deco(I, new THREE.SphereGeometry(0.5, 12, 10), Glow(0xff5533), 18.6, 3.4, 12).scale.y = 1.4;
+      food(I, 23, 13.2, "Ramen bar", "🍜", [["Ramen tonkotsu", 12, 55, 10], ["Sushi misto", 18, 50, 15], ["Mochi", 4, 12, 8], ["Tè matcha", 3, 5, 6]]);
+      const arc = facadeBox(10, 8, 7, "glass", 0xb388ff, 0x1b1640, 0, 0x222222); arc.position.set(8, 4, -24); I.scene.add(arc);
+      I.solids.push({ x: 8, z: -24, w: 10, d: 7, h: 8 });
+      put(signPlane("GAME CENTER ゲーム", 7, 1.2, "#1b1640", "#7cff6b"), I, 8, 6.5, -20.4);
+      spot(I, { name: "Sala giochi", icon: "🕹", x: 8, z: -18.6, desc: "Cabinati di tutti i giochi della console: una partita costa $2.",
+        actions: () => Object.values(CONSOLE_GAMES).map(cg => ({ label: `${cg.name} ($2)`, run: () => { if (spend(2)) { closePanel(); openArcade(cg.id); } } })) });
+      spot(I, { name: "Karaoke", icon: "🎤", x: -4, z: -20.2, desc: "Una saletta tutta per te e il microfono.",
+        actions: () => [{ label: "Canta per un'ora ($15)", run: () => act({ cost: 15, fun: 40, energy: -5, min: 60, text: "Hai cantato a squarciagola: applausi!" }) }] });
+      const kar = facadeBox(7, 7, 6, "deco", 0xff3cac, 0x22e1ff, 0xffffff, 0x222222); kar.position.set(-4, 3.5, -24.5); I.scene.add(kar);
+      I.solids.push({ x: -4, z: -24.5, w: 7, d: 6, h: 7 });
+      souvenirShop(I, -14, 12, [["🐱", "Gatto portafortuna", 10], ["🎏", "Carpa di stoffa", 12], ["🥢", "Bacchette laccate", 8]], 0xd7261e);
+      hotel(I, -24, 19.5, Math.PI / 2, "Capsule Hotel", 0xf4efe6);
+      taxi(I, 9, 22, 0x1d3557, Math.PI / 2);
+      crowd(I, 14, { shirts: [0x2b2b2b, 0xffffff, 0xffb7d5, 0x1d3557, 0xb388ff, 0x7cffb2] });
+      return I;
+    } }
+};
+
+const fadeMsg = document.getElementById("fadeMsg");
+function flightScreen(text, hold) {
+  fadeMsg.innerHTML = `<div class="plane">✈️</div><div>${text}</div>`;
+  setTimeout(() => { fadeMsg.innerHTML = ""; }, hold + 900);
+}
+function travelTo(id) {
+  const D = DESTS[id];
+  if (!state.hasHome) { log("Prima trova una casa: ti serve un posto dove tornare!"); return; }
+  if (state.energy < 15) { log("Sei troppo stanco per un volo: prima riposati un po'."); return; }
+  if (!spend(D.cost)) return;
+  closePanel();
+  flightScreen(`Volo per ${D.name} ${D.flag}<br><small>${D.hours} ore di volo...</small>`, 2400);
+  fadeTo(() => {
+    const W = D.world || (D.world = finishInterior(D.build()));
+    passTime(D.hours * 60);
+    need("energy", -Math.min(35, D.hours * 2.5)); need("hunger", -Math.min(40, D.hours * 3)); need("hygiene", -15); need("fun", 15);
+    state.travel = id; D.visited = true;
+    setWorld(W); currentPlace = { name: `${D.flag} ${D.name}` };
+    player.position.set(W.spawn.x, 0, W.spawn.z); player.rotation.y = Math.PI;
+    yaw = 0; pitch = W.camPitch; dist = W.camDist;
+    log(W.welcome);
+    updateHUD();
+  }, 2400);
+}
+function returnHome() {
+  const D = DESTS[state.travel];
+  closePanel();
+  flightScreen(`Si torna a Miami 🌴<br><small>${D.hours} ore di volo...</small>`, 2200);
+  fadeTo(() => {
+    passTime(D.hours * 60);
+    need("energy", -Math.min(35, D.hours * 2.5)); need("hunger", -Math.min(40, D.hours * 3)); need("hygiene", -15);
+    state.travel = null;
+    const ap = places.find(p => p.id === "aeroporto");
+    const I = ap.interior || (ap.interior = buildInterior(ap));
+    setWorld(I); currentPlace = ap;
+    player.position.set(I.spawn.x, 0, I.spawn.z); player.rotation.y = Math.PI;
+    yaw = 0; pitch = I.camPitch; dist = I.camDist;
+    log(`Bentornato a Miami! Il viaggio a ${D.name} è stato fantastico.`);
+    updateHUD();
+  }, 2200);
 }
 
 // posizione iniziale della camera
