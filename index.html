@@ -138,6 +138,7 @@
   .bub.typing { opacity: .7; font-style: italic; }
   .quick { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 6px; }
   .quick button, .phBtn { border: none; border-radius: 999px; padding: 6px 10px; background: rgba(255,255,255,.92); color: #1b1640; font: 600 11px Poppins, sans-serif; cursor: pointer; }
+  .quick button.alt { background: rgba(0,0,0,.35); color: #fff; }
   .phBtn { display: block; width: 100%; margin: 5px 0; padding: 9px; font-size: 13px; background: var(--accent, #22e1ff); color: #fff; }
   .phBtn.ghost { background: rgba(255,255,255,.2); }
   #phScreen canvas { width: 100%; border-radius: 12px; background: #000; touch-action: none; display: block; }
@@ -334,6 +335,7 @@
 
     <h3>Novità</h3>
     <div class="changes">
+      <p><b>1.7.0</b> · Tante frasi nuove al telefono: argomenti in chiamata, messaggi che cambiano e risposte alle domande degli amici.</p>
       <p><b>1.6.0</b> · Mac Donald e Sakura Sushi: si ordina da totem e tablet, il cibo arriva davvero e si mangia boccone per boccone.</p>
       <p><b>1.5.0</b> · Zaino: raccogli, compra, usa, lascia e regala gli oggetti; baule in casa.</p>
       <p><b>1.4.0</b> · Telefono con chiamate, messaggi e giochini; giochi della console giocabili; viaggi veri a Roma, Londra, New York e Tokyo.</p>
@@ -367,7 +369,7 @@ const state = { money: 150, hasHome: false, job: null, food: 0, console: false, 
   day: 1, time: 8 * 60, energy: 100, hunger: 90, hygiene: 100, fun: 70, workedToday: false,
   phone: null, chats: {}, unread: 0, msgDay: {}, best: {}, souvenirs: [], photos: [], travel: null, bag: [], chest: [] };
 // ================= VERSIONE E PAGINA DELLE REGOLE =================
-const GAME_VERSION = "1.6.0", GAME_DATE = "24 novembre 2026";
+const GAME_VERSION = "1.7.0", GAME_DATE = "24 novembre 2026";
 document.querySelectorAll(".gameVer").forEach(el => { el.textContent = "v" + GAME_VERSION; });
 document.getElementById("gameDate").textContent = GAME_DATE;
 document.getElementById("gameVerLong").textContent = GAME_VERSION;
@@ -2617,12 +2619,14 @@ const T = {
   thanks: n => ({ say: "Buonissima! Grazie per l'invito!", opts: [["A presto!", () => end(n, 0)]] }),
   broke: n => ({ say: "Mi piacerebbe, ma adesso non ho soldi nemmeno io...", opts: [["Capisco, ci vediamo", () => end(n, 0)]] }),
   // al telefono
-  call: n => ({ say: "📞 «Pronto? Oh, ciao! Che bello sentirti!»", opts: [
-    ["Come va la giornata?", () => "mood"],
-    ...(state.travel ? [[`Sono a ${DESTS[state.travel].name}, è bellissimo!`, () => { addFr(n, 1); return "abroad"; }]] : []),
-    ["Ti chiamavo solo per salutarti. Ciao!", () => end(n, 1)]
+  call: n => { n.told = []; return { say: "📞 " + callHello(n), opts: callMenu(n) }; },
+  more: n => ({ say: RP(CALL_MORE), opts: callMenu(n) }),
+  topic: n => ({ say: n.topic.a(n), opts: n.topic.opts.map(([mine, theirs]) => [mine, () => { n.topicReply = theirs; return "topicEnd"; }]) }),
+  topicEnd: n => ({ say: n.topicReply, opts: [
+    ...(callTopics(n).length ? [["Senti, parliamo d'altro...", () => "more"]] : []),
+    [RP(CALL_BYE), () => end(n, 1)]
   ] }),
-  sleepy: n => ({ say: "📞 «Mmh... pronto? Ma è notte fonda! Richiamami domani...»", opts: [["Scusa! Buonanotte", () => end(n, 0)]] }),
+  sleepy: n => ({ say: "📞 " + RP(CALL_SLEEPY), opts: ["Scusa! Buonanotte", "Ops, non avevo visto l'ora!", "Torna a dormire, ti richiamo domani"].map(t => [t, () => end(n, 0)]) }),
   abroad: n => ({ say: `«Che invidia! Portami un souvenir da ${DESTS[state.travel].name}!»`, opts: [["Promesso, ciao!", () => end(n, 0)]] })
 };
 
@@ -3703,7 +3707,8 @@ const PHONE_VIEWS = {
     if (n.typing) box.appendChild(el("div", "bub typing", `${n.name} sta scrivendo...`));
     phBody.appendChild(box);
     const q = el("div", "quick");
-    QUICK().forEach(([text, kind]) => q.appendChild(el("button", null, text, () => sendMsg(n, text, kind))));
+    quickFor(n).forEach(m => q.appendChild(el("button", null, m.t, () => sendMsg(n, m))));
+    q.appendChild(el("button", "alt", "🔄 Altre frasi", () => { if (!n.typing) { n.ask = null; n.quick = null; renderPhone("chat", n); } }));
     phBody.appendChild(q);
     box.scrollTop = box.scrollHeight;
   },
@@ -3753,30 +3758,153 @@ const PHONE_VIEWS = {
 };
 
 // ---- messaggi ----
-const QUICK = () => [
-  ["Ciao! Come stai? 😊", "hi"], ["Ci vediamo a Lummus Park?", "park"], ["Usciamo insieme? 🍕", "out"],
-  ...(state.travel ? [[`Indovina dove sono? ${DESTS[state.travel].flag}`, "travel"]] : []), ["Buonanotte! 🌙", "night"]
+// r = risposte possibili (o funzione), ask = chiave di ASKS: l'amico fa una domanda e puoi rispondergli
+const where = () => state.travel ? DESTS[state.travel].name : "Miami";
+const QUICK = [
+  { t: "Ciao! Come stai? 😊", r: n => RP(["Ciao! Tutto bene, tu? 😄", "Benissimo! Pensavo proprio a te. Tu come stai?", "Tutto ok! E tu?", n.p.mood + " E tu?"]), ask: "howAreYou" },
+  { t: "Buongiorno! ☀️", when: () => state.time < 12 * 60, r: ["Buongiorno! ☀️ Già in piedi?", "Giorno! Mi serve un caffè ☕", "Buongiorno! Oggi sarà una bella giornata, me lo sento"] },
+  { t: "Buonasera! 🌆", when: () => state.time >= 18 * 60, r: ["Buonasera a te! ✨", "Ehi, buonasera! Spero sia andata bene oggi", "Sera! Hai visto le luci di Ocean Drive? 🌃"] },
+  { t: "Buonanotte! 🌙", night: true, when: () => state.time >= 20 * 60 || isNight(), r: ["Buonanotte anche a te! 🌙", "Sogni d'oro! 💤", "Notte! Domani ci sentiamo", "'Notte! Non fare tardi 😴"] },
+  { t: "Ci vediamo a Lummus Park?", when: () => !state.travel, r: ["Sì! Ci vediamo a Lummus Park 🌴", "Volentieri, porto il pallone da beach volley! 🏐", "Ok, ti aspetto vicino alle palme", "Arrivo, porto qualcosa da bere 🥤"] },
+  { t: "Usciamo insieme? 🍕", kind: "out", r: n => state.travel ? "Ma se sei in viaggio! 😂 Usciamo quando torni" : n.fr >= 2 ? RP(["Sììì! Arrivo subito, dove sei? 🏃", "Non vedevo l'ora! Arrivo 🏃", "Due minuti e sono lì! 😎"]) : "Magari un'altra volta, dobbiamo ancora conoscerci meglio 😉" },
+  { t: "Che fai di bello?", r: ["Prendo il sole a South Beach ☀️", "Niente di che, ascolto musica 🎧", "Passeggio su Ocean Drive 🚶", "Guardo il mare e penso alle vacanze 🌊", "Provo una ricetta nuova... speriamo bene 🍳"] },
+  { t: "Mi racconti una barzelletta? 😂", r: ["Perché il fenicottero sta su una gamba sola? Se alza anche l'altra, cade! 🦩", "Perché il mare è salato? Perché nessuno gli ha passato lo zucchero! 🌊", "Cosa dice un granchio in ritardo? «Scusate, ho preso la strada di lato!» 🦀", "Che fa una palma al telefono? Attacca... il cocco! 🌴"] },
+  { t: "Facciamo un indovinello? 🤔", r: ["Vai! Ha i denti ma non morde: cos'è?"], ask: "riddle" },
+  { t: "Hai fame? 🍔", r: ["Sempre! 😋 Tu cosa preferisci?", "Da morire! Pizza o sushi?"], ask: "food" },
+  { t: "Com'è il mare oggi? 🌊", when: () => !isNight(), r: ["Piatto come una tavola, perfetto per nuotare 🏊", "Ci sono onde bellissime! 🏄", "Caldo! Non volevo più uscire dall'acqua", "Ho visto un delfino! Giuro! 🐬"] },
+  { t: "Che musica ascolti? 🎵", r: ["Reggaeton tutto il giorno 💃 Ti piace?", "Un po' di jazz, mi rilassa 🎷 A te piace?", "Le canzoni estive italiane! 🇮🇹 Ti piacciono?"], ask: "music" },
+  { t: "Che film mi consigli? 🎬", r: ["Uno con inseguimenti e palme, ovvio! 🌴🚗", "Una commedia: ridere fa bene 😄", "Qualcosa di pauroso... ma di giorno 🙈"] },
+  { t: "Guarda il mio record a Snake! 🐍", when: () => state.best.snake > 0, r: () => RP([`${state.best.snake}?! Adesso provo a batterti 😤`, "Grande! Io mi mordo sempre la coda 😂", "Ti sfido! Appena ho un attimo ci riprovo"]) },
+  { t: "Ti va una sfida a beach volley? 🏐", when: () => !state.travel, r: ["Sfida accettata! Preparati a perdere 😎", "Sì! Chi perde offre il gelato 🍦", "Oggi ho le gambe distrutte, facciamo domani?"] },
+  { t: "Ho una bella notizia! 🎉", r: ["Dimmi tutto!! 😍", "Non tenermi sulle spine! Cos'è successo?"], ask: "news" },
+  { t: "Oggi sono un po' giù... 😔", r: ["Oh no, cos'è successo? Sono qui ❤️", "Mi dispiace! Vuoi parlarne?"], ask: "sad" },
+  { t: "Sei una persona fantastica! 💖", r: ["Anche tu! Mi hai fatto sorridere 🥰", "Ma grazie! Così arrossisco ☺️", "E tu sai sempre cosa dire 💖"] },
+  { t: "Scusa se non ti ho scritto prima!", r: ["Tranquillo, so che hai mille cose da fare 😄", "Figurati! L'importante è sentirsi", "Ti perdono... ma mi devi un gelato 🍦"] },
+  { t: "Grazie di tutto! 🙏", r: ["Ma di che! Gli amici servono a questo 🤗", "Quando vuoi! 💪", "Grazie a te!"] },
+  { t: "Hai visto che sole oggi? 😎", when: () => !state.travel && state.time > 8 * 60 && state.time < 18 * 60, r: ["Sì! Ricordati la crema solare 🧴", "Bellissimo, peccato stare in casa!", "A Miami il sole non va mai in ferie ☀️"] },
+  { t: "Ho un lavoro! 💼", when: () => state.job, r: () => RP([`${state.job}? Complimenti! 👏`, "Bravo! Allora la prossima pizza la offri tu 😜", "Che bello! Sono felice per te 🎉"]) },
+  { t: "Oggi ho lavorato tanto 😮‍💨", when: () => state.workedToday, r: ["Riposati, te lo sei meritato 🛋️", "Bravo! Ora però un po' di spiaggia 🏖️", "Fatica oggi, vacanza domani ✈️"] },
+  { t: "Sto cercando lavoro...", when: () => !state.job, r: ["Passa al Job Center su Collins Avenue!", "Il cameriere da L'Elite9 guadagna bene 💵", "In bocca al lupo! 🍀"] },
+  { t: "Ho preso casa a South Beach! 🏠", when: () => state.hasHome, r: ["Su Ocean Drive?! Che lusso! 😍", "Ti porto una pianta in regalo 🪴", "Festa di inaugurazione quando? 🎉"] },
+  { t: "Ho una fame da lupi 🐺", when: () => state.hunger < 40, r: ["Corri a mangiare, subito! 🍕", "Mangia qualcosa, non farmi preoccupare!", "Una pizza e passa tutto 😂"] },
+  { t: "Mi addormento in piedi 🥱", when: () => state.energy < 40, r: ["A letto! È un ordine 😴", "Fai un pisolino, ci sentiamo dopo", "Hai fatto tardi ieri, eh? 😏"] },
+  { t: "Che noia oggi... 😑", when: () => state.fun < 50, r: ["Prova un giochino sul telefono! 🎮", "Esci a fare due passi! 🚶", "Scatta qualche foto in giro 📷"] },
+  { t: "Andiamo in viaggio insieme? ✈️", when: () => !state.travel, r: ["Magari! Dove vorresti andare?"], ask: "trip" },
+  { t: "Indovina dove sono?", when: () => state.travel, r: () => RP([`${where()}?! Che invidia! Mandami una foto 📸`, `Wow, ${where()}! Mi porti un souvenir? 🎁`]) },
+  { t: "Qui si mangia benissimo! 🍽️", when: () => state.travel, r: () => RP(["Non farmi venire fame! 😩", "Assaggia tutto anche per me!", `Il cibo di ${where()} è il mio sogno 😋`]) },
+  { t: "Mi manca Miami 🥺", when: () => state.travel, r: ["E tu manchi a noi! Torna presto ❤️", "La spiaggia ti aspetta 🏖️", "Goditi il viaggio, Miami non scappa!"] }
 ];
-const REPLY = {
-  hi: n => RP(["Ciao! Tutto bene, tu? 😄", "Benissimo! Stavo pensando proprio a te", "Tutto ok! Che fai di bello?", "Ehi! Sto prendendo il sole a South Beach ☀️", n.p.mood]),
-  park: () => RP(["Sì! Ci vediamo a Lummus Park 🌴", "Volentieri, porto il pallone da beach volley! 🏐", "Ok, ti aspetto vicino alle palme"]),
-  out: n => n.fr >= 2 && !state.travel ? "Sììì! Arrivo subito, dove sei? 🏃" : state.travel ? "Ma se sei in viaggio! 😂 Usciamo quando torni" : "Magari un'altra volta, dobbiamo ancora conoscerci meglio 😉",
-  night: () => RP(["Buonanotte anche a te! 🌙", "Sogni d'oro! 💤", "Notte! Domani ci sentiamo"]),
-  travel: () => RP([`${DESTS[state.travel].name}?! Che invidia! Mandami una foto 📸`, `Wow, ${DESTS[state.travel].name}! Mi porti un souvenir? 🎁`])
+// frasi solo per un amico in particolare
+const QUICK_FOR = {
+  Sara: [{ t: "Com'è andata a scuola? 📚", r: ["Ho preso un bel voto! 🎉", "Verifica a sorpresa... aiuto 😱", "Bene, ma i compiti sono infiniti"] },
+    { t: "Ti aiuto coi compiti? ✏️", r: ["Davvero?! Mi salvi la vita 🦸", "Se sai la matematica, sì ti prego!", "Finiti adesso! Però grazie 💕"] }],
+  Luca: [{ t: "Ti alleni a beach volley? 🏐", r: ["Tutti i giorni! Ormai salto come un canguro 🦘", "Sì, manchi solo tu in squadra!", "Oggi pausa, ho sabbia anche nelle orecchie 😂"] },
+    { t: "Surf domani? 🏄", r: ["Se c'è onda, ci sono!", "Sì! Ma l'ultima volta ho bevuto mezzo oceano 😅"] }],
+  Giulia: [{ t: "Cosa stai disegnando? 🎨", r: ["Un fenicottero con gli occhiali da sole 🦩😎", "Gli hotel art déco di Ocean Drive", "Il tuo ritratto, ma è una sorpresa!"] },
+    { t: "Mi regali un tuo disegno? 🖼️", r: ["Certo! Lo scegli tu 💛", "Il prossimo tramonto è tuo 🌅"] }],
+  Enzo: [{ t: "Quanti km hai corso oggi? 🏃", r: ["Dieci! E domani dodici 💪", "Cinque, poi mi sono fermato per un gelato 🍦", "Ho perso il conto, inseguivo un gabbiano"] },
+    { t: "Corriamo insieme domani? 👟", r: ["Alle sei in punto... ok, alle nove 😂", "Volentieri! Ti faccio da allenatore"] }],
+  Aisha: [{ t: "Giornata lunga al lavoro? 💼", r: ["Lunghissima! Ma ora relax 🧘", "Oggi meglio, ho finito prima!", "Riunioni, riunioni, riunioni... 😵"] },
+    { t: "Ti meriti una vacanza! 🌴", r: ["Sì! Sogno Tokyo da anni 🗼", "Dillo al mio capo 😂"] }]
 };
-const INCOMING = ["Ehi, come va? 😊", "Stasera c'è un tramonto pazzesco sulla spiaggia 🌅", "Hai fame? Da Costa fa la pizza più buona di Miami 🍕",
-  "Ho appena battuto il mio record a Snake! 🐍", "Ci vediamo a Lummus Park oggi?", "Hai visto com'è bello il mare oggi? 🌊", "Mi annoio... usciamo? 😅"];
+// risposte alle domande degli amici
+const ASKS = {
+  howAreYou: [{ t: "Tutto benissimo! 😁", r: ["Che bello! Mi fa piacere 😊", "Evviva! Contagiami un po' di allegria"] }, { t: "Così così...", r: ["Su, andrà meglio! Ti mando un abbraccio 🤗", "Un gelato aggiusta tutto 🍦"] }, { t: "Un po' di stanchezza 🥱", r: ["Riposati un po'!", "Anche i supereroi dormono 😴"] }],
+  riddle: [{ t: "Il pettine! 💡", r: ["Esatto!! Che cervello 🧠", "Giusto! La prossima sarà più difficile"] }, { t: "Uno squalo vecchio? 🦈", r: ["😂😂 No! Era il pettine!"] }, { t: "Mi arrendo!", r: ["Il pettine! Dai, era facile 😜"] }],
+  music: [{ t: "Sì, un sacco! 🎶", r: ["Allora facciamo una playlist insieme!", "Lo sapevo, hai buon gusto 😎"] }, { t: "Io preferisco il rock 🎸", r: ["Rispetto! 🤘", "Allora portami a un concerto!"] }, { t: "Non ascolto mai musica", r: ["Cosaaa?! Dobbiamo rimediare subito 😱"] }],
+  news: [{ t: "Sono felice e basta! 😄", r: ["La notizia più bella di tutte! ❤️"] }, { t: "Sto risparmiando dei soldi 💰", r: ["Ottimo! Per un viaggio? ✈️"] }, { t: "Te la dico di persona 🤫", r: ["Nooo, adesso muoio di curiosità! 😂"] }],
+  sad: [{ t: "Solo una giornata storta", r: ["Domani andrà meglio, promesso 🌈"] }, { t: "Mi manca casa", r: ["Ti capisco. Ma qui hai degli amici! 🤗"] }, { t: "Parlare con te mi aiuta", r: ["Per te ci sono sempre ❤️"] }],
+  trip: [{ t: "Roma! 🏛", r: ["Carbonara e Colosseo: ci sto! 🍝"] }, { t: "Londra! 🎡", r: ["Porto l'ombrello! ☔"] }, { t: "New York! 🗽", r: ["La città che non dorme mai... io sì però 😂"] }, { t: "Tokyo! 🗼", r: ["Sushi a colazione, pranzo e cena! 🍣"] }],
+  park: [{ t: "Certo, a dopo! 🌴", r: ["Perfetto, ti aspetto!", "Evviva! 🎉"] }, { t: "Oggi non posso 😕", r: ["Peccato! Sarà per la prossima"] }, { t: "Forse più tardi", r: ["Va bene, fammi sapere!"] }],
+  food: [{ t: "Pizza per sempre! 🍕", r: ["Risposta giusta 😋"] }, { t: "Preferisco il sushi 🍣", r: ["Gusti raffinati! 🥢"] }, { t: "Gelato a colazione! 🍦", r: ["Che genio 😂"] }],
+  bored: [{ t: "Vai in spiaggia! 🏖️", r: ["Ottima idea, prendo l'asciugamano!"] }, { t: "Prova Flappy Flamingo 🦩", r: ["Dopo tre secondi ero già contro una palma 😂"] }, { t: "Leggi un libro 📖", r: ["Hmm... va bene, ci provo!"] }],
+  ok: [{ t: "Che forte! 😄", r: ["Eh sì! 😎", "Vero? 😂"] }, { t: "Davvero?! 😮", r: ["Giuro!", "Parola mia! 🤞"] }, { t: "Raccontami di più!", r: ["Te lo racconto quando ci vediamo 😉", "È una storia lunga... serve una pizza 🍕"] }]
+};
+const INCOMING = [["Ehi, come va? 😊", "howAreYou"], ["Tutto bene? È un po' che non ti sento!", "howAreYou"],
+  ["Stasera c'è un tramonto pazzesco sulla spiaggia 🌅", "ok"], ["Da Costa fa la pizza più buona di Miami. Tu cosa preferisci? 🍕", "food"],
+  ["Cosa mangeresti adesso? Io di tutto 😋", "food"], ["Ho appena battuto il mio record a Snake! 🐍", "ok"],
+  ["Ci vediamo a Lummus Park oggi?", "park"], ["Torneo di beach volley al parco, vieni? 🏐", "park"],
+  ["Hai visto com'è bello il mare oggi? 🌊", "ok"], ["Mi annoio... che faccio? 😅", "bored"], ["Consigliami qualcosa di divertente!", "bored"],
+  ["Ho visto un fenicottero attraversare sulle strisce 🦩", "ok"], ["Se potessi partire adesso, dove andresti? ✈️", "trip"],
+  ["Indovinello! Ha i denti ma non morde: cos'è? 🤔", "riddle"], ["Ho in testa una canzone da stamattina 🎵 Ti piace il reggaeton?", "music"],
+  ["Un pellicano mi ha rubato il panino!! 😭", "ok"], ["Al Sunshine Mall ci sono un sacco di novità 🛍️", "ok"]];
+function shuffled(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(R() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+// frasi proposte: le risposte alla sua domanda, oppure un misto di frasi adatte al momento (prima quelle non ancora viste)
+function quickFor(n) {
+  if (n.ask) return ASKS[n.ask];
+  const ok = m => !m.when || m.when();
+  if (!n.quick || !n.quick.every(ok)) {
+    const all = shuffled([...QUICK, ...(QUICK_FOR[n.name] || [])].filter(ok));
+    let seen = n.seen || [];
+    const fresh = all.filter(m => !seen.includes(m));
+    if (fresh.length < 5) seen = [];
+    n.quick = [...fresh, ...all.filter(m => !fresh.includes(m))].slice(0, 5);
+    n.seen = [...seen, ...n.quick];
+  }
+  return n.quick;
+}
+
+// ---- chiacchiere in chiamata ----
+const CALL_MORE = ["«Dimmi pure!»", "«Certo, ti ascolto!»", "«Vai, ho le orecchie aperte!»", "«Ho tempo, racconta!»"];
+const CALL_BYE = ["Ora devo andare, ciao!", "È stato bello sentirti. A presto!", "Ci sentiamo presto, un abbraccio!", "Ti lascio, ci risentiamo!"];
+const CALL_SLEEPY = ["«Mmh... pronto? Ma è notte fonda! Richiamami domani...»", "«Chi è?... Stavo sognando un gelato gigante... domani, ok?»", "«Zzz... eh? Pronto? Ma che ore sono?!»"];
+function callHello(n) {
+  return RP(["«Pronto? Oh, ciao! Che bello sentirti!»", "«Ehi! Stavo proprio per chiamarti io!»", "«Pronto, chi parla? Ah, ma sei tu! Ciao!»",
+    state.time < 12 * 60 ? "«Buongiorno! Già al telefono così presto?»" : state.time >= 18 * 60 ? "«Buonasera! Che bella sorpresa!»" : "«Ciao! Buon pomeriggio!»",
+    ...(n.fr >= 6 ? ["«Eccoti, finalmente! Dimmi tutto!»", "«Finalmente! Mi mancava la tua voce!»"] : []),
+    ...(state.travel ? [`«Pronto? Mi chiami da ${where()}?! Che emozione!»`] : [])]);
+}
+const DREAM = { Sara: "«Diventare veterinaria e curare i delfini!»", Luca: "«Vincere il torneo di beach volley di Miami!»", Giulia: "«Una mostra con tutti i miei disegni!»",
+  Enzo: "«Correre la maratona di New York!»", Aisha: "«Aprire un piccolo caffè vista oceano!»" };
+const CALL_TOPICS = [
+  { q: "Che tempo fa a Miami?", a: () => RP(["«Si sta benissimo, come sempre!»", "«Qualche nuvola, ma fa caldissimo.»"]), opts: [["Perfetto per la spiaggia!", "«Infatti ho già il costume addosso!»"], ["Mettiti la crema solare", "«Sì sì, l'ultima volta sembravo un'aragosta!»"]] },
+  { q: "Hai qualche pettegolezzo?", a: () => "«Dicono che al Sunshine Mall abbiano visto una star del cinema!»", opts: [["Davvero? Chi?", "«Aveva occhiali e cappello... potevi essere anche tu!»"], ["Non ci credo", "«Nemmeno io, ma è una bella storia!»"]] },
+  { q: "Cosa hai mangiato oggi?", a: () => RP(["«Una pizza grande come una ruota!»", "«Solo frutta... ma sto pensando a una pizza.»"]), opts: [["Mi è venuta fame!", "«Allora corri a mangiare!»"], ["Io cucino meglio!", "«Allora aspetto l'invito a cena!»"]] },
+  { q: "Qual è il tuo sogno nel cassetto?", a: n => DREAM[n.name] || "«Girare il mondo con uno zaino!»", opts: [["Ce la farai di sicuro!", "«Grazie, significa molto per me!»"], ["Posso aiutarti?", "«Certo! Insieme si sogna meglio.»"], ["Un po' difficile, no?", "«Le cose belle lo sono sempre!»"]] },
+  { q: "Raccontami qualcosa di buffo", a: () => RP(["«Un gabbiano mi ha rubato le patatine e poi è tornato per la salsa!»", "«Ho salutato un tizio per un minuto: era un manichino del Mall!»", "«Ho schiacciato i tasti per sbaglio e ho chiamato l'aeroporto!»"]), opts: [["Ahahah, non ci credo!", "«Ti giuro, rido ancora adesso!»"], ["È successo anche a me!", "«Allora siamo una bella coppia di disastri!»"]] },
+  { q: "Mi dai un consiglio?", a: () => "«Volentieri! Su cosa?»", opts: [["Come guadagno di più?", "«Cameriere da L'Elite9: 80 dollari a turno!»"], ["Dove mi diverto?", "«Console a casa, oppure un bel viaggio!»"], ["Come faccio nuovi amici?", "«Parla con tutti a Lummus Park, e ricorda i souvenir!»"], ["Come mi tengo in forma?", "«Mangia, dormi e fatti la doccia ogni giorno!»"]] },
+  { q: "Hai sentito gli altri?", a: n => `«Sì, ho visto ${RP(npcs.filter(x => x !== n)).name} al parco poco fa!»`, opts: [["Salutali da parte mia!", "«Senz'altro!»"], ["Organizziamo qualcosa insieme", "«Una grigliata sulla spiaggia! Ci sto!»"]] },
+  { q: "Preferisci il mare o la città?", a: () => RP(["«Il mare, tutta la vita!»", "«La città di notte, con i neon accesi!»"]), opts: [["Anch'io!", "«Lo sapevo, siamo uguali!»"], ["Io il contrario!", "«Per fortuna Miami ha tutti e due!»"]] },
+  { q: "Ricordi quando ci siamo conosciuti?", when: n => n.fr >= 4, a: n => `«Certo! Ti ho detto: "${n.p.hello}"»`, opts: [["E ora siamo grandi amici!", "«Il miglior incontro di Lummus Park!»"], ["Che timidezza, quel giorno!", "«Ahah, adesso non ti ferma più nessuno!»"]] },
+  { q: "Volevo dirti che ti voglio bene", when: n => n.fr >= 5, a: () => "«Oh... anch'io te ne voglio, tantissimo!»", opts: [["Amici per sempre?", "«Per sempre!»"], ["Ora basta, che mi commuovo", "«Troppo tardi, sto già piangendo!»"]] },
+  { q: "Ti racconto del mio lavoro", when: () => state.job, a: () => `«Ah già, ${state.job.toLowerCase()}! Come va?»`, opts: [["Benissimo, mi piace!", "«Si sente dalla voce!»"], ["È faticoso...", "«Tieni duro! Poi ti godi lo stipendio.»"], ["Voglio cambiare", "«Al Job Center c'è sempre qualcosa.»"]] },
+  { q: "Cerco lavoro, idee?", when: () => !state.job, a: () => "«Commesso, pizzaiolo o cameriere: cosa ti ispira?»", opts: [["Il commesso", "«Ordine e pazienza: al Supermercato ti aspettano!»"], ["Il pizzaiolo", "«Allora voglio la prima pizza gratis!»"], ["Il cameriere", "«Elegante! È anche il più pagato.»"]] },
+  { q: "Ti racconto della mia casa", when: () => state.hasHome, a: () => "«Ocean Drive! Com'è viverci?»", opts: [["La vista è stupenda!", "«Invidia totale!»"], ["Un giorno passa a trovarmi!", "«Porto il dolce!»"]] },
+  { q: "Che giochi hai sul telefono?", a: () => "«Snake, Tris e Flappy Flamingo!»", opts: [["A Snake non mi batti!", "«Vedremo! Ti sfido.»"], ["A Flappy perdo sempre", "«Il segreto: tocchi piccoli e calma!»"]] },
+  { q: "Ho scattato delle belle foto!", when: () => state.photos.length, a: () => `«Quante ne hai già? ${state.photos.length}?»`, opts: [["Sì, e sono bellissime!", "«Facciamo una serata foto!»"], ["Ne farò molte altre", "«Non vedo l'ora di vederle!»"]] },
+  { q: "Com'è Miami senza di me?", when: () => state.travel, a: () => "«Vuota! Persino i fenicotteri sono tristi.»", opts: [["Torno presto!", "«Ti aspettiamo all'aeroporto!»"], ["Qui è troppo bello", "«Allora la prossima volta vengo anch'io!»"]] }
+];
+const CALL_FOR = {
+  Sara: [{ q: "Come va la scuola?", a: () => "«Tra compiti e verifiche non respiro più!»", opts: [["Ti aiuto a studiare", "«Affare fatto! Io porto i biscotti.»"], ["Forza, manca poco!", "«Grazie, ne avevo bisogno!»"]] }],
+  Luca: [{ q: "Come va il beach volley?", a: () => "«Tre partite vinte di fila!»", opts: [["Sei un fenomeno!", "«Modestamente... sì!»"], ["Contro di me perderesti", "«Ahah! Ti aspetto in campo.»"]] }],
+  Giulia: [{ q: "Hai finito il tuo disegno?", a: () => "«Quasi! Mi manca il colore del tramonto.»", opts: [["Prova rosa e arancio", "«Ma certo! Che idea geniale!»"], ["Lascialo in bianco e nero", "«Mmh, originale. Ci penso!»"]] }],
+  Enzo: [{ q: "Come va l'allenamento?", a: () => "«Oggi ho battuto il mio tempo sul lungomare!»", opts: [["Complimenti!", "«La prossima volta corri con me!»"], ["Non esagerare", "«Hai ragione, domani riposo.»"]] }],
+  Aisha: [{ q: "Com'è andata al lavoro?", a: () => "«Giornata infinita, ma ce l'ho fatta!»", opts: [["Ora goditi il relax", "«Divano e serie TV, già deciso!»"], ["Chiedi le ferie!", "«Mi hai convinta, domani le chiedo!»"]] }]
+};
+const callTopics = n => [...CALL_TOPICS, ...(CALL_FOR[n.name] || [])].filter(t => !n.told.includes(t.q) && (!t.when || t.when(n)));
+function callMenu(n) {
+  const offer = shuffled(callTopics(n)).slice(0, 4);
+  return [
+    ["Come va la giornata?", () => "mood"],
+    ...offer.map(t => [t.q, () => { n.topic = t; n.told.push(t.q); need("fun", 2); passTime(3); return "topic"; }]),
+    ...(state.travel ? [[`Sono a ${where()}, è bellissimo!`, () => { addFr(n, 1); return "abroad"; }]] : []),
+    ["Ti chiamavo solo per salutarti. Ciao!", () => end(n, 1)]
+  ];
+}
 function pushMsg(n, me, t) { (state.chats[n.name] = state.chats[n.name] || []).push({ me, t }); if (state.chats[n.name].length > 40) state.chats[n.name].shift(); }
-function sendMsg(n, text, kind) {
+function sendMsg(n, m) {
   if (n.typing) return;
-  pushMsg(n, true, text); passTime(1);
+  const kind = m.kind;
+  pushMsg(n, true, m.t); passTime(1);
   if (state.msgDay[n.name] !== state.day) { state.msgDay[n.name] = state.day; addFr(n, 1); }
-  const asleep = isNight() && kind !== "night";
+  const asleep = isNight() && !m.night;
+  if (!asleep) { n.ask = null; n.quick = null; }
   n.typing = !asleep;
   renderPhone("chat", n);
   setTimeout(() => {
     n.typing = false;
-    pushMsg(n, false, asleep ? "😴 (dorme: ti risponderà domattina)" : REPLY[kind](n));
+    pushMsg(n, false, asleep ? "😴 (dorme: ti risponderà domattina)" : typeof m.r === "function" ? m.r(n) : RP(m.r));
+    if (!asleep && m.ask) n.ask = m.ask;
     if (phoneOpen && phView === "chat" && phArg === n) renderPhone("chat", n);
     else { state.unreadBy[n.name] = (state.unreadBy[n.name] || 0) + 1; updatePhoneBtn(); log(`📱 ${n.name} ti ha risposto.`); }
     if (kind === "out" && !asleep && n.fr >= 2 && !state.travel) setTimeout(() => { meet(n); if (phoneOpen) closePhone(); }, 900);
@@ -3795,7 +3923,9 @@ function updatePhone(dt) {
   const fr = friends();
   if (!fr.length || isNight()) return;
   const n = RP(fr);
-  pushMsg(n, false, RP(INCOMING));
+  if (n.typing) return;
+  const [text, ask] = RP(INCOMING);
+  pushMsg(n, false, text); n.ask = ask;
   state.unreadBy[n.name] = (state.unreadBy[n.name] || 0) + 1;
   updatePhoneBtn();
   log(`📱 Nuovo messaggio da ${n.name}! Premi P per leggerlo.`);
@@ -3982,7 +4112,10 @@ document.getElementById("bagClose").onclick = closeBag;
   const mood = T.mood;
   T.mood = n => {
     const node = mood(n);
-    if (viaPhone) return node;
+    if (viaPhone) {
+      if (n.told) node.opts.splice(node.opts.length - 1, 0, ["Senti, parliamo d'altro...", () => "more"]);
+      return node;
+    }
     state.bag.filter(s => itemInfo(s).gift).sort((a, b) => itemInfo(b).gift - itemInfo(a).gift).slice(0, 3).forEach(s => {
       const it = itemInfo(s);
       node.opts.splice(node.opts.length - 1, 0, [`🎁 Regala: ${it.e} ${it.n}`, () => {

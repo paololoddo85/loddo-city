@@ -12,7 +12,7 @@ Ogni locale si può visitare: avvicinati alla porta e premi **E**. Casa, Pizzeri
 
 **Zaino:** con **Z** apri lo zaino (16 posti): ci metti cibo, bibite, souvenir e gli oggetti raccolti in giro (conchiglie, cocchi, fiori). Li usi, li lasci a terra, li regali agli amici o li conservi nel baule di casa.
 
-**Telefono:** al Phone Center del Sunshine Mall compri un iPhone, un Samsung Galaxy, un Google Pixel o uno Xiaomi. Con **P** lo apri: chiami e scrivi agli amici (rispondono e ti scrivono anche loro), giochi a Snake, Flappy Flamingo e Tris, scatti foto e guardi i souvenir.
+**Telefono:** al Phone Center del Sunshine Mall compri un iPhone, un Samsung Galaxy, un Google Pixel o uno Xiaomi. Con **P** lo apri: chiami e scrivi agli amici (rispondono e ti scrivono anche loro, con tanti argomenti e frasi che cambiano secondo l'amico e il momento), giochi a Snake, Flappy Flamingo e Tris, scatti foto e guardi i souvenir.
 
 **Console:** da GameZone compri Ocean Drive Racer, Galaxy Defender, Neon Bricks e Neon Hockey e li giochi davvero sulla TV di casa.
 
