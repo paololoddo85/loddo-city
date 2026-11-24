@@ -335,6 +335,7 @@
 
     <h3>Novità</h3>
     <div class="changes">
+      <p><b>1.8.0</b> · Sakura Sushi: menù da 60 piatti, con gunkan, temaki, sashimi, antipasti, poke, dolci e bevande.</p>
       <p><b>1.7.0</b> · Tante frasi nuove al telefono: argomenti in chiamata, messaggi che cambiano e risposte alle domande degli amici.</p>
       <p><b>1.6.0</b> · Mac Donald e Sakura Sushi: si ordina da totem e tablet, il cibo arriva davvero e si mangia boccone per boccone.</p>
       <p><b>1.5.0</b> · Zaino: raccogli, compra, usa, lascia e regala gli oggetti; baule in casa.</p>
@@ -369,7 +370,7 @@ const state = { money: 150, hasHome: false, job: null, food: 0, console: false, 
   day: 1, time: 8 * 60, energy: 100, hunger: 90, hygiene: 100, fun: 70, workedToday: false,
   phone: null, chats: {}, unread: 0, msgDay: {}, best: {}, souvenirs: [], photos: [], travel: null, bag: [], chest: [] };
 // ================= VERSIONE E PAGINA DELLE REGOLE =================
-const GAME_VERSION = "1.7.0", GAME_DATE = "24 novembre 2026";
+const GAME_VERSION = "1.8.0", GAME_DATE = "24 novembre 2026";
 document.querySelectorAll(".gameVer").forEach(el => { el.textContent = "v" + GAME_VERSION; });
 document.getElementById("gameDate").textContent = GAME_DATE;
 document.getElementById("gameVerLong").textContent = GAME_VERSION;
@@ -1960,7 +1961,7 @@ const roll = (core, out, top) => g => { fPlate(g, 0x2b2b33); return fPieces(g, 6
   add(fCyl(0.032, 0.032, 0.108), core, 0, 0.05, 0, p);
   if (top) add(fBall(0.03), top, 0, 0.11, 0, p);
 }, { r: 0.165 }); };
-const sashimi = g => { fPlate(g, 0x7fb3c9); return fPieces(g, 5, (p, i) => { add(fBox(0.16, 0.05, 0.09), [0xff8a5c, 0xd62839, 0xffd9c7][i % 3], 0, 0.04, 0, p).rotation.z = 0.2; }, { r: 0.15 }); };
+const sashimi = cols => g => { fPlate(g, 0x7fb3c9); return fPieces(g, 5, (p, i) => { add(fBox(0.16, 0.05, 0.09), cols[i % cols.length], 0, 0.04, 0, p).rotation.z = 0.2; }, { r: 0.15 }); };
 const fried = (n, col, sx) => g => { fPlate(g); return fPieces(g, n, p => {
   add(fBall(0.07), col, 0, 0.06, 0, p).scale.set(sx || 1, 0.75, 0.9);
 }, { r: 0.14 }); };
@@ -1995,8 +1996,31 @@ const fries = g => {
   add(fBox(0.24, 0.2, 0.14), 0xd62828, 0, 0.1, 0, g);
   return fPieces(g, 5, (p, i) => { for (const z of [-0.035, 0.035]) add(fBox(0.028, 0.22, 0.028), 0xffd45c, 0, 0.16 + (i % 2) * 0.03, z, p).rotation.z = (i - 2) * 0.08; p.position.y = 0; }, { row: 0.042 });
 };
-const cone = g => { add(fCyl(0.1, 0.06, 0.14), 0xe0a860, 0, 0.07, 0, g); return [0, 1, 2].map(i => { const p = new THREE.Group(); p.position.y = 0.17 + i * 0.075; add(fBall(0.1), 0xfffaf0, 0, 0, 0, p).scale.set(1 - i * 0.22, 0.6, 1 - i * 0.22); g.add(p); return p; }); };
-const toast = (a, b) => g => { fPlate(g); return fPieces(g, 4, p => { add(fBall(0.085), a, 0, 0.05, 0, p).scale.y = 0.75; add(fBall(0.03), b, 0, 0.11, 0, p); }, { r: 0.12 }); };
+const cone = col => g => { add(fCyl(0.1, 0.06, 0.14), 0xe0a860, 0, 0.07, 0, g); return [0, 1, 2].map(i => { const p = new THREE.Group(); p.position.y = 0.17 + i * 0.075; add(fBall(0.1), col, 0, 0, 0, p).scale.set(1 - i * 0.22, 0.6, 1 - i * 0.22); g.add(p); return p; }); };
+const toast = (a, b, n) => g => { fPlate(g); return fPieces(g, n || 4, p => { add(fBall(0.085), a, 0, 0.05, 0, p).scale.y = 0.75; add(fBall(0.03), b, 0, 0.11, 0, p); }, { r: 0.12 }); };
+
+const gunkan = top => g => { fPlate(g, 0x2b2b33); return fPieces(g, 3, p => {
+  add(fCyl(0.075, 0.075, 0.1), 0x1d2b22, 0, 0.05, 0, p); add(fCyl(0.062, 0.062, 0.02), 0xffffff, 0, 0.095, 0, p);
+  for (let i = 0; i < 5; i++) { const a = i * TAU / 4; add(fBall(0.032), top, i < 4 ? Math.cos(a) * 0.035 : 0, i < 4 ? 0.115 : 0.14, i < 4 ? Math.sin(a) * 0.035 : 0, p); }
+}, { r: 0.14 }); };
+// cono d'alga: si mangia dall'alto verso il basso
+const temaki = fish => g => {
+  fPlate(g, 0x2b2b33);
+  return [0, 1, 2, 3].map(i => {
+    const p = new THREE.Group(); p.position.y = 0.04 + i * 0.09; g.add(p);
+    add(fCyl(0.06 + i * 0.025, 0.035 + i * 0.025, 0.09), 0x1d2b22, 0, 0.045, 0, p);
+    if (i === 3) { add(fCyl(0.12, 0.12, 0.02), 0xffffff, 0, 0.095, 0, p); for (const [x, z] of [[-0.05, 0], [0.04, 0.04], [0.04, -0.05]]) add(fBox(0.06, 0.12, 0.05), fish, x, 0.13, z, p); }
+    return p;
+  });
+};
+const skewers = meat => g => { fPlate(g); return fPieces(g, 3, p => {
+  add(fBox(0.02, 0.02, 0.5), 0xd9b382, 0, 0.05, 0, p);
+  for (const z of [-0.12, 0, 0.12]) add(fBall(0.06), meat, 0, 0.05, z, p);
+}, { row: 0.15 }); };
+const onigiri = g => { fPlate(g, 0x2b2b33); return fPieces(g, 3, p => {
+  add(fgeo("onig", () => new THREE.CylinderGeometry(0.1, 0.1, 0.08, 3)), 0xffffff, 0, 0.1, 0, p).rotation.set(Math.PI / 2, Math.PI, 0);
+  add(fBox(0.08, 0.06, 0.09), 0x1d2b22, 0, 0.07, 0, p);
+}, { r: 0.15 }); };
 
 // h = quanto sazia in tutto · ex = escluso dall'All You Can Eat
 const MAC_MENU = [
@@ -2009,23 +2033,69 @@ const MAC_MENU = [
   { id: "cola", n: "Cola", d: "Con ghiaccio", icon: "🥤", p: 2, h: 4, cat: "Bevande", make: cup(0xd62828, 0xffffff, true) },
   { id: "orange", n: "Aranciata", d: "Con ghiaccio", icon: "🍊", p: 2, h: 4, cat: "Bevande", make: cup(0xff9a3c, 0xffffff, true) },
   { id: "shake", n: "Milkshake fragola", d: "Cremoso", icon: "🥛", p: 4, h: 10, cat: "Bevande", make: cup(0xffb6c9, 0xffffff, true) },
-  { id: "ice", n: "Gelato alla panna", d: "Coppetta", icon: "🍦", p: 2, h: 8, cat: "Dolci", make: cone }
+  { id: "ice", n: "Gelato alla panna", d: "Coppetta", icon: "🍦", p: 2, h: 8, cat: "Dolci", make: cone(0xfffaf0) }
 ];
 const SUSHI_MENU = [
   { id: "nsal", n: "Nigiri salmone", d: "3 pezzi", icon: "🍣", p: 5, h: 10, cat: "Nigiri", make: nigiri(0xff8a5c, 0xffc4a3) },
   { id: "ntun", n: "Nigiri tonno", d: "3 pezzi", icon: "🍣", p: 6, h: 10, cat: "Nigiri", make: nigiri(0xc9283e) },
   { id: "nebi", n: "Nigiri gambero", d: "3 pezzi", icon: "🍤", p: 5, h: 10, cat: "Nigiri", make: nigiri(0xffd2b8, 0xff7a4d) },
+  { id: "nbra", n: "Nigiri branzino", d: "3 pezzi", icon: "🐟", p: 5, h: 10, cat: "Nigiri", make: nigiri(0xf6e6e0, 0xe3a3a3) },
+  { id: "nang", n: "Nigiri anguilla", d: "3 pezzi, salsa dolce", icon: "🐍", p: 7, h: 11, cat: "Nigiri", make: nigiri(0x7a4522, 0x3f2210) },
+  { id: "npol", n: "Nigiri polpo", d: "3 pezzi", icon: "🐙", p: 6, h: 10, cat: "Nigiri", make: nigiri(0xfff0ec, 0xb03a5b) },
+  { id: "ntam", n: "Nigiri tamago", d: "3 pezzi, frittata dolce", icon: "🍳", p: 4, h: 10, cat: "Nigiri", make: nigiri(0xffd24d, 0x1d2b22) },
+  { id: "navo", n: "Nigiri avocado", d: "3 pezzi, vegetale", icon: "🥑", p: 4, h: 9, cat: "Nigiri", make: nigiri(0x9ccf5f, 0x1d2b22) },
+  { id: "nsco", n: "Nigiri salmone scottato", d: "3 pezzi alla fiamma", icon: "🔥", p: 6, h: 11, cat: "Nigiri", make: nigiri(0xf2a27a, 0x8a4a24) },
   { id: "hoso", n: "Hosomaki salmone", d: "6 pezzi", icon: "🍙", p: 5, h: 12, cat: "Roll", make: roll(0xff8a5c, 0x1d2b22) },
+  { id: "htun", n: "Hosomaki tonno", d: "6 pezzi", icon: "🍙", p: 6, h: 12, cat: "Roll", make: roll(0xc9283e, 0x1d2b22) },
+  { id: "hcet", n: "Hosomaki cetriolo", d: "6 pezzi, vegetale", icon: "🥒", p: 4, h: 9, cat: "Roll", make: roll(0x7fc95a, 0x1d2b22) },
   { id: "cali", n: "California roll", d: "6 pezzi con avocado", icon: "🥑", p: 7, h: 14, cat: "Roll", make: roll(0x8fc95a, 0xfff3e0, 0xff7a1a) },
   { id: "spicy", n: "Spicy tuna roll", d: "6 pezzi, piccante", icon: "🌶", p: 8, h: 14, cat: "Roll", make: roll(0xc9283e, 0x1d2b22, 0xff3b30) },
-  { id: "sash", n: "Sashimi misto", d: "5 fette", icon: "🐟", p: 12, h: 12, cat: "Roll", ex: true, make: sashimi },
-  { id: "gyoza", n: "Gyoza", d: "5 ravioli alla piastra", icon: "🥟", p: 6, h: 14, cat: "Cucina", make: fried(5, 0xefd9a8, 1.4) },
+  { id: "phil", n: "Philadelphia roll", d: "6 pezzi, formaggio", icon: "🧀", p: 7, h: 14, cat: "Roll", make: roll(0xff8a5c, 0xfff3e0, 0xffffff) },
+  { id: "drag", n: "Dragon roll", d: "6 pezzi, anguilla e avocado", icon: "🐉", p: 10, h: 16, cat: "Roll", make: roll(0x7a4522, 0x8fc95a, 0x3f2210) },
+  { id: "rain", n: "Rainbow roll", d: "6 pezzi, pesce misto", icon: "🌈", p: 10, h: 16, cat: "Roll", make: roll(0x8fc95a, 0xff8a5c, 0xc9283e) },
+  { id: "tige", n: "Tiger roll", d: "6 pezzi, gambero fritto", icon: "🐯", p: 9, h: 16, cat: "Roll", make: roll(0xf2b04a, 0xffb347, 0x1d1d1d) },
+  { id: "futo", n: "Futomaki vegetariano", d: "6 pezzi", icon: "🥕", p: 6, h: 13, cat: "Roll", make: roll(0xff9a3c, 0x1d2b22, 0x6cbf4a) },
+  { id: "miami", n: "Miami roll", d: "6 pezzi, mango e gambero", icon: "🥭", p: 9, h: 15, cat: "Roll", make: roll(0xffc94d, 0xff8fb3, 0x22e1c0) },
+  { id: "gika", n: "Gunkan ikura", d: "3 pezzi, uova di salmone", icon: "🟠", p: 8, h: 10, cat: "Gunkan e temaki", make: gunkan(0xff6a1a) },
+  { id: "gtob", n: "Gunkan tobiko", d: "3 pezzi, uova di pesce", icon: "🔴", p: 7, h: 10, cat: "Gunkan e temaki", make: gunkan(0xff3b30) },
+  { id: "gtun", n: "Gunkan tonno piccante", d: "3 pezzi", icon: "🌶", p: 7, h: 10, cat: "Gunkan e temaki", make: gunkan(0xc9283e) },
+  { id: "gwak", n: "Gunkan wakame", d: "3 pezzi, alghe", icon: "🌿", p: 5, h: 8, cat: "Gunkan e temaki", make: gunkan(0x4fa83d) },
+  { id: "tsal", n: "Temaki salmone", d: "Cono d'alga, 4 morsi", icon: "🍦", p: 6, h: 14, cat: "Gunkan e temaki", make: temaki(0xff8a5c) },
+  { id: "ttun", n: "Temaki tonno", d: "Cono d'alga, 4 morsi", icon: "🍦", p: 7, h: 14, cat: "Gunkan e temaki", make: temaki(0xc9283e) },
+  { id: "tebi", n: "Temaki gambero fritto", d: "Cono d'alga, 4 morsi", icon: "🍤", p: 7, h: 14, cat: "Gunkan e temaki", make: temaki(0xf2b04a) },
+  { id: "sash", n: "Sashimi misto", d: "5 fette", icon: "🐟", p: 12, h: 12, cat: "Sashimi", ex: true, make: sashimi([0xff8a5c, 0xd62839, 0xffd9c7]) },
+  { id: "ssal", n: "Sashimi salmone", d: "5 fette", icon: "🍣", p: 10, h: 12, cat: "Sashimi", ex: true, make: sashimi([0xff8a5c, 0xff9d73]) },
+  { id: "stun", n: "Sashimi tonno", d: "5 fette", icon: "🐟", p: 12, h: 12, cat: "Sashimi", ex: true, make: sashimi([0xc9283e, 0xb01f34]) },
+  { id: "scar", n: "Carpaccio di capesante", d: "5 fette", icon: "🐚", p: 14, h: 10, cat: "Sashimi", ex: true, make: sashimi([0xfff3e3, 0xf7dfc6]) },
+  { id: "eda", n: "Edamame", d: "Fagioli di soia", icon: "🫛", p: 4, h: 8, cat: "Antipasti", make: fried(6, 0x6cbf4a, 1.5) },
+  { id: "wak", n: "Insalata wakame", d: "Alghe e sesamo", icon: "🥗", p: 5, h: 8, cat: "Antipasti", make: fried(5, 0x3f9b4a, 1.3) },
+  { id: "miso", n: "Zuppa di miso", d: "Tofu e alghe", icon: "🥣", p: 4, h: 8, cat: "Antipasti", make: bowl(0xc79a55, 0xfff6e0) },
+  { id: "gyoza", n: "Gyoza", d: "5 ravioli alla piastra", icon: "🥟", p: 6, h: 14, cat: "Antipasti", make: fried(5, 0xefd9a8, 1.4) },
+  { id: "hark", n: "Ravioli di gambero", d: "4 pezzi al vapore", icon: "🥟", p: 6, h: 12, cat: "Antipasti", make: fried(4, 0xffe3dc, 1.3) },
+  { id: "harum", n: "Involtini primavera", d: "4 pezzi croccanti", icon: "🌯", p: 5, h: 12, cat: "Antipasti", make: fried(4, 0xd9943f, 2) },
+  { id: "bao", n: "Bao al maiale", d: "4 mini panini al vapore", icon: "🍔", p: 7, h: 16, cat: "Antipasti", make: toast(0xfff6ea, 0x7a4522) },
   { id: "temp", n: "Tempura di gamberi", d: "4 pezzi", icon: "🍤", p: 8, h: 14, cat: "Cucina", make: fried(4, 0xf2b04a, 1.9) },
+  { id: "tver", n: "Tempura di verdure", d: "5 pezzi", icon: "🥕", p: 6, h: 12, cat: "Cucina", make: fried(5, 0xf0c05a, 1.6) },
+  { id: "kara", n: "Karaage", d: "5 bocconi di pollo fritto", icon: "🍗", p: 7, h: 16, cat: "Cucina", make: fried(5, 0xb9752e, 1.1) },
+  { id: "tako", n: "Takoyaki", d: "5 polpette di polpo", icon: "🐙", p: 7, h: 14, cat: "Cucina", make: toast(0xb9752e, 0x4fa83d, 5) },
+  { id: "yaki", n: "Yakitori", d: "3 spiedini di pollo", icon: "🍢", p: 8, h: 16, cat: "Cucina", make: skewers(0x9a5a2a) },
+  { id: "onig", n: "Onigiri", d: "3 triangoli di riso", icon: "🍙", p: 5, h: 14, cat: "Cucina", make: onigiri },
   { id: "ramen", n: "Ramen", d: "Maiale, uovo, alga", icon: "🍜", p: 11, h: 28, cat: "Cucina", make: bowl(0xb5783a, 0xffe29a) },
-  { id: "eda", n: "Edamame", d: "Fagioli di soia", icon: "🫛", p: 4, h: 8, cat: "Cucina", make: fried(6, 0x6cbf4a, 1.5) },
-  { id: "mochi", n: "Mochi", d: "4 dolcetti di riso", icon: "🍡", p: 5, h: 8, cat: "Dolci e bevande", make: toast(0xffc1d8, 0x8fc95a) },
-  { id: "tea", n: "Tè verde", d: "Caldo", icon: "🍵", p: 3, h: 2, cat: "Dolci e bevande", ex: true, make: cup(0x3f7a5a, 0xa8c66c) },
-  { id: "ramu", n: "Ramune", d: "Gassosa giapponese", icon: "🫧", p: 4, h: 3, cat: "Dolci e bevande", ex: true, make: cup(0x7fd3f7, 0x2b8fd6) }
+  { id: "udon", n: "Udon in brodo", d: "Noodles spessi", icon: "🍜", p: 10, h: 26, cat: "Cucina", make: bowl(0x8a5a2a, 0xfff6e6) },
+  { id: "soba", n: "Yakisoba", d: "Noodles saltati", icon: "🍝", p: 9, h: 24, cat: "Cucina", make: bowl(0x5b3420, 0xc98a4a) },
+  { id: "poke", n: "Poke salmone", d: "Riso, salmone, avocado", icon: "🥗", p: 11, h: 26, cat: "Cucina", make: bowl(0xffffff, 0xff8a5c) },
+  { id: "donb", n: "Donburi al manzo", d: "Riso e manzo", icon: "🍚", p: 11, h: 28, cat: "Cucina", make: bowl(0xffffff, 0x7a4522) },
+  { id: "mochi", n: "Mochi", d: "4 dolcetti di riso", icon: "🍡", p: 5, h: 8, cat: "Dolci", make: toast(0xffc1d8, 0x8fc95a) },
+  { id: "dora", n: "Dorayaki", d: "4 pancake con azuki", icon: "🥞", p: 5, h: 10, cat: "Dolci", make: toast(0xc98a4a, 0x5b2a2a) },
+  { id: "matc", n: "Gelato al matcha", d: "Coppetta", icon: "🍨", p: 4, h: 8, cat: "Dolci", make: cone(0x9ccf5f) },
+  { id: "sesa", n: "Gelato al sesamo nero", d: "Coppetta", icon: "🍨", p: 4, h: 8, cat: "Dolci", make: cone(0x6a6670) },
+  { id: "taiy", n: "Taiyaki", d: "3 pesciolini ripieni", icon: "🐟", p: 5, h: 11, cat: "Dolci", make: fried(3, 0xd9943f, 1.8) },
+  { id: "acq", n: "Acqua", d: "Naturale", icon: "💧", p: 2, h: 1, cat: "Bevande", ex: true, make: cup(0xcfefff, 0xffffff) },
+  { id: "tea", n: "Tè verde", d: "Caldo", icon: "🍵", p: 3, h: 2, cat: "Bevande", ex: true, make: cup(0x3f7a5a, 0xa8c66c) },
+  { id: "ramu", n: "Ramune", d: "Gassosa giapponese", icon: "🫧", p: 4, h: 3, cat: "Bevande", ex: true, make: cup(0x7fd3f7, 0x2b8fd6) },
+  { id: "yuzu", n: "Limonata allo yuzu", d: "Con ghiaccio", icon: "🍋", p: 4, h: 3, cat: "Bevande", ex: true, make: cup(0xffe36a, 0xffffff, true) },
+  { id: "lych", n: "Succo di litchi", d: "Fresco", icon: "🥤", p: 4, h: 4, cat: "Bevande", ex: true, make: cup(0xffd6e4, 0xff6f91, true) },
+  { id: "bubb", n: "Bubble tea", d: "Con perle di tapioca", icon: "🧋", p: 5, h: 6, cat: "Bevande", ex: true, make: cup(0xc79a6b, 0x3f2210, true) }
 ];
 function makeFood(def) {
   const g = new THREE.Group(), r = def.make(g);
@@ -2297,7 +2367,7 @@ INTERIORS.sushi = () => {
   solidBox(I, 17.6, 1.15, 1.2, 0x4a2c1c, 0, 0.575, -6.6);
   deco(I, B(17.7, 0.08, 1.3), M(0xd9b382, { roughness: 0.35 }), 0, 1.18, -6.6);
   deco(I, B(7, 0.5, 0.6), M(0xbfe9ff, { transparent: true, opacity: 0.35, roughness: 0.05 }), -4, 1.48, -6.75);
-  for (let i = 0; i < 9; i++) { const it = makeFood(SUSHI_MENU[i % 6]); it.g.scale.setScalar(0.85); it.g.position.set(-7 + i * 0.75, 1.23, -6.75); I.scene.add(it.g); }
+  for (let i = 0; i < 9; i++) { const it = makeFood(SUSHI_MENU[i * 3]); it.g.scale.setScalar(0.85); it.g.position.set(-7 + i * 0.75, 1.23, -6.75); I.scene.add(it.g); }
   staff(I, -4, -8, 0, { shirt: 0xffffff, hair: 0x111111, skin: 0xf1c27d, hat: true });
   const chef = staff(I, 2, -8, 0, { shirt: 0x1d2b4a, hair: 0x111111, skin: 0xf1c27d, hat: true });
   I.ticks.push(t => { if (S.status === "cook") { chef.armR.rotation.x = -1 + Math.sin(t * 14) * 0.3; chef.armL.rotation.x = -1; } });
