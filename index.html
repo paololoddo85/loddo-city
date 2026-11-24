@@ -49,7 +49,7 @@
   #task { position: fixed; top: 108px; left: 50%; transform: translateX(-50%); padding: 8px 18px; font-size: 14px; text-align: center;
     border-color: rgba(255, 231, 76, .6); box-shadow: 0 0 18px rgba(255, 231, 76, .3); pointer-events: none; max-width: 92vw; }
   #task b { color: #ffe74c; }
-  #help { position: fixed; bottom: 12px; right: 12px; padding: 8px 14px; font-size: 12px; line-height: 1.6; }
+  #help { position: fixed; bottom: 12px; right: 12px; max-width: calc(100vw - 400px); padding: 8px 14px; font-size: 12px; line-height: 1.6; }
   #help kbd { background: rgba(255, 255, 255, .16); border-radius: 5px; padding: 1px 6px; font-family: inherit; font-weight: 600; }
 
   .label { position: absolute; transform: translate(-50%, -100%); background: var(--glass); color: #fff;
@@ -104,11 +104,12 @@
   }
 
   /* ---- telefono ---- */
-  #phoneBtn { position: fixed; right: 12px; bottom: 64px; padding: 8px 14px; border-radius: 999px; font: 700 14px Poppins, sans-serif;
+  #quick { position: fixed; right: 12px; bottom: 74px; display: flex; gap: 8px; }
+  #phoneBtn, #bagBtn { padding: 8px 14px; border-radius: 999px; font: 700 14px Poppins, sans-serif;
     color: #fff; cursor: pointer; display: flex; gap: 6px; align-items: center; }
   #phoneBtn .badge { background: var(--pink); border-radius: 999px; padding: 0 7px; font-size: 12px; }
   #phoneBtn .badge:empty { display: none; }
-  #phone { position: fixed; right: 18px; bottom: 112px; width: 290px; height: 560px; max-height: calc(100vh - 130px); z-index: 6;
+  #phone { position: fixed; right: 18px; bottom: 120px; width: 290px; height: 560px; max-height: calc(100vh - 138px); z-index: 6;
     border-radius: 40px; padding: 11px; box-sizing: border-box; background: var(--frame, #222); box-shadow: 0 18px 50px rgba(10, 5, 30, .55), inset 0 0 0 2px rgba(255,255,255,.18); }
   #phScreen { position: relative; width: 100%; height: 100%; border-radius: 30px; overflow: hidden; background: var(--wall);
     display: flex; flex-direction: column; color: #fff; font-size: 13px; }
@@ -147,6 +148,19 @@
   .gal { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .gal div { border-radius: 12px; padding: 8px; background: rgba(0,0,0,.25); text-align: center; font-size: 11px; }
   .gal div span { display: block; font-size: 30px; }
+
+  /* ---- zaino ---- */
+  #bag { top: 50%; left: 50%; transform: translate(-50%, -50%); width: 380px; max-width: 94vw; max-height: 94vh; overflow-y: auto; box-sizing: border-box; z-index: 6; }
+  #bag h2 { margin: 0 0 10px; font-family: Pacifico, cursive; font-weight: 400; font-size: 24px; text-shadow: 0 0 10px var(--pink); }
+  #bagGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
+  #bag .slot { position: relative; margin: 0; padding: 0; height: 62px; font-size: 30px; text-align: center; border-radius: 12px;
+    background: rgba(255, 255, 255, .1); border: 2px solid rgba(255, 255, 255, .16); }
+  #bag .slot:hover { transform: none; border-color: rgba(255, 255, 255, .5); }
+  #bag .slot.sel { border-color: var(--cyan); box-shadow: 0 0 12px rgba(34, 225, 255, .45); }
+  #bag .slot small { position: absolute; right: 5px; bottom: 2px; font-size: 12px; font-weight: 700; text-shadow: 0 1px 3px #000; }
+  #bagInfo { min-height: 150px; }
+  #bag .gift { color: var(--mint); white-space: nowrap; }
+  #panel { max-height: 86vh; overflow-y: auto; box-sizing: border-box; }
 
   /* ---- console sulla TV ---- */
   #arcade { position: fixed; inset: 0; z-index: 7; display: flex; align-items: center; justify-content: center; background: rgba(8, 5, 24, .78); padding: 12px; }
@@ -190,9 +204,11 @@
   <div id="log" class="card">Benvenuto a Miami Beach! Cammina verso un edificio o una persona e premi E.</div>
   <div id="friends" class="card"><h3>Amici</h3><ul id="flist"></ul></div>
 </div>
-<div id="help" class="card"><kbd>WASD</kbd>/<kbd>Frecce</kbd> muovi · <kbd>Shift</kbd> corri · Trascina: ruota · Rotella: zoom · <kbd>E</kbd> entra / usa / siediti / guida · <kbd>Esc</kbd> chiudi <button id="rulesBtn" title="Regole (H)">? Regole</button> <span class="ver gameVer"></span></div>
+<div id="help" class="card"><kbd>WASD</kbd>/<kbd>Frecce</kbd> muovi · <kbd>Shift</kbd> corri · Trascina: ruota · Rotella: zoom · <kbd>E</kbd> entra / usa / raccogli / guida · <kbd>Z</kbd> zaino · <kbd>Esc</kbd> chiudi <button id="rulesBtn" title="Regole (H)">? Regole</button> <span class="ver gameVer"></span></div>
 <div id="speedo" class="card hidden"></div>
-<button id="phoneBtn" class="card" title="Telefono (P)">📱 <span id="phoneLbl">Telefono</span> <span class="badge" id="phoneBadge"></span></button>
+<div id="quick"><button id="bagBtn" class="card" title="Zaino (Z)">🎒 Zaino <span id="bagCount"></span></button>
+<button id="phoneBtn" class="card" title="Telefono (P)">📱 <span id="phoneLbl">Telefono</span> <span class="badge" id="phoneBadge"></span></button></div>
+<div id="bag" class="box card hidden"><h2 id="bagTitle"></h2><div id="bagGrid"></div><div id="bagInfo"></div><button class="close" id="bagClose">Chiudi (Z)</button></div>
 <div id="phone" class="hidden"><div id="phScreen"><div id="phStatus"></div><div id="phBody"></div><div id="phHome" title="Home"></div></div></div>
 <div id="arcade" class="hidden"><div class="tv"><canvas id="arcCv" width="640" height="400"></canvas>
   <div class="bar2"><span id="arcInfo"></span><span><button id="arcAgain">Rigioca</button> <button id="arcQuit">Spegni (Esc)</button></span></div></div></div>
@@ -226,6 +242,7 @@
           <span>Trascina il mouse</span><span>ruota la visuale</span>
           <span>Rotella</span><span>zoom</span>
           <span><kbd>Esc</kbd></span><span>chiudi un menu</span>
+          <span><kbd>Z</kbd></span><span>apri lo zaino</span>
           <span><kbd>P</kbd></span><span>apri il telefono (se ce l'hai)</span>
           <span><kbd>H</kbd></span><span>apri queste regole</span>
         </div>
@@ -261,6 +278,11 @@
       Un turno al giorno, dalle 7 alle 22, se hai energia. Durante il turno segui la <b>freccia gialla</b> e premi E:
       hai 150 secondi, e se sei veloce ricevi la mancia.</p>
 
+    <h3>Zaino</h3>
+    <p>Con <kbd>Z</kbd> apri lo <b>zaino</b> (16 posti). Ci metti cibo e bibite comprati nei negozi, souvenir, peluche e quello che raccogli
+      in giro con <kbd>E</kbd>: conchiglie in spiaggia, cocchi e fiori (nuovi ogni giorno). Gli oggetti si usano, si lasciano a terra,
+      si regalano agli amici oppure si conservano nel <b>baule</b> di casa.</p>
+
     <h3>Telefono, console e viaggi</h3>
     <div class="cols">
       <ul>
@@ -278,6 +300,7 @@
 
     <h3>Novità</h3>
     <div class="changes">
+      <p><b>1.5.0</b> · Zaino: raccogli, compra, usa, lascia e regala gli oggetti; baule in casa.</p>
       <p><b>1.4.0</b> · Telefono con chiamate, messaggi e giochini; giochi della console giocabili; viaggi veri a Roma, Londra, New York e Tokyo.</p>
       <p><b>1.3.0</b> · Pagina delle regole con la versione del gioco, retromarcia sicura e tachimetro in macchina.</p>
       <p><b>1.2.0</b> · Vita quotidiana: orologio, bisogni, sedersi, dormire, guidare e turni di lavoro giocabili.</p>
@@ -307,9 +330,9 @@
 // ================= STATO =================
 const state = { money: 150, hasHome: false, job: null, food: 0, console: false, games: [],
   day: 1, time: 8 * 60, energy: 100, hunger: 90, hygiene: 100, fun: 70, workedToday: false,
-  phone: null, chats: {}, unread: 0, msgDay: {}, best: {}, souvenirs: [], photos: [], travel: null };
+  phone: null, chats: {}, unread: 0, msgDay: {}, best: {}, souvenirs: [], photos: [], travel: null, bag: [], chest: [] };
 // ================= VERSIONE E PAGINA DELLE REGOLE =================
-const GAME_VERSION = "1.4.0", GAME_DATE = "23 novembre 2026";
+const GAME_VERSION = "1.5.0", GAME_DATE = "24 novembre 2026";
 document.querySelectorAll(".gameVer").forEach(el => { el.textContent = "v" + GAME_VERSION; });
 document.getElementById("gameDate").textContent = GAME_DATE;
 document.getElementById("gameVerLong").textContent = GAME_VERSION;
@@ -323,9 +346,9 @@ function closeRules() {
 }
 // c'è un menu aperto? (pannello, dialogo, telefono, console, regole)
 function uiBusy() {
-  return dialogOpen || !document.getElementById("panel").classList.contains("hidden") || phoneOpen || arcadeOpen || !intro.classList.contains("hidden");
+  return dialogOpen || !document.getElementById("panel").classList.contains("hidden") || phoneOpen || arcadeOpen || bagOpen || !intro.classList.contains("hidden");
 }
-let phoneOpen = false, arcadeOpen = false;
+let phoneOpen = false, arcadeOpen = false, bagOpen = false;
 document.getElementById("play").onclick = closeRules;
 document.getElementById("rulesBtn").onclick = openRules;
 let dialogOpen = false;
@@ -1359,8 +1382,16 @@ const INTERIORS = {
       actions: () => state.hasHome ? [
         { label: state.food > 0 ? "Mangia qualcosa dal frigo" : "Il frigo è vuoto...", disabled: state.food <= 0,
           run: () => { state.food--; act({ hunger: 45, min: 30, text: "Hai cucinato e mangiato a casa. Gnam!" }); } },
-        { label: "Preparati un caffè cubano", run: () => act({ energy: 15, min: 10, text: "Un cafecito bello forte. Sei sveglissimo!" }) }
+        { label: "Preparati un caffè cubano", run: () => act({ energy: 15, min: 10, text: "Un cafecito bello forte. Sei sveglissimo!" }) },
+        ...fridgeActions()
       ] : [notYours] });
+    // baule per conservare gli oggetti
+    solidBox(I, 0.9, 0.7, 1.6, 0x9b6b43, -7.45, 0.35, 1.5);
+    deco(I, B(0.98, 0.16, 1.68), 0x7a4e2d, -7.45, 0.76, 1.5);
+    deco(I, B(0.06, 0.2, 0.24), 0xffe74c, -6.97, 0.64, 1.5);
+    spot(I, { name: "Baule", icon: "🧰", x: -6.2, z: 1.2,
+      desc: () => `Nello zaino: ${state.bag.length}/${BAG_SLOTS} posti. Nel baule: ${state.chest.length}/${CHEST_SLOTS}.`,
+      actions: () => state.hasHome ? chestActions() : [notYours] });
     spot(I, { name: "Divano e TV", icon: "📺", x: 5.6, z: 3.7,
       desc: () => state.console ? `Divano, TV e la tua console (${state.games.length} ${state.games.length === 1 ? "gioco" : "giochi"}).` : "Un divano morbidissimo davanti alla TV.",
       actions: () => state.hasHome ? [
@@ -1425,7 +1456,7 @@ const INTERIORS = {
       desc: "«Ciao! Cosa ti preparo?» Le pizze escono calde dal forno a legna.",
       actions: () => [
         { label: "Mangia una pizza ($10)", run: () => act({ cost: 10, hunger: 50, fun: 5, min: 40, text: "Pizza buonissima, croccante al punto giusto!" }) },
-        { label: "Pizza da asporto per casa ($12)", run: () => { if (spend(12)) { state.food++; log("Pizza in scatola: finisce nel frigo di casa."); } } },
+        { label: "🎒 Pizza da asporto ($12)", run: () => buyItem("pizza", 12) },
         { label: "Tiramisù ($5)", run: () => act({ cost: 5, hunger: 15, fun: 5, min: 15, text: "Il tiramisù della nonna. Spettacolare!" }) },
         shiftAction("Pizzaiolo")
       ] });
@@ -1595,14 +1626,17 @@ const INTERIORS = {
       actions: () => [
         { label: "Spesa completa: 3 pasti ($15)", run: () => { if (act({ cost: 15, min: 20 })) { state.food += 3; log(`Carrello pieno! Ora hai ${state.food} pasti in frigo.`); } } },
         { label: "Snack veloce ($4)", run: () => act({ cost: 4, hunger: 15, min: 5, text: "Patatine al volo. Crunch!" }) },
+        { label: "🎒 Patatine da portare via ($4)", run: () => buyItem("snack", 4) },
         shiftAction("Commesso")
       ] });
     spot(I, { name: "Frutta e verdura", icon: "🍎", x: 5.8, z: -2,
       desc: "Arance della Florida, mele e banane appena arrivate.",
-      actions: () => [{ label: "Frutta fresca: 1 pasto ($5)", run: () => { if (spend(5)) { state.food++; log("Frutta nel sacchetto: finisce nel frigo di casa."); } } }] });
+      actions: () => [{ label: "🎒 Frutta fresca ($5)", run: () => buyItem("frutta", 5) }] });
     spot(I, { name: "Frigo bibite", icon: "🧃", x: -1, z: -7.6,
       desc: "Bibite ghiacciate per il caldo di Miami.",
-      actions: () => [{ label: "Bibita fresca ($3)", run: () => act({ cost: 3, hunger: 5, energy: 8, min: 5, text: "Ahh, freschissima!" }) }] });
+      actions: () => [{ label: "Bibita fresca ($3)", run: () => act({ cost: 3, hunger: 5, energy: 8, min: 5, text: "Ahh, freschissima!" }) },
+        { label: "🎒 Bibita da portare via ($3)", run: () => buyItem("bibita", 3) },
+        { label: "🎒 Bottiglia d'acqua ($2)", run: () => buyItem("acqua", 2) }] });
     return I;
   },
 
@@ -1752,7 +1786,7 @@ const INTERIORS = {
     spot(I, { name: "TechWorld", icon: "🎮", x: -9, z: -6.4, desc: "Console, TV e cuffie di ultima generazione.",
       actions: () => [
         { label: state.console ? "Console (già tua)" : "Console ($300)", disabled: state.console, run: () => { if (spend(300)) { state.console = true; log("Hai una console nuova! Collegala alla TV di casa."); } } },
-        { label: "Cuffie wireless ($40)", run: () => act({ cost: 40, fun: 20, text: "Musica a tutto volume sul lungomare!" }) }
+        { label: "🎒 Cuffie wireless ($40)", run: () => buyItem("cuffie", 40) }
       ] });
     // chiosco dei telefoni
     solidBox(I, 1.2, 1.05, 1.6, 0xffffff, 13.9, 0.525, -1.1);
@@ -1778,7 +1812,11 @@ const INTERIORS = {
     spot(I, { name: "Fontana", icon: "⛲", x: 0, z: 4.2, desc: "Dicono che chi lancia una moneta torni sempre a Miami.",
       actions: () => [{ label: "Lancia una moneta ($1)", run: () => act({ cost: 1, fun: 4, min: 2, text: "Plin! Hai espresso un desiderio." }) }] });
     spot(I, { name: "Pesca-peluche", icon: "🧸", x: 11.9, z: 1.5, desc: "Riuscirai a prendere un peluche?",
-      actions: () => [{ label: "Prova a pescare ($2)", run: () => { if (act({ cost: 2, fun: 6, min: 3 })) log(rnd() < 0.3 ? "Preso! Hai vinto un peluche a forma di fenicottero!" : "Uffa, il peluche è scivolato via..."); } }] });
+      actions: () => [{ label: "Prova a pescare ($2)", run: () => { if (act({ cost: 2, fun: 6, min: 3 })) {
+          if (rnd() >= 0.3) log("Uffa, il peluche è scivolato via...");
+          else if (bagAdd({ id: "peluche" })) log("Preso! Il peluche a forma di fenicottero è nello zaino!");
+          else { dropItem(world, { id: "peluche" }, player.position.x, player.position.z); log("Preso! Ma lo zaino è pieno: il peluche è ai tuoi piedi."); }
+        } } }] });
     return I;
   },
 
@@ -1921,6 +1959,8 @@ addEventListener("keydown", e => {
     return;
   }
   if (miniKey(e)) return;
+  if (bagKey(e)) return;
+  if (e.code === "KeyZ" && !e.repeat) { openBag(); return; }
   if (e.code === "KeyH" && !e.repeat) { openRules(); return; }
   if (e.code === "KeyP" && !e.repeat && !dialogOpen && panel.classList.contains("hidden")) { togglePhone(); return; }
   if (e.code === "Escape") { if (dialogOpen) closeDialog(); else if (!panel.classList.contains("hidden")) closePanel(); }
@@ -1966,6 +2006,8 @@ function currentAction() {
     : { text: "Premi <b>E</b> o muoviti per alzarti", run: standUp };
   const job = shiftTarget();
   if (job) return { text: `Premi <b>E</b>: ${job.text}`, run: doStep };
+  const dr = nearestDrop();
+  if (dr && bagRoom(dr.s)) return { text: `Premi <b>E</b> per raccogliere: ${itemInfo(dr.s).e} ${itemInfo(dr.s).n}`, run: () => pickUp(dr) };
   const hs = world.hotspots.length ? nearestHotspot() : null;
   const st = nearestSeat();
   const dSeat = st ? Math.hypot((st.nx ?? st.x) - player.position.x, (st.nz ?? st.z) - player.position.z) - (st.r || 1.6) + 1.6 : Infinity;
@@ -1982,6 +2024,7 @@ function currentAction() {
   if (c) return { text: "Premi <b>E</b> per salire in macchina", run: () => enterCar(c) };
   const pl = nearestPlace();
   if (pl) return pl.kind === "park" ? { text: `Premi <b>E</b>: ${pl.name}`, run: () => openPanel(pl) } : { text: `Premi <b>E</b> per entrare: ${pl.name}`, run: () => enterPlace(pl) };
+  if (dr) return { text: "Zaino pieno: non puoi raccogliere altro", run: () => log(FULL) };
   return null;
 }
 function interact() {
@@ -2580,6 +2623,7 @@ function update(dt) {
   if (!paused && !fade.classList.contains("on")) tickLife(dt, moving && run > 1);
   updateShift(dt);
   updatePhone(dt);
+  updateBag();
   hudTimer -= dt;
   if (hudTimer <= 0) { hudTimer = 0.25; updateHUD(); if (world === OUTDOOR) updateSky(); }
   npcs.forEach(n => updateNPC(n, dt));
@@ -3250,17 +3294,190 @@ function photoSubject() {
   if (world === OUTDOOR) return player.position.x > 92 ? { n: "La spiaggia di South Beach", e: "🏖" } : { n: "Ocean Drive, Miami", e: "🌴" };
   return { n: currentPlace.name, e: "📍" };
 }
-// regali: i souvenir si possono regalare agli amici
+updatePhoneBtn();
+
+// ================= ZAINO =================
+// Ogni posto dello zaino è { id, n } oppure { id: "souvenir", n: 1, sv } (sv = il ricordino comprato in viaggio).
+// stack: quanti stanno in un posto · use: effetti per act() · keep: usandolo non si consuma · fridge: si può mettere in frigo
+// gift: punti amicizia se lo regali
+const BAG_SLOTS = 16, CHEST_SLOTS = 40;
+const ITEMS = {
+  acqua: { e: "💧", n: "Bottiglia d'acqua", d: "Fresca e dissetante.", stack: 5, verb: "Bevi", use: { hunger: 3, energy: 5, min: 2, text: "Glu glu... ci voleva!" } },
+  bibita: { e: "🧃", n: "Bibita", d: "Zucchero ed energia.", stack: 5, verb: "Bevi", gift: 1, use: { hunger: 5, energy: 8, min: 5, text: "Ahh, freschissima!" } },
+  snack: { e: "🍟", n: "Patatine", d: "Uno spuntino da portare in giro.", stack: 5, verb: "Mangia", gift: 1, use: { hunger: 15, min: 5, text: "Patatine al volo. Crunch!" } },
+  frutta: { e: "🍎", n: "Frutta fresca", d: "Da mangiare subito o da mettere in frigo.", stack: 5, verb: "Mangia", gift: 1, fridge: true, use: { hunger: 25, energy: 4, min: 10, text: "Frutta dolcissima della Florida!" } },
+  pizza: { e: "🍕", n: "Pizza da asporto", d: "Nel cartone, ancora calda.", stack: 3, verb: "Mangia", gift: 2, fridge: true, use: { hunger: 45, fun: 4, min: 30, text: "La pizza di Da Costa è buona ovunque!" } },
+  pasto: { e: "🍱", n: "Pranzo al sacco", d: "Preparato nella cucina di casa.", stack: 3, verb: "Mangia", fridge: true, use: { hunger: 45, min: 30, text: "Un bel pranzo al sacco. Gnam!" } },
+  cocco: { e: "🥥", n: "Cocco", d: "Caduto da una palma.", stack: 5, verb: "Mangia", gift: 1, use: { hunger: 12, energy: 5, min: 10, text: "Acqua di cocco e polpa fresca!" } },
+  conchiglia: { e: "🐚", n: "Conchiglia", d: "Raccolta sulla spiaggia. Un bel regalo.", stack: 10, gift: 1 },
+  fiore: { e: "🌺", n: "Ibisco", d: "Un fiore tropicale, perfetto da regalare.", stack: 10, gift: 1 },
+  peluche: { e: "🦩", n: "Peluche fenicottero", d: "Vinto alla pesca dei peluche!", stack: 5, gift: 3, verb: "Abbraccia", keep: true, use: { fun: 4, min: 5, text: "Morbidissimo!" } },
+  cuffie: { e: "🎧", n: "Cuffie wireless", d: "Ascolta musica dove vuoi.", stack: 1, verb: "Ascolta", keep: true, use: { fun: 12, min: 30, text: "Musica a tutto volume!" } }
+};
+const itemInfo = s => s.sv ? { e: s.sv.e, n: s.sv.n, d: "Souvenir da " + s.sv.from + ". Regalalo a un amico!", stack: 1, gift: 3 } : ITEMS[s.id];
+// un contenitore (zaino o baule) è una lista con un massimo di posti
+function roomFor(list, max, s) { return list.length < max || (!s.sv && list.some(o => o.id === s.id && o.n < itemInfo(s).stack)); }
+function putIn(list, max, s) {
+  if (!roomFor(list, max, s)) return false;
+  const same = s.sv ? null : list.find(o => o.id === s.id && o.n < itemInfo(s).stack);
+  if (same) same.n++; else list.push(Object.assign({}, s, { n: 1 }));
+  return true;
+}
+function takeOne(list, s) { if (--s.n <= 0) list.splice(list.indexOf(s), 1); }
+const bagRoom = s => roomFor(state.bag, BAG_SLOTS, s);
+function bagAdd(s) { const ok = putIn(state.bag, BAG_SLOTS, s); updateBagBtn(); return ok; }
+function bagRemove(s) { takeOne(state.bag, s); updateBagBtn(); }
+const FULL = "Lo zaino è pieno! Usa, lascia o regala qualcosa.";
+function buyItem(id, cost) {
+  if (!bagRoom({ id })) { log(FULL); return; }
+  if (!spend(cost)) return;
+  bagAdd({ id });
+  log(`Nello zaino: ${ITEMS[id].e} ${ITEMS[id].n}. Premi Z per aprirlo.`);
+}
+// --- frigo e baule di casa ---
+function fridgeActions() {
+  const f = state.bag.find(s => ITEMS[s.id] && ITEMS[s.id].fridge);
+  return [
+    { label: "🎒 Prepara un pranzo al sacco", disabled: state.food <= 0 || !bagRoom({ id: "pasto" }),
+      run: () => { state.food--; bagAdd({ id: "pasto" }); passTime(10); log("Pranzo al sacco pronto: è nello zaino."); } },
+    ...(f ? [{ label: `🎒 Metti in frigo: ${ITEMS[f.id].e} ${ITEMS[f.id].n}`, run: () => { bagRemove(f); state.food++; log(`Pasti in frigo: ${state.food}.`); } }] : [])
+  ];
+}
+function chestActions() {
+  const name = s => { const it = itemInfo(s); return `${it.e} ${it.n}${s.n > 1 ? " ×" + s.n : ""}`; };
+  return [
+    ...state.bag.map(s => ({ label: "⬇ Metti via: " + name(s), disabled: !roomFor(state.chest, CHEST_SLOTS, s),
+      run: () => { if (putIn(state.chest, CHEST_SLOTS, s)) bagRemove(s); } })),
+    ...state.chest.map(s => ({ label: "⬆ Prendi: " + name(s), disabled: !bagRoom(s), run: () => { if (bagAdd(s)) takeOne(state.chest, s); } }))
+  ];
+}
+// --- oggetti per terra ---
+const emojiMats = {};
+function emojiMat(e) {
+  return emojiMats[e] || (emojiMats[e] = new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(makeCanvas(128, 128, g => {
+    g.fillStyle = "rgba(255,255,255,.85)"; g.beginPath(); g.arc(64, 64, 60, 0, TAU); g.fill();
+    g.fillStyle = "#000"; g.font = "76px 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif";
+    g.textAlign = "center"; g.textBaseline = "middle"; g.fillText(e, 64, 70); })) }));
+}
+function dropItem(w, s, x, z, wild) {
+  const m = new THREE.Sprite(emojiMat(itemInfo(s).e)); m.scale.set(0.75, 0.75, 1);
+  const y = (w === OUTDOOR ? groundY(x) : 0) + 0.55;
+  m.position.set(x, y, z); w.scene.add(m);
+  (w.drops = w.drops || []).push({ s: Object.assign({}, s, { n: 1 }), x, z, y, m, wild });
+}
+function removeDrop(w, d) { w.scene.remove(d.m); w.drops.splice(w.drops.indexOf(d), 1); }
+function nearestDrop() {
+  let best = null, bd = 1.5;
+  for (const d of world.drops || []) { const q = Math.hypot(d.x - player.position.x, d.z - player.position.z); if (q < bd) { bd = q; best = d; } }
+  return best;
+}
+function pickUp(d) {
+  if (!bagAdd(d.s)) { log(FULL); return; }
+  removeDrop(world, d);
+  const it = itemInfo(d.s); log(`Hai raccolto: ${it.e} ${it.n}.`);
+}
+// ogni giorno conchiglie, cocchi e fiori nuovi
+let wildDay = 0;
+function spawnWild() {
+  wildDay = state.day;
+  (OUTDOOR.drops || []).filter(d => d.wild).forEach(d => removeDrop(OUTDOOR, d));
+  const scatter = (id, n, x0, x1) => {
+    for (let i = 0, tries = 0; i < n && tries < 400; tries++) {
+      const x = x0 + R() * (x1 - x0), z = -150 + R() * 300;
+      if (blocked(x, z, 0.9)) continue;
+      dropItem(OUTDOOR, { id }, x, z, true); i++;
+    }
+  };
+  scatter("conchiglia", 14, 108, 139); scatter("cocco", 8, 74, 104); scatter("fiore", 10, 72, 92);
+}
+function updateBag() {
+  if (world === OUTDOOR && wildDay !== state.day) spawnWild();
+  (world.drops || []).forEach(d => { d.m.position.y = d.y + Math.sin(elapsed * 2.5 + d.x) * 0.08; });
+  bagMesh.visible = !P.pose; // da seduto o sdraiato lo zaino si toglie
+}
+// --- lo zaino sulle spalle ---
+const bagMesh = new THREE.Group();
+add(B(0.62, 0.78, 0.3), 0xff7a3d, 0, 1.58, -0.4, bagMesh);
+add(B(0.64, 0.2, 0.33), 0xd9541e, 0, 1.9, -0.4, bagMesh);
+add(B(0.42, 0.32, 0.12), 0xd9541e, 0, 1.4, -0.58, bagMesh);
+add(B(0.1, 0.05, 0.05), 0xffe74c, 0, 1.5, -0.65, bagMesh);
+for (const sx of [-0.26, 0.26]) { add(B(0.1, 0.72, 0.05), 0xd9541e, sx, 1.69, 0.255, bagMesh); add(B(0.1, 0.05, 0.6), 0xd9541e, sx, 2.07, -0.02, bagMesh); }
+bagMesh.traverse(o => { if (o.isMesh) o.castShadow = true; });
+player.add(bagMesh);
+// --- finestra ---
+const bagEl = document.getElementById("bag"), bagBtn = document.getElementById("bagBtn");
+let bagSel = 0;
+function updateBagBtn() { document.getElementById("bagCount").textContent = `${state.bag.length}/${BAG_SLOTS}`; }
+function openBag() {
+  if (paused || fade.classList.contains("on")) return;
+  bagOpen = true; paused = true; bagSel = 0;
+  bagEl.classList.remove("hidden"); renderBag();
+}
+function closeBag() { bagEl.classList.add("hidden"); bagOpen = false; paused = uiBusy(); }
+function bagUse() {
+  const s = state.bag[bagSel], it = s && itemInfo(s);
+  if (!it || !it.use) return;
+  act(it.use);
+  if (!it.keep) bagRemove(s);
+  updateHUD(); renderBag();
+}
+function bagDrop() {
+  const s = state.bag[bagSel];
+  if (!s || driving) return;
+  const b = sitting ? sitting.back : player.position, a = player.rotation.y;
+  let x = b.x + Math.sin(a) * 1.1, z = b.z + Math.cos(a) * 1.1;
+  if (sitting || blocked(x, z)) { x = b.x; z = b.z; }
+  dropItem(world, s, x, z);
+  const it = itemInfo(s); bagRemove(s);
+  log(`Hai lasciato a terra: ${it.e} ${it.n}. Premi E lì vicino per riprenderlo.`);
+  renderBag();
+}
+function renderBag() {
+  const grid = document.getElementById("bagGrid"), info = document.getElementById("bagInfo");
+  document.getElementById("bagTitle").textContent = `Zaino (${state.bag.length}/${BAG_SLOTS})`;
+  grid.innerHTML = ""; info.innerHTML = "";
+  for (let i = 0; i < BAG_SLOTS; i++) {
+    const s = state.bag[i], b = el("button", "slot" + (i === bagSel ? " sel" : ""), s ? itemInfo(s).e + (s.n > 1 ? `<small>${s.n}</small>` : "") : "", () => { bagSel = i; renderBag(); });
+    b.title = s ? itemInfo(s).n : "Posto vuoto";
+    grid.appendChild(b);
+  }
+  const s = state.bag[bagSel];
+  if (!s) { info.appendChild(el("p", null, state.bag.length ? "Posto vuoto." : "Lo zaino è vuoto: compra qualcosa o raccogli oggetti in giro con E.")); return; }
+  const it = itemInfo(s);
+  info.appendChild(el("p", null, `<b>${it.n}${s.n > 1 ? " ×" + s.n : ""}</b><br>${it.d}${it.gift ? " <span class='gift'>🎁 Regalabile</span>" : ""}`));
+  if (it.use) info.appendChild(el("button", null, `${it.verb} (E)`, bagUse));
+  const d = el("button", null, driving ? "Scendi dall'auto per lasciarlo" : "Lascia a terra (X)", bagDrop); d.disabled = !!driving;
+  info.appendChild(d);
+}
+function bagKey(e) {
+  if (!bagOpen) return false;
+  const mv = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -4, ArrowDown: 4, KeyA: -1, KeyD: 1, KeyW: -4, KeyS: 4 }[e.code];
+  if (mv) { const t = bagSel + mv; if (t >= 0 && t < BAG_SLOTS) { bagSel = t; renderBag(); } }
+  else if (e.repeat) { /* un oggetto alla volta */ }
+  else if (e.code === "Escape" || e.code === "KeyZ") closeBag();
+  else if (e.code === "KeyE") bagUse();
+  else if (e.code === "KeyX") bagDrop();
+  return true;
+}
+bagBtn.onclick = () => { bagBtn.blur(); if (bagOpen) closeBag(); else openBag(); };
+document.getElementById("bagClose").onclick = closeBag;
+// --- regali: gli oggetti dello zaino si possono regalare agli amici ---
 {
   const mood = T.mood;
   T.mood = n => {
-    const node = mood(n), gift = state.souvenirs.find(s => !s.given);
-    if (gift && !viaPhone) node.opts.splice(node.opts.length - 1, 0, [`🎁 Regala: ${gift.e} ${gift.n}`, () => { gift.given = n.name; addFr(n, 3); need("fun", 10); return "gift"; }]);
+    const node = mood(n);
+    if (viaPhone) return node;
+    state.bag.filter(s => itemInfo(s).gift).sort((a, b) => itemInfo(b).gift - itemInfo(a).gift).slice(0, 3).forEach(s => {
+      const it = itemInfo(s);
+      node.opts.splice(node.opts.length - 1, 0, [`🎁 Regala: ${it.e} ${it.n}`, () => {
+        bagRemove(s); if (s.sv) s.sv.given = n.name;
+        addFr(n, it.gift); need("fun", it.gift * 3); return "gift"; }]);
+    });
     return node;
   };
   T.gift = n => ({ say: "Per me?! Grazie, è bellissimo! ❤", opts: [["Figurati, a presto!", () => end(n, 0)]] });
 }
-updatePhoneBtn();
+bagAdd({ id: "acqua" }); bagAdd({ id: "snack" });
 
 // ================= VIAGGI =================
 function skyTexture(top, bottom) {
@@ -3315,7 +3532,9 @@ function souvenirShop(I, x, z, items, awn) {
   staff(I, x, z - 1.4, 0, { shirt: 0xffffff, hair: 0x3d2b1f, skin: 0xe0ac69 });
   spot(I, { name: "Souvenir", icon: "🎁", x, z: z + 1.9, desc: "Ricordini da portare a casa o da regalare agli amici.",
     actions: () => items.map(([e, n, p]) => ({ label: `${e} ${n} (${usd(p)})`, run: () => {
-      if (spend(p)) { state.souvenirs.push({ e, n, from: DESTS[state.travel].name }); need("fun", 6); log(`Hai comprato: ${e} ${n}. Puoi regalarlo a un amico!`); } } })) });
+      const sv = { e, n, from: DESTS[state.travel].name };
+      if (!bagRoom({ id: "souvenir", sv })) { log(FULL); return; }
+      if (spend(p)) { state.souvenirs.push(sv); bagAdd({ id: "souvenir", sv }); need("fun", 6); log(`Nello zaino: ${e} ${n}. Puoi regalarlo a un amico!`); } } })) });
 }
 function hotel(I, x, z, ry, name, color) {
   const g = new THREE.Group(); g.position.set(x, 0, z); g.rotation.y = ry; I.scene.add(g);
