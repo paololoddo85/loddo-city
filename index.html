@@ -84,6 +84,12 @@
     background: rgba(13, 8, 32, .6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
   #intro .sheet { width: 780px; max-width: 100%; max-height: 100%; overflow-y: auto; padding: 24px 28px; box-sizing: border-box; }
   #intro .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  #privBtn, #privForm button { font: inherit; font-size: 13px; color: #fff; background: none; border: 1px solid var(--line); border-radius: 10px; padding: 7px 14px; cursor: pointer; }
+  #privBtn { display: block; margin: 12px auto 0; }
+  #privForm { margin-top: 10px; text-align: center; }
+  #privForm.hidden { display: none; }
+  #privPw { font: inherit; font-size: 14px; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); }
+  #privFrame { position: fixed; inset: 0; width: 100%; height: 100%; border: 0; z-index: 100; background: #1b1026; }
   #intro h1 { margin: 0; font-family: Pacifico, cursive; font-weight: 400; font-size: 40px; line-height: 1.1;
     text-shadow: 0 0 4px var(--pink), 0 0 14px var(--pink), 0 3px 0 #b8136a; }
   #intro .lead { font-size: 15px; line-height: 1.55; margin: 10px 0 4px; color: rgba(255, 255, 255, .92); }
@@ -347,6 +353,11 @@
     </div>
 
     <button id="play">Gioca! 🌴</button>
+    <button id="privBtn" type="button">🔒 Area privata</button>
+    <form id="privForm" class="hidden">
+      <input id="privPw" type="password" autocomplete="off" placeholder="Password" aria-label="Password">
+      <button type="submit">Entra</button><p id="privMsg" role="status"></p>
+    </form>
   </div>
 </div>
 
@@ -4589,6 +4600,40 @@ addEventListener("resize", () => {
   camera.updateProjectionMatrix();
   renderer.setSize(innerWidth, innerHeight);
 });
+</script>
+<script>
+// ================= AREA PRIVATA =================
+// segreto.js contiene solo dati cifrati (AES-256-GCM): senza password non si leggono
+(() => {
+  const $ = id => document.getElementById(id), form = $("privForm"), pw = $("privPw"), msg = $("privMsg");
+  const bytes = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  const load = () => window.LC_SEGRETO ? Promise.resolve(window.LC_SEGRETO) : new Promise((ok, ko) => {
+    const s = document.createElement("script"); s.src = "segreto.js?" + Date.now();
+    s.onload = () => ok(window.LC_SEGRETO); s.onerror = () => ko(new Error("missing")); document.head.append(s);
+  });
+  $("privBtn").onclick = () => { form.classList.toggle("hidden"); if (!form.classList.contains("hidden")) { form.scrollIntoView({ block: "end" }); pw.focus(); } };
+  ["keydown", "keyup"].forEach(ev => form.addEventListener(ev, e => e.stopPropagation()));
+  let working = false;
+  form.onsubmit = async e => {
+    e.preventDefault(); if (working) return; working = true;
+    msg.textContent = "Controllo...";
+    const p = pw.value; pw.value = "";
+    try {
+      const b = await load();
+      const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(p), "PBKDF2", false, ["deriveKey"]);
+      const key = await crypto.subtle.deriveKey({ name: "PBKDF2", hash: "SHA-256", salt: bytes(b.s), iterations: b.n }, base, { name: "AES-GCM", length: 256 }, false, ["decrypt"]);
+      const html = new TextDecoder().decode(await crypto.subtle.decrypt({ name: "AES-GCM", iv: bytes(b.i) }, key, bytes(b.d)));
+      const fr = document.createElement("iframe"); fr.id = "privFrame"; fr.title = "Area privata"; fr.srcdoc = html;
+      fr.onload = () => fr.contentWindow.focus();
+      document.body.append(fr); msg.textContent = ""; form.classList.add("hidden");
+    } catch (err) { msg.textContent = err.message === "missing" ? "L'area privata non è ancora stata preparata." : "Password sbagliata."; }
+    working = false;
+  };
+  addEventListener("message", e => {
+    const fr = $("privFrame");
+    if (fr && e.source === fr.contentWindow && e.data === "lc-private-exit") { fr.remove(); $("privBtn").focus(); }
+  });
+})();
 </script>
 </body>
 </html>

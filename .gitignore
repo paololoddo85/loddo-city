@@ -1,3 +1,6 @@
 .DS_Store
 Thumbs.db
 node_modules/
+
+# sorgente privato del nuovo gioco: non va MAI pubblicato in chiaro
+privato/
