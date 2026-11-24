@@ -170,6 +170,31 @@
   #arcade .bar2 { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 9px; font-size: 13px; color: rgba(255,255,255,.8); flex-wrap: wrap; }
   #arcade .bar2 b { color: var(--cyan); }
   #arcade button { border: none; border-radius: 999px; padding: 7px 16px; background: linear-gradient(90deg, var(--pink), #ff8a5c); color: #fff; font: 600 13px Poppins, sans-serif; cursor: pointer; }
+  /* ---- tablet e totem per ordinare ---- */
+  #tablet { position: fixed; inset: 0; z-index: 7; display: flex; align-items: center; justify-content: center; background: rgba(8, 5, 24, .6); padding: 12px; --a: #b3262e; --bg: #fff7ee; --ink: #2a1a1a; }
+  #tablet.mac { --a: #c8202a; --bg: #fff6e2; }
+  #tablet .dev { width: 760px; max-width: 100%; max-height: 100%; box-sizing: border-box; display: flex; flex-direction: column; background: var(--bg); color: var(--ink);
+    border: 12px solid #16161a; border-radius: 26px; overflow: hidden; box-shadow: 0 20px 60px rgba(0, 0, 0, .6); }
+  #tablet button { font: 600 14px Poppins, sans-serif; border: none; border-radius: 999px; cursor: pointer; color: inherit; }
+  #tablet button:disabled { opacity: .4; cursor: not-allowed; }
+  .tabHead { display: flex; justify-content: space-between; align-items: center; padding: 12px 18px; background: var(--a); color: #fff; }
+  #tabTitle { font-size: 22px; font-weight: 700; } #tabSub { font-size: 13px; opacity: .9; }
+  #tabClose { background: rgba(255, 255, 255, .2); padding: 8px 14px; white-space: nowrap; }
+  #tabBody { overflow-y: auto; padding: 12px 18px; flex: 1; min-height: 0; }
+  #tablet .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+  #tablet .tabs button { padding: 7px 14px; background: rgba(0, 0, 0, .08); } #tablet .tabs button.on { background: var(--a); color: #fff; }
+  #tablet .dishes { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  #tablet .dish { background: #fff; border-radius: 16px; padding: 10px; text-align: center; display: flex; flex-direction: column; align-items: center; box-shadow: 0 2px 10px rgba(0, 0, 0, .1); }
+  #tablet .dish i, #tablet .modes i { font-style: normal; font-size: 40px; line-height: 1.2; }
+  #tablet .dish small, #tablet .modes small { opacity: .75; font-size: 12px; } #tablet .dish span { color: var(--a); font-weight: 700; }
+  #tablet .qty { display: flex; align-items: center; gap: 12px; font-weight: 700; margin-top: 6px; }
+  #tablet .qty button { width: 30px; height: 30px; background: var(--a); color: #fff; font-size: 18px; line-height: 1; }
+  #tabFoot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 18px; border-top: 1px solid rgba(0, 0, 0, .1); font-size: 13px; }
+  #tabFoot:empty { display: none; }
+  #tabFoot .send { background: #1f9d55; color: #fff; padding: 12px 20px; white-space: nowrap; }
+  #tablet .modes { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 10px 0; }
+  #tablet .modes button { background: #fff; border-radius: 18px; padding: 22px 16px; display: flex; flex-direction: column; align-items: center; gap: 6px; box-shadow: 0 2px 12px rgba(0, 0, 0, .12); border: 2px solid var(--a); }
+  #tablet .modes b { font-size: 17px; }
   #fade .msg { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
     font-size: 22px; font-weight: 700; text-align: center; padding: 20px; }
   #fade .msg .plane { font-size: 54px; animation: fly 2.2s ease-in-out infinite; }
@@ -212,6 +237,8 @@
 <div id="phone" class="hidden"><div id="phScreen"><div id="phStatus"></div><div id="phBody"></div><div id="phHome" title="Home"></div></div></div>
 <div id="arcade" class="hidden"><div class="tv"><canvas id="arcCv" width="640" height="400"></canvas>
   <div class="bar2"><span id="arcInfo"></span><span><button id="arcAgain">Rigioca</button> <button id="arcQuit">Spegni (Esc)</button></span></div></div></div>
+<div id="tablet" class="hidden"><div class="dev"><div class="tabHead"><div><div id="tabTitle"></div><div id="tabSub"></div></div><button id="tabClose">✕ Chiudi</button></div>
+  <div id="tabBody"></div><div id="tabFoot"></div></div></div>
 <div id="fade"><div class="msg" id="fadeMsg"></div></div>
 
 <div id="intro">
@@ -264,13 +291,20 @@
       se una barra diventa rossa, occupatene.</p>
     <div class="cols">
       <ul>
-        <li>🍔 <b>Fame</b>: mangia in pizzeria, al ristorante o dal frigo di casa.</li>
+        <li>🍔 <b>Fame</b>: mangia al Mac Donald, al sushi, in pizzeria, al ristorante o dal frigo di casa.</li>
         <li>⚡ <b>Energia</b>: dormi nel tuo letto o siediti. Se finisce, cammini piano.</li>
       </ul>
       <ul>
         <li>🚿 <b>Igiene</b>: doccia a casa o un tuffo in mare.</li>
         <li>🎉 <b>Svago</b>: TV, console, piano, amici, guidare, il Mall.</li>
       </ul>
+    </div>
+
+    <h3>Mac Donald e Sakura Sushi</h3>
+    <div class="cols">
+      <ul><li>🍔 <b>Mac Donald</b> (Ocean Drive): ordini al totem o alla cassa, ritiri il vassoio al banco, ti siedi e mangi con <kbd>E</kbd>.</li></ul>
+      <ul><li>🍣 <b>Sakura Sushi</b> (Ocean Drive): siediti, apri il <b>tablet</b> con <kbd>E</kbd> e scegli All You Can Eat o menù. La cameriera
+        porta i piatti al tavolo e li mangi un boccone alla volta.</li></ul>
     </div>
 
     <h3>Lavoro</h3>
@@ -300,6 +334,7 @@
 
     <h3>Novità</h3>
     <div class="changes">
+      <p><b>1.6.0</b> · Mac Donald e Sakura Sushi: si ordina da totem e tablet, il cibo arriva davvero e si mangia boccone per boccone.</p>
       <p><b>1.5.0</b> · Zaino: raccogli, compra, usa, lascia e regala gli oggetti; baule in casa.</p>
       <p><b>1.4.0</b> · Telefono con chiamate, messaggi e giochini; giochi della console giocabili; viaggi veri a Roma, Londra, New York e Tokyo.</p>
       <p><b>1.3.0</b> · Pagina delle regole con la versione del gioco, retromarcia sicura e tachimetro in macchina.</p>
@@ -332,7 +367,7 @@ const state = { money: 150, hasHome: false, job: null, food: 0, console: false, 
   day: 1, time: 8 * 60, energy: 100, hunger: 90, hygiene: 100, fun: 70, workedToday: false,
   phone: null, chats: {}, unread: 0, msgDay: {}, best: {}, souvenirs: [], photos: [], travel: null, bag: [], chest: [] };
 // ================= VERSIONE E PAGINA DELLE REGOLE =================
-const GAME_VERSION = "1.5.0", GAME_DATE = "24 novembre 2026";
+const GAME_VERSION = "1.6.0", GAME_DATE = "24 novembre 2026";
 document.querySelectorAll(".gameVer").forEach(el => { el.textContent = "v" + GAME_VERSION; });
 document.getElementById("gameDate").textContent = GAME_DATE;
 document.getElementById("gameVerLong").textContent = GAME_VERSION;
@@ -346,9 +381,9 @@ function closeRules() {
 }
 // c'è un menu aperto? (pannello, dialogo, telefono, console, regole)
 function uiBusy() {
-  return dialogOpen || !document.getElementById("panel").classList.contains("hidden") || phoneOpen || arcadeOpen || bagOpen || !intro.classList.contains("hidden");
+  return dialogOpen || !document.getElementById("panel").classList.contains("hidden") || phoneOpen || arcadeOpen || bagOpen || tabletOpen || !intro.classList.contains("hidden");
 }
-let phoneOpen = false, arcadeOpen = false, bagOpen = false;
+let phoneOpen = false, arcadeOpen = false, bagOpen = false, tabletOpen = false;
 document.getElementById("play").onclick = closeRules;
 document.getElementById("rulesBtn").onclick = openRules;
 let dialogOpen = false;
@@ -608,6 +643,10 @@ const places = [
     ] },
   { id: "dacosta", name: "Pizzeria Da Costa", kind: "shop", strip: "ocean", z: -50, lw: 18, ld: 14, h: 8, tables: true,
     wall: 0xffc8dd, trim: 0xffffff, glass: 0x4a7fa6, awn: 0xe63946, neon: 0xff4f7b, sign: "Da Costa Pizza" },
+  { id: "macdonald", name: "Mac Donald", kind: "shop", strip: "ocean", z: -27, lw: 22, ld: 14, h: 8,
+    wall: 0xc8202a, trim: 0xffc72c, glass: 0x4a7fa6, awn: 0xffc72c, neon: 0xffc72c, sign: "Mac Donald" },
+  { id: "sushi", name: "Sakura Sushi", kind: "shop", strip: "ocean", z: 64, lw: 22, ld: 14, h: 8,
+    wall: 0x3a2a35, trim: 0xffb3cf, glass: 0x2f6f8f, awn: 0xb3262e, neon: 0xff6f91, sign: "Sakura Sushi" },
   { id: "elite", name: "Ristorante L'Elite9", kind: "shop", strip: "ocean", z: 130, lw: 20, ld: 14, h: 9, tables: true,
     wall: 0xd8c8ff, trim: 0xffffff, glass: 0x2f6f8f, awn: 0x1d3557, neon: 0xb388ff, sign: "L'Elite9" },
   { id: "supermercato", name: "Supermercato", kind: "shop", strip: "collinsW", z: -40, lw: 26, ld: 18, h: 7,
@@ -1889,6 +1928,477 @@ const INTERIORS = {
 };
 function buildInterior(pl) { return finishInterior(INTERIORS[pl.id]()); }
 
+// ================= MAC DONALD E SUSHI: ORDINI, CONSEGNA E CIBO DA MANGIARE =================
+// Ogni piatto è un modello 3D fatto di bocconi: premendo E un boccone va davvero in bocca e sparisce.
+const FOOD_GEO = {};
+const fgeo = (k, f) => FOOD_GEO[k] || (FOOD_GEO[k] = f());
+const fBall = r => fgeo("b" + r, () => new THREE.SphereGeometry(r, 14, 10));
+const fCyl = (a, b, h) => fgeo(`c${a},${b},${h}`, () => new THREE.CylinderGeometry(a, b, h, 18));
+const fBox = (w, h, d) => fgeo(`x${w},${h},${d}`, () => B(w, h, d));
+const fPlate = (g, c) => add(fCyl(0.27, 0.2, 0.04), c || 0xf7f4ee, 0, 0.02, 0, g);
+// n bocconi uguali disposti in cerchio o in fila
+function fPieces(g, n, make, o) {
+  const list = [];
+  for (let i = 0; i < n; i++) {
+    const p = new THREE.Group();
+    if (o && o.row) p.position.set((i - (n - 1) / 2) * o.row, 0.05, 0);
+    else { const a = i * TAU / n + 0.4, r = n === 1 ? 0 : (o && o.r) || 0.14; p.position.set(Math.cos(a) * r, 0.05, Math.sin(a) * r); p.rotation.y = -a; }
+    make(p, i); g.add(p); list.push(p);
+  }
+  return list;
+}
+const nigiri = (fish, stripe) => g => { fPlate(g, 0x2b2b33); return fPieces(g, 3, p => {
+  add(fBall(0.075), 0xffffff, 0, 0.05, 0, p).scale.set(0.8, 0.7, 1.5);
+  add(fBox(0.12, 0.04, 0.25), fish, 0, 0.115, 0, p);
+  if (stripe) for (const z of [-0.07, 0, 0.07]) add(fBox(0.122, 0.042, 0.014), stripe, 0, 0.116, z, p);
+}, { row: 0.15 }); };
+const roll = (core, out, top) => g => { fPlate(g, 0x2b2b33); return fPieces(g, 6, p => {
+  add(fCyl(0.075, 0.075, 0.1), out, 0, 0.05, 0, p);
+  add(fCyl(0.062, 0.062, 0.104), 0xffffff, 0, 0.05, 0, p);
+  add(fCyl(0.032, 0.032, 0.108), core, 0, 0.05, 0, p);
+  if (top) add(fBall(0.03), top, 0, 0.11, 0, p);
+}, { r: 0.165 }); };
+const sashimi = g => { fPlate(g, 0x7fb3c9); return fPieces(g, 5, (p, i) => { add(fBox(0.16, 0.05, 0.09), [0xff8a5c, 0xd62839, 0xffd9c7][i % 3], 0, 0.04, 0, p).rotation.z = 0.2; }, { r: 0.15 }); };
+const fried = (n, col, sx) => g => { fPlate(g); return fPieces(g, n, p => {
+  add(fBall(0.07), col, 0, 0.06, 0, p).scale.set(sx || 1, 0.75, 0.9);
+}, { r: 0.14 }); };
+const bowl = (soup, noodle) => g => {
+  add(fCyl(0.27, 0.17, 0.2), 0xb3262e, 0, 0.1, 0, g); add(fCyl(0.24, 0.24, 0.02), soup, 0, 0.2, 0, g);
+  return fPieces(g, 5, (p, i) => {
+    const t = add(fgeo("nood", () => new THREE.TorusGeometry(0.07, 0.028, 6, 14)), noodle, 0, 0.17, 0, p); t.rotation.x = Math.PI / 2;
+    if (i === 0) add(fBall(0.05), 0xfff6e0, 0, 0.21, 0, p); if (i === 2) add(fBox(0.13, 0.02, 0.1), 0xd08a6a, 0, 0.21, 0, p); if (i === 3) add(fBox(0.1, 0.02, 0.05), 0x2f8a3c, 0, 0.21, 0, p);
+  }, { r: 0.1 });
+};
+const cup = (col, cap, straw) => g => {
+  add(fCyl(0.12, 0.09, 0.32), col, 0, 0.16, 0, g); add(fCyl(0.13, 0.13, 0.03), cap, 0, 0.33, 0, g);
+  if (straw) add(fCyl(0.014, 0.014, 0.24), 0xffffff, 0.03, 0.44, 0, g);
+  return 3; // sorsi
+};
+// panino a spicchi: quattro morsi
+const burger = layers => g => {
+  add(fBox(0.36, 0.015, 0.36), 0xf3ead2, 0, 0.008, 0, g);
+  const list = [];
+  for (let q = 0; q < 4; q++) {
+    const p = new THREE.Group(); g.add(p); list.push(p);
+    let y = 0.015;
+    const slab = (r, h, c) => { add(fgeo(`q${q},${r},${h}`, () => new THREE.CylinderGeometry(r, r, h, 6, 1, false, q * TAU / 4, TAU / 4)), M(c, { side: THREE.DoubleSide }), 0, y + h / 2, 0, p); y += h; };
+    slab(0.17, 0.05, 0xd9943f);
+    layers.forEach(c => slab(c === 0x5b3420 || c === 0xe0a040 ? 0.175 : 0.19, c === 0x5b3420 || c === 0xe0a040 ? 0.055 : 0.02, c));
+    add(fgeo("top" + q, () => new THREE.SphereGeometry(0.175, 6, 6, q * TAU / 4 + Math.PI / 2, TAU / 4, 0, Math.PI / 2)), M(0xd9943f, { side: THREE.DoubleSide }), 0, y, 0, p).scale.y = 0.65;
+  }
+  return list;
+};
+const BEEF = 0x5b3420, CRISPY = 0xe0a040, CHEESE = 0xffc93c, SALAD = 0x6cbf4a, TOMATO = 0xd62828;
+const fries = g => {
+  add(fBox(0.24, 0.2, 0.14), 0xd62828, 0, 0.1, 0, g);
+  return fPieces(g, 5, (p, i) => { for (const z of [-0.035, 0.035]) add(fBox(0.028, 0.22, 0.028), 0xffd45c, 0, 0.16 + (i % 2) * 0.03, z, p).rotation.z = (i - 2) * 0.08; p.position.y = 0; }, { row: 0.042 });
+};
+const cone = g => { add(fCyl(0.1, 0.06, 0.14), 0xe0a860, 0, 0.07, 0, g); return [0, 1, 2].map(i => { const p = new THREE.Group(); p.position.y = 0.17 + i * 0.075; add(fBall(0.1), 0xfffaf0, 0, 0, 0, p).scale.set(1 - i * 0.22, 0.6, 1 - i * 0.22); g.add(p); return p; }); };
+const toast = (a, b) => g => { fPlate(g); return fPieces(g, 4, p => { add(fBall(0.085), a, 0, 0.05, 0, p).scale.y = 0.75; add(fBall(0.03), b, 0, 0.11, 0, p); }, { r: 0.12 }); };
+
+// h = quanto sazia in tutto · ex = escluso dall'All You Can Eat
+const MAC_MENU = [
+  { id: "big", n: "Doppio Loddo", d: "Due carni, formaggio, insalata", icon: "🍔", p: 8, h: 40, cat: "Panini", make: burger([BEEF, CHEESE, SALAD, BEEF, CHEESE]) },
+  { id: "cheese", n: "Cheeseburger", d: "Il classico", icon: "🍔", p: 4, h: 25, cat: "Panini", make: burger([BEEF, CHEESE, TOMATO]) },
+  { id: "chicken", n: "Pollo croccante", d: "Pollo, insalata, pomodoro", icon: "🍗", p: 6, h: 32, cat: "Panini", make: burger([CRISPY, SALAD, TOMATO]) },
+  { id: "veg", n: "Veggie burger", d: "Tutto vegetale", icon: "🥬", p: 6, h: 28, cat: "Panini", make: burger([0x8a6b3a, SALAD, TOMATO, SALAD]) },
+  { id: "fries", n: "Patatine", d: "Calde e salate", icon: "🍟", p: 3, h: 15, cat: "Sfizi", make: fries },
+  { id: "nuggets", n: "Bocconcini di pollo", d: "6 pezzi", icon: "🍗", p: 5, h: 20, cat: "Sfizi", make: fried(6, 0xd9943f) },
+  { id: "cola", n: "Cola", d: "Con ghiaccio", icon: "🥤", p: 2, h: 4, cat: "Bevande", make: cup(0xd62828, 0xffffff, true) },
+  { id: "orange", n: "Aranciata", d: "Con ghiaccio", icon: "🍊", p: 2, h: 4, cat: "Bevande", make: cup(0xff9a3c, 0xffffff, true) },
+  { id: "shake", n: "Milkshake fragola", d: "Cremoso", icon: "🥛", p: 4, h: 10, cat: "Bevande", make: cup(0xffb6c9, 0xffffff, true) },
+  { id: "ice", n: "Gelato alla panna", d: "Coppetta", icon: "🍦", p: 2, h: 8, cat: "Dolci", make: cone }
+];
+const SUSHI_MENU = [
+  { id: "nsal", n: "Nigiri salmone", d: "3 pezzi", icon: "🍣", p: 5, h: 10, cat: "Nigiri", make: nigiri(0xff8a5c, 0xffc4a3) },
+  { id: "ntun", n: "Nigiri tonno", d: "3 pezzi", icon: "🍣", p: 6, h: 10, cat: "Nigiri", make: nigiri(0xc9283e) },
+  { id: "nebi", n: "Nigiri gambero", d: "3 pezzi", icon: "🍤", p: 5, h: 10, cat: "Nigiri", make: nigiri(0xffd2b8, 0xff7a4d) },
+  { id: "hoso", n: "Hosomaki salmone", d: "6 pezzi", icon: "🍙", p: 5, h: 12, cat: "Roll", make: roll(0xff8a5c, 0x1d2b22) },
+  { id: "cali", n: "California roll", d: "6 pezzi con avocado", icon: "🥑", p: 7, h: 14, cat: "Roll", make: roll(0x8fc95a, 0xfff3e0, 0xff7a1a) },
+  { id: "spicy", n: "Spicy tuna roll", d: "6 pezzi, piccante", icon: "🌶", p: 8, h: 14, cat: "Roll", make: roll(0xc9283e, 0x1d2b22, 0xff3b30) },
+  { id: "sash", n: "Sashimi misto", d: "5 fette", icon: "🐟", p: 12, h: 12, cat: "Roll", ex: true, make: sashimi },
+  { id: "gyoza", n: "Gyoza", d: "5 ravioli alla piastra", icon: "🥟", p: 6, h: 14, cat: "Cucina", make: fried(5, 0xefd9a8, 1.4) },
+  { id: "temp", n: "Tempura di gamberi", d: "4 pezzi", icon: "🍤", p: 8, h: 14, cat: "Cucina", make: fried(4, 0xf2b04a, 1.9) },
+  { id: "ramen", n: "Ramen", d: "Maiale, uovo, alga", icon: "🍜", p: 11, h: 28, cat: "Cucina", make: bowl(0xb5783a, 0xffe29a) },
+  { id: "eda", n: "Edamame", d: "Fagioli di soia", icon: "🫛", p: 4, h: 8, cat: "Cucina", make: fried(6, 0x6cbf4a, 1.5) },
+  { id: "mochi", n: "Mochi", d: "4 dolcetti di riso", icon: "🍡", p: 5, h: 8, cat: "Dolci e bevande", make: toast(0xffc1d8, 0x8fc95a) },
+  { id: "tea", n: "Tè verde", d: "Caldo", icon: "🍵", p: 3, h: 2, cat: "Dolci e bevande", ex: true, make: cup(0x3f7a5a, 0xa8c66c) },
+  { id: "ramu", n: "Ramune", d: "Gassosa giapponese", icon: "🫧", p: 4, h: 3, cat: "Dolci e bevande", ex: true, make: cup(0x7fd3f7, 0x2b8fd6) }
+];
+function makeFood(def) {
+  const g = new THREE.Group(), r = def.make(g);
+  g.traverse(m => { if (m.isMesh) m.castShadow = true; });
+  const drink = typeof r === "number";
+  return { def, g, drink, pieces: drink ? null : r, left: drink ? r : r.length, tot: drink ? r : r.length };
+}
+
+// ---- mangiare: un boccone alla volta ----
+let meal = null, bite = null; // meal = { items, seat, onDone, sticks }
+const biteMouth = new THREE.Vector3();
+const chopsticks = new THREE.Group();
+for (const x of [-0.02, 0.03]) add(B(0.025, 0.5, 0.025), 0x7a4a2a, x, -0.18, 0, chopsticks).rotation.x = 0.25;
+chopsticks.position.set(0, -0.85, 0.06);
+function eatAction() {
+  if (!meal || !sitting || meal.seat !== sitting.st || !meal.items.length) return null;
+  const it = meal.items[0];
+  return { text: `Premi <b>E</b> per ${it.drink ? "bere" : "mangiare"}: ${it.def.icon} ${it.def.n} (${it.left} ${it.drink ? (it.left === 1 ? "sorso" : "sorsi") : (it.left === 1 ? "boccone" : "bocconi")})`, run: eatBite };
+}
+function eatBite() {
+  if (bite) return;
+  const it = meal.items[0], m = it.drink ? it.g : it.pieces[it.left - 1], home = m.parent;
+  if (meal.sticks && !it.drink) P.armR && P.armR.add(chopsticks);
+  world.scene.attach(m);
+  bite = { it, m, home, from: m.position.clone(), s: m.scale.x, t: 0 };
+}
+function updateBite(dt) {
+  if (!bite) return;
+  bite.t += dt / 0.75;
+  const b = bite, t = Math.min(1, b.t), swing = Math.sin(Math.PI * t);
+  player.localToWorld(biteMouth.set(0, b.it.drink ? 2.12 : 2.36, 0.4));
+  const k = b.it.drink ? Math.min(1, swing * 1.35) : THREE.MathUtils.smoothstep(t, 0.1, 0.75);
+  b.m.position.lerpVectors(b.from, biteMouth, k);
+  if (!b.it.drink) b.m.scale.setScalar(b.s * (t > 0.7 ? Math.max(0.05, 1 - (t - 0.7) / 0.3) : 1));
+  P.armR.rotation.x = -0.6 - swing * 1.5; P.armR.rotation.z = -0.45 * swing;
+  if (t < 1) return;
+  P.armR.rotation.z = 0; P.armR.remove(chopsticks);
+  bite = null;
+  const it = b.it;
+  if (it.drink) { b.m.position.copy(b.from); b.home.attach(b.m); } else b.m.parent.remove(b.m);
+  it.left--;
+  need("hunger", it.def.h / it.tot); need("fun", 0.6); passTime(1);
+  if (it.drink) need("energy", 1);
+  if (it.left > 0) { updateHUD(); return; }
+  it.g.parent.remove(it.g);
+  meal.items.shift();
+  need("fun", 2);
+  log(`${it.drink ? "Bevuto" : "Mangiato"}: ${it.def.n}. ${pick2(["Buonissimo!", "Che delizia!", "Gnam!", "Ci voleva proprio!"])}`);
+  updateHUD();
+  if (!meal.items.length) { const f = meal.onDone; meal = null; if (f) f(); }
+}
+const pick2 = a => a[Math.floor(Math.random() * a.length)];
+
+// ---- personale che cammina davvero ----
+function walker(I, x, z, ry, look) {
+  const H = makeHuman(Object.assign({ pants: 0x2b2b2b, hair: 0x3d2b1f, shoes: 0x222222 }, look));
+  H.g.position.set(x, 0, z); H.g.rotation.y = ry; I.scene.add(H.g);
+  const w = { H, path: [], cb: null, tray: null, go(path, cb) { w.path = path.slice(); w.cb = cb || null; },
+    take(m) { m.position.set(0, 1.45, 0.72); m.rotation.y = 0; H.g.add(m); w.tray = m; } };
+  I.ticks.push((t, dt) => {
+    if (paused) return;
+    let left = 4.2 * dt, moved = false;
+    while (w.path.length && left > 0) {
+      const [px, pz] = w.path[0], dx = px - H.g.position.x, dz = pz - H.g.position.z, d = Math.hypot(dx, dz);
+      moved = true;
+      if (d > 0.01) H.g.rotation.y = Math.atan2(dx, dz);
+      if (d <= left) { H.g.position.set(px, 0, pz); left -= d; w.path.shift(); }
+      else { H.g.position.x += dx / d * left; H.g.position.z += dz / d * left; left = 0; }
+    }
+    animateHuman(H, moved, dt, 0.9);
+    if (w.tray) H.armL.rotation.x = H.armR.rotation.x = -1.25;
+    if (!w.path.length && w.cb) { const f = w.cb; w.cb = null; f(); }
+  });
+  return w;
+}
+// tavolo con due posti, uno di fronte all'altro; ogni posto sa dove vanno i piatti
+function foodTable(I, x, z, o) {
+  add(B(2, 0.06, 1.9), o.top, x, 0.8, z, I.scene);
+  add(new THREE.CylinderGeometry(0.09, 0.09, 0.78, 8), o.leg, x, 0.39, z, I.scene);
+  add(new THREE.CylinderGeometry(0.4, 0.45, 0.04, 16), o.leg, x, 0.02, z, I.scene);
+  I.solids.push({ x, z, w: 3.6, d: 2.2, h: 1.2 });
+  return [-1, 1].map(s => {
+    const st = chair(I, x + s * 1.4, z, -s * Math.PI / 2, o.seat, o.leg);
+    st.r = 2.5; st.table = { x, z, s };
+    return st;
+  });
+}
+const PLATE_SLOTS = [[0.62, 0], [0.62, -0.62], [0.62, 0.62], [0.05, -0.62], [0.05, 0.62]];
+function slotPos(st, i) { const [a, b] = PLATE_SLOTS[i]; return [st.table.x + st.table.s * a, 0.83, st.table.z + b]; }
+function makeTray(items, col) {
+  const g = new THREE.Group();
+  add(B(1.25, 0.03, 0.75), col, 0, 0.015, 0, g);
+  for (const s of [-1, 1]) { add(B(1.25, 0.05, 0.03), col, 0, 0.04, s * 0.37, g); add(B(0.03, 0.05, 0.75), col, s * 0.62, 0.04, 0, g); }
+  items.forEach((it, i) => { it.g.position.set((i % 3 - 1) * 0.4, 0.03, i < 3 ? 0.17 : -0.19); g.add(it.g); });
+  return g;
+}
+function setStatus(html) {
+  const el = document.getElementById("task");
+  if (!html) { if (!shift) el.classList.add("hidden"); return; }
+  el.classList.remove("hidden");
+  if (el.innerHTML !== html) el.innerHTML = html;
+}
+
+// ---- tablet / totem per ordinare ----
+const tablet = document.getElementById("tablet"), tabBody = document.getElementById("tabBody");
+function showTablet(theme, title, sub) {
+  tabletOpen = true; paused = true;
+  tablet.className = theme; tabBody.innerHTML = "";
+  document.getElementById("tabTitle").textContent = title;
+  document.getElementById("tabSub").textContent = sub || "";
+  document.getElementById("tabFoot").innerHTML = "";
+}
+function closeTablet() { tablet.className = "hidden"; tabletOpen = false; paused = uiBusy(); }
+document.getElementById("tabClose").onclick = closeTablet;
+// o: { theme, title, sub, menu, max, price(def), send(list, total), back }
+function openOrder(o) {
+  const cart = {}; // id -> quantità
+  let cat = o.menu[0].cat;
+  const count = () => Object.values(cart).reduce((a, b) => a + b, 0);
+  const total = () => o.menu.reduce((s, d) => s + (cart[d.id] || 0) * o.price(d), 0);
+  const btn = (txt, cls, fn, off) => { const b = document.createElement("button"); b.className = cls; b.textContent = txt; b.disabled = !!off; b.onclick = fn; return b; };
+  const draw = () => {
+    showTablet(o.theme, o.title, o.sub);
+    const tabs = document.createElement("div"); tabs.className = "tabs";
+    if (o.back) tabs.appendChild(btn("‹ Indietro", "", o.back));
+    [...new Set(o.menu.map(d => d.cat))].forEach(c => tabs.appendChild(btn(c, c === cat ? "on" : "", () => { cat = c; draw(); })));
+    tabBody.appendChild(tabs);
+    const grid = document.createElement("div"); grid.className = "dishes";
+    o.menu.filter(d => d.cat === cat).forEach(d => {
+      const c = document.createElement("div"), p = o.price(d); c.className = "dish";
+      c.innerHTML = `<i>${d.icon}</i><b>${d.n}</b><small>${d.d}</small><span>${p ? usd(p) : "incluso"}</span>`;
+      const q = document.createElement("div"); q.className = "qty";
+      q.append(btn("−", "", () => { cart[d.id]--; draw(); }, !cart[d.id]), document.createTextNode(cart[d.id] || 0),
+        btn("+", "", () => { cart[d.id] = (cart[d.id] || 0) + 1; draw(); }, count() >= o.max));
+      c.appendChild(q); grid.appendChild(c);
+    });
+    tabBody.appendChild(grid);
+    const foot = document.getElementById("tabFoot"), n = count(), t = total(), list = o.menu.filter(d => cart[d.id]);
+    const info = document.createElement("div");
+    info.textContent = n ? list.map(d => `${cart[d.id]}× ${d.n}`).join(", ") + ` (${n}/${o.max})` : `Scegli fino a ${o.max} piatti per ordine`;
+    foot.append(info, btn(t > state.money ? `Ti servono ${usd(t)}` : `Invia l'ordine · ${usd(t)}`, "send", () => {
+      if (t && !spend(t)) return;
+      closeTablet();
+      o.send(list.flatMap(d => Array(cart[d.id]).fill(d)), t);
+    }, !n || t > state.money));
+  };
+  draw();
+}
+
+// ---------- MAC DONALD: totem, cucina, ritiro al banco, vassoio ----------
+INTERIORS.macdonald = () => {
+  const I = newInterior({ w: 18, d: 18, h: 5, bg: 0x2a1210, trim: 0xffc72c,
+    floor: canvasMat(checker("#f6f1e7", "#e3d8c5", 4), 4, 4, { roughness: 0.5 }),
+    wall: canvasMat(bands("#fff6e2", [[0.55, 0.04, "#ffc72c"], [0.59, 0.41, "#c8202a"]]), 4, 1), ceil: M(0xfdfaf2), amb: 0.72 });
+  I.welcome = "Benvenuto al Mac Donald! Ordina al totem o alla cassa, ritira il vassoio e siediti a mangiare.";
+  const S = { status: null, items: [], tray: null, t: 0, num: 40, paid: 0 };
+  // banco e cucina
+  solidBox(I, 17.6, 1.1, 1.1, 0xc8202a, 0, 0.55, -4.5);
+  deco(I, B(17.7, 0.07, 1.2), M(0xfdf8ee, { roughness: 0.3 }), 0, 1.13, -4.5);
+  deco(I, B(17.6, 0.12, 0.04), Glow(0xffc72c), 0, 0.95, -3.94);
+  for (const x of [-4.5, -2]) { deco(I, B(0.6, 0.45, 0.4), 0x333333, x, 1.38, -4.5); deco(I, B(0.5, 0.3, 0.02), Glow(0x9be564), x, 1.42, -4.72); }
+  solidBox(I, 5, 1, 1.3, M(0xcfd3d6, { roughness: 0.3 }), 4.5, 0.5, -8.2);
+  for (let i = 0; i < 4; i++) deco(I, B(0.9, 0.04, 0.8), 0x2b2b2b, 2.8 + i * 1.1, 1.02, -8.2);
+  solidBox(I, 4, 1, 1.3, M(0xcfd3d6, { roughness: 0.3 }), -3, 0.5, -8.2);
+  for (const x of [-4, -3, -2]) { deco(I, B(0.7, 0.05, 0.8), 0x6b4a1a, x, 1.01, -8.2); deco(I, B(0.5, 0.12, 0.6), 0xffd45c, x, 1.06, -8.2); }
+  const steam = [0, 1, 2, 3].map(i => deco(I, fBall(0.12), M(0xffffff, { transparent: true, opacity: 0.35 }), 2.8 + i * 1.1, 1.3, -8.2));
+  I.ticks.push(t => steam.forEach((m, i) => { const k = (t * 0.4 + i * 0.27) % 1; m.visible = S.status === "cook"; m.position.y = 1.1 + k * 1.4; m.scale.setScalar(0.6 + k); }));
+  ["🍔 Panini da $4", "🍟 Sfizi da $3", "🥤 Bevande da $2"].forEach((t, i) => put(signPlane(t, 4.6, 1.1, i % 2 ? "#ffc72c" : "#2b1512", i % 2 ? "#2b1512" : "#ffc72c"), I, (i - 1) * 5, 3.9, -8.95));
+  put(signPlane("Mac Donald", 6, 1.2, "#c8202a", "#ffc72c"), I, -8.96, 3.5, 2, Math.PI / 2);
+  put(boardPlane(4, 2.2, (g, w, h) => { // mascotte: un hamburger sorridente
+    g.fillStyle = "#ffc72c"; g.fillRect(0, 0, w, h); g.textAlign = "center"; g.textBaseline = "middle";
+    g.fillStyle = "#d9943f"; g.beginPath(); g.arc(w / 2, h * 0.45, h * 0.3, Math.PI, 0); g.fill();
+    g.fillStyle = "#6cbf4a"; g.fillRect(w / 2 - h * 0.34, h * 0.45, h * 0.68, h * 0.06); g.fillStyle = "#5b3420"; g.fillRect(w / 2 - h * 0.32, h * 0.51, h * 0.64, h * 0.1);
+    g.fillStyle = "#d9943f"; g.fillRect(w / 2 - h * 0.3, h * 0.61, h * 0.6, h * 0.1);
+    g.fillStyle = "#2b1512"; for (const s of [-1, 1]) { g.beginPath(); g.arc(w / 2 + s * h * 0.1, h * 0.32, h * 0.035, 0, TAU); g.fill(); }
+    g.font = `700 ${h * 0.14}px Poppins, sans-serif`; g.fillText("Che fame, Miami!", w / 2, h * 0.86);
+  }), I, 8.96, 2.8, 2, -Math.PI / 2);
+  for (const x of [-5.5, 0, 5.5]) pendant(I, x, 4.4, 1.3, 0xc8202a);
+  plant(I, -8.2, 8.2, 0.9); plant(I, 8.2, 8.2, 0.9);
+  // totem
+  const order = () => {
+    if (S.status) { log(S.status === "ready" ? "Il tuo vassoio è pronto: ritiralo al banco!" : S.status === "cook" ? "Stanno già preparando il tuo ordine." : "Prima finisci quello che hai sul vassoio!"); return; }
+    openOrder({ theme: "mac", title: "🍔 Mac Donald", sub: "Tocca per ordinare", menu: MAC_MENU, max: 6, price: d => d.p, send: (list, total) => {
+      S.items = list.map(makeFood); S.status = "cook"; S.t = 5 + list.length; S.num++; S.paid = total;
+      log(`Ordine n. ${S.num} inviato in cucina! Guarda il monitor: quando è pronto ritiralo al banco.`);
+    } });
+  };
+  for (const x of [-4.2, -1.6]) {
+    solidBox(I, 0.95, 2.2, 0.3, 0x2b2b2b, x, 1.1, -1.5);
+    put(boardPlane(0.8, 1.5, (g, w, h) => {
+      g.fillStyle = "#fff6e2"; g.fillRect(0, 0, w, h); g.fillStyle = "#c8202a"; g.fillRect(0, 0, w, h * 0.16);
+      g.fillStyle = "#ffc72c"; g.textAlign = "center"; g.textBaseline = "middle"; g.font = `700 ${w * 0.13}px Poppins, sans-serif`; g.fillText("Ordina qui", w / 2, h * 0.08);
+      g.font = `${w * 0.3}px sans-serif`; ["🍔", "🍟", "🥤", "🍦"].forEach((e, i) => g.fillText(e, w * (0.28 + (i % 2) * 0.44), h * (0.35 + (i >> 1) * 0.28)));
+      g.fillStyle = "#1f9d55"; g.fillRect(w * 0.1, h * 0.84, w * 0.8, h * 0.1);
+    }, 256), I, x, 1.35, -1.34);
+    spot(I, { name: "Totem", icon: "🖥", x, z: -0.3, r: 1.5, run: order });
+  }
+  spot(I, { name: "Cassa", icon: "🧾", x: -6.6, z: -3, r: 1.8, run: order });
+  staff(I, -4.5, -5.8, 0, { shirt: 0xc8202a, hair: 0x6b4a33, skin: 0xf5cba7 });
+  staff(I, 4.6, -6.9, Math.PI, { shirt: 0xffffff, hair: 0x111111, skin: 0x8d5524, hat: true });
+  // il ragazzo che porta il vassoio dalla cucina al banco
+  const W = walker(I, -1, -7, Math.PI, { shirt: 0xffc72c, hair: 0x111111, skin: 0xe0ac69 });
+  put(signPlane("RITIRO", 2, 0.5, "#1f9d55", "#ffffff"), I, 5.5, 2.9, -4.5);
+  for (const x of [4.6, 6.4]) deco(I, new THREE.CylinderGeometry(0.03, 0.03, 1.8, 6), 0x555555, x, 2, -4.5);
+  I.ticks.push((t, dt) => {
+    if (S.status === "cook") {
+      if (!paused) S.t -= dt;
+      setStatus(`🍔 Ordine n. <b>${S.num}</b> in preparazione${S.t > 0 ? ` · ${Math.ceil(S.t)} s` : "... arriva!"}`);
+      if (S.t <= 0 && !S.tray) {
+        S.tray = makeTray(S.items, 0x7a4a2a); W.take(S.tray);
+        W.go([[2, -6.2], [5.5, -5.5]], () => {
+          W.tray = null; W.H.g.rotation.y = 0;
+          I.scene.add(S.tray); S.tray.position.set(5.5, 1.17, -4.4); S.tray.rotation.y = 0;
+          S.status = "ready"; log(`Ordine n. ${S.num} pronto! Vai al banco RITIRO e prendi il vassoio.`);
+          W.go([[2, -6.2], [-1, -7]], () => { W.H.g.rotation.y = Math.PI; });
+        });
+      }
+    } else if (S.status === "ready") setStatus(`✅ Ordine n. <b>${S.num}</b> pronto: ritiralo al banco`);
+    else if (S.status === "carry") setStatus("🍽 Porta il vassoio a un tavolo e siediti");
+    else if (S.status === "table") setStatus(null);
+  });
+  const carryTray = () => { S.status = "carry"; P.carry = "tray"; player.add(S.tray); S.tray.position.set(0, 1.45, 0.72); S.tray.rotation.y = 0; };
+  spot(I, { name: "Ritira il vassoio", icon: "🍟", x: 5.5, z: -3, r: 2.4, visible: () => S.status === "ready", run: () => { carryTray(); log("Hai il vassoio in mano: scegli un tavolo e siediti."); } });
+  // tavoli
+  const look = { top: 0xfdf8ee, leg: 0x444444, seat: 0xc8202a }, seats = [];
+  for (const z of [1.6, 5.2]) for (const x of [-5.4, 5.4]) seats.push(foodTable(I, x, z, Object.assign({}, look, x > 0 ? { seat: 0xffc72c } : null)));
+  [[seats[0][0], ["cheese", "fries", "cola"], { shirt: 0x2ec4b6, hair: 0xb5651d, skin: 0xffdbac }], [seats[0][1], ["chicken", "fries", "orange"], { shirt: 0xff4fa3, hair: 0x111111, skin: 0xc68642 }],
+   [seats[3][1], ["big", "nuggets", "shake"], { shirt: 0x7b2ff7, hair: 0x3d2b1f, skin: 0xf5cba7 }]].forEach(([st, ids, lk]) => {
+    const tr = makeTray(ids.map(id => makeFood(MAC_MENU.find(d => d.id === id))), 0x7a4a2a);
+    tr.position.set(st.table.x + st.table.s * 0.55, 0.83, st.table.z); tr.rotation.y = st.ry; I.scene.add(tr);
+    diner(I, st, lk);
+  });
+  I.seats.forEach(st => {
+    st.onSit = () => {
+      if (S.status !== "carry") return;
+      P.carry = null; S.status = "table"; I.scene.add(S.tray);
+      S.tray.position.set(st.table.x + st.table.s * 0.55, 0.83, st.table.z); S.tray.rotation.y = st.ry;
+      meal = { items: S.items, seat: st, onDone: () => { S.tray.parent.remove(S.tray); S.tray = null; S.status = null; log("Vassoio finito! Pancia piena e conto leggero."); } };
+      log("Buon appetito! Premi E per mangiare un boccone alla volta.");
+    };
+    st.onStand = () => { if (S.status === "table") { meal = null; carryTray(); } };
+    st.act = eatAction;
+  });
+  I.onExit = () => {
+    let msg = "";
+    if (S.status === "cook") { state.money += S.paid; updateWallet(); msg = `Ordine annullato: ti hanno ridato ${usd(S.paid)}.`; }
+    else if (S.status) {
+      const solid = S.items.some(it => !it.drink && it.left === it.tot && it.def.h >= 20);
+      if (solid) { state.food++; msg = "Ti hanno incartato gli avanzi: un pasto in più per il frigo."; }
+    }
+    if (S.tray && S.tray.parent) S.tray.parent.remove(S.tray);
+    W.path = []; W.cb = null; W.tray = null; W.H.g.position.set(-1, 0, -7); W.H.g.rotation.y = Math.PI;
+    S.tray = null; S.items = []; S.status = null; P.carry = null; meal = null; setStatus(null);
+    return msg;
+  };
+  return I;
+};
+
+// ---------- SUSHI: si ordina dal tablet al tavolo, la cameriera porta i piatti ----------
+const AYCE_PRICE = 28;
+INTERIORS.sushi = () => {
+  const I = newInterior({ w: 18, d: 20, h: 5, bg: 0x14100f, trim: 0x3a2418,
+    floor: canvasMat(planks("#8a5f3f", "rgba(30,12,4,.45)"), 5, 6, { roughness: 0.55 }),
+    wall: canvasMat(bands("#efe3cc", [[0, 0.05, "#3a2418"], [0.62, 0.03, "#3a2418"], [0.65, 0.35, "#5b3a28"]]), 5, 1), ceil: M(0x2b1c14), amb: 0.66, keyColor: 0xffe0b8 });
+  I.welcome = "Irasshaimase! Siediti a un tavolo libero e ordina dal tablet: All You Can Eat o menù.";
+  // status: null | cook | bring | eat
+  const S = { status: null, seat: null, ayce: false, items: [], t: 0, tray: null, paid: 0, rounds: 0 };
+  // banco del sushi
+  solidBox(I, 17.6, 1.15, 1.2, 0x4a2c1c, 0, 0.575, -6.6);
+  deco(I, B(17.7, 0.08, 1.3), M(0xd9b382, { roughness: 0.35 }), 0, 1.18, -6.6);
+  deco(I, B(7, 0.5, 0.6), M(0xbfe9ff, { transparent: true, opacity: 0.35, roughness: 0.05 }), -4, 1.48, -6.75);
+  for (let i = 0; i < 9; i++) { const it = makeFood(SUSHI_MENU[i % 6]); it.g.scale.setScalar(0.85); it.g.position.set(-7 + i * 0.75, 1.23, -6.75); I.scene.add(it.g); }
+  staff(I, -4, -8, 0, { shirt: 0xffffff, hair: 0x111111, skin: 0xf1c27d, hat: true });
+  const chef = staff(I, 2, -8, 0, { shirt: 0x1d2b4a, hair: 0x111111, skin: 0xf1c27d, hat: true });
+  I.ticks.push(t => { if (S.status === "cook") { chef.armR.rotation.x = -1 + Math.sin(t * 14) * 0.3; chef.armL.rotation.x = -1; } });
+  // noren, insegna, onda, lanterne
+  for (let i = 0; i < 6; i++) deco(I, B(1.3, 1.1, 0.04), i % 2 ? 0x1d2b4a : 0xb3262e, -3.5 + i * 1.4, 4.1, -9.2);
+  put(signPlane("Sakura Sushi", 5, 1, "#b3262e", "#fff3e0"), I, 0, 2.6, -9.95);
+  put(boardPlane(6, 2.2, (g, w, h) => {
+    g.fillStyle = "#f3e3c3"; g.fillRect(0, 0, w, h); g.fillStyle = "#d9482b"; g.beginPath(); g.arc(w * 0.75, h * 0.32, h * 0.2, 0, TAU); g.fill();
+    for (let r = 0; r < 4; r++) for (let i = -1; i < 10; i++) { const x = i * w / 8 + (r % 2) * w / 16, y = h * (0.66 + r * 0.14); for (let k = 3; k > 0; k--) { g.fillStyle = k % 2 ? "#1f4e79" : "#e9f2f5"; g.beginPath(); g.arc(x, y, k * w / 48, Math.PI, 0); g.fill(); } }
+  }, 768), I, -8.96, 2.9, 1, Math.PI / 2);
+  for (const x of [-5.4, 5.4]) for (const z of [-4, 1, 6]) {
+    deco(I, new THREE.CylinderGeometry(0.01, 0.01, 1, 4), 0x222222, x, 4.5, z);
+    deco(I, new THREE.SphereGeometry(0.36, 14, 10), Glow(x ? 0xe8503a : 0xffe2b0), x, 3.85, z);
+  }
+  // ciliegio
+  deco(I, new THREE.CylinderGeometry(0.14, 0.24, 2.2, 8), 0x5b3a28, 7.7, 1.1, 8.6); I.obstacles.push({ x: 7.7, z: 8.6, r: 0.5 });
+  for (const [x, y, z, r] of [[7.7, 2.8, 8.6, 0.9], [7.1, 2.4, 8.2, 0.6], [8.2, 2.5, 8.1, 0.55], [7.4, 3.2, 9.1, 0.55]]) deco(I, new THREE.IcosahedronGeometry(r, 1), M(0xffb3cf, { flatShading: true }), x, y, z);
+  plant(I, -8.1, 9.1, 0.9);
+  // tavoli con tablet
+  const seats = [];
+  for (const z of [-3.6, 0.6, 4.8]) for (const x of [-5.4, 5.4]) {
+    seats.push(foodTable(I, x, z, { top: 0xc99a66, leg: 0x2b1c14, seat: 0x7a2230 }));
+    for (const s of [-1, 1]) {
+      const scr = boardPlane(0.5, 0.36, (g, w, h) => {
+        g.fillStyle = "#1b1640"; g.fillRect(0, 0, w, h); g.textAlign = "center"; g.textBaseline = "middle";
+        g.font = `${h * 0.4}px sans-serif`; g.fillText("🍣", w / 2, h * 0.36); g.fillStyle = "#fff"; g.font = `700 ${h * 0.16}px Poppins, sans-serif`; g.fillText("Ordina qui", w / 2, h * 0.78);
+      }, 256);
+      const base = new THREE.Group(); base.position.set(x - s * 0.02, 1.02, z); base.rotation.y = s * Math.PI / 2; I.scene.add(base);
+      const lean = new THREE.Group(); lean.rotation.x = -0.35; base.add(lean);
+      add(B(0.56, 0.42, 0.03), 0x111111, 0, 0, 0.1, lean); scr.position.z = 0.118; lean.add(scr);
+    }
+  }
+  const W = walker(I, 0, -5.3, 0, { shirt: 0xb3262e, hair: 0x111111, skin: 0xf1c27d });
+  const table = [[seats[0][1], ["nsal", "hoso", "tea"], { shirt: 0xffd23f, hair: 0x3d2b1f, skin: 0xffdbac }], [seats[0][0], ["ramen", "gyoza"], { shirt: 0x22b8e6, hair: 0x111111, skin: 0x8d5524 }],
+    [seats[5][1], ["cali", "eda", "ramu"], { shirt: 0x9be564, hair: 0xb5651d, skin: 0xe0ac69 }]];
+  table.forEach(([st, ids, lk]) => {
+    ids.forEach((id, i) => { const it = makeFood(SUSHI_MENU.find(d => d.id === id)), p = slotPos(st, i); it.g.position.set(...p); it.g.rotation.y = st.ry; I.scene.add(it.g); });
+    diner(I, st, lk);
+  });
+  // ---- ordine ----
+  const send = (st, ayce) => (list, total) => {
+    S.seat = st; S.ayce = ayce; S.items = list.map(makeFood); S.status = "cook"; S.t = 4 + list.length; S.paid = total;
+    log(`Ordine inviato (${list.length} ${list.length === 1 ? "piatto" : "piatti"}). La cameriera te li porta al tavolo!`);
+  };
+  const dishes = (st, ayce) => openOrder({ theme: "sushi", title: ayce ? "🍣 All You Can Eat" : "🍱 Menù alla carta",
+    sub: ayce ? `Giro ${S.rounds + 1}: 5 piatti alla volta, quante volte vuoi` : "Paghi ogni piatto che ordini",
+    menu: SUSHI_MENU, max: 5, price: d => ayce && !d.ex ? 0 : d.p, send: send(st, ayce), back: ayce ? null : () => start(st) });
+  const start = st => {
+    if (S.ayce) { dishes(st, true); return; }
+    showTablet("sushi", "🌸 Sakura Sushi", "Come vuoi mangiare oggi?");
+    const box = document.createElement("div"); box.className = "modes";
+    const mode = (icon, t, d, off, fn) => { const b = document.createElement("button"); b.innerHTML = `<i>${icon}</i><b>${t}</b><small>${d}</small>`; b.disabled = off; b.onclick = fn; box.appendChild(b); };
+    mode("♾️", `All You Can Eat · ${usd(AYCE_PRICE)}`, state.money < AYCE_PRICE ? "Non hai abbastanza soldi" : "Paghi una volta e ordini quanto vuoi, 5 piatti a giro. Sashimi e bevande a parte.", state.money < AYCE_PRICE,
+      () => { if (!spend(AYCE_PRICE)) return; S.ayce = true; S.seat = st; S.rounds = 0; dishes(st, true); });
+    mode("🍱", "Menù alla carta", "Scegli i piatti e paghi solo quelli.", false, () => dishes(st, false));
+    tabBody.appendChild(box);
+  };
+  I.ticks.push((t, dt) => {
+    if (S.status === "cook") {
+      if (!paused) S.t -= dt;
+      setStatus(`🍣 In cucina · <b>${Math.max(0, Math.ceil(S.t))} s</b>`);
+      if (S.t <= 0) {
+        S.status = "bring";
+        const st = S.seat, side = Math.sign(st.table.x);
+        S.tray = makeTray(S.items, 0x2b1c14);
+        W.take(S.tray);
+        W.go([[0, st.table.z], [side * 3.1, st.table.z]], () => {
+          W.tray = null; W.H.g.remove(S.tray); S.tray = null;
+          S.items.forEach((it, i) => { it.g.position.set(...slotPos(st, i)); it.g.rotation.y = st.ry; I.scene.add(it.g); });
+          S.status = "eat"; S.rounds++;
+          meal = { items: S.items, seat: st, sticks: true, onDone: () => {
+            S.status = null; S.items = [];
+            if (!S.ayce) S.seat = null;
+            log(S.ayce ? "Piatti finiti! Con l'All You Can Eat puoi ordinare un altro giro dal tablet." : "Tutto finito! Se hai ancora fame, ordina altro dal tablet.");
+          } };
+          log("Ecco i tuoi piatti, buon appetito! Premi E per mangiare.");
+          W.go([[0, st.table.z], [0, -5.3]], () => { W.H.g.rotation.y = 0; });
+        });
+      }
+    } else if (S.status === "bring") setStatus("🍱 La cameriera sta arrivando con i tuoi piatti");
+    else if (S.status === "eat" && !sitting) setStatus("🍣 I tuoi piatti ti aspettano al tavolo");
+    else setStatus(S.ayce ? `♾️ All You Can Eat · giri: <b>${S.rounds}</b>` : null);
+  });
+  I.seats.forEach(st => {
+    st.need = () => !S.seat || S.seat === st; st.why = "Il tuo posto è a un altro tavolo: i tuoi piatti sono là!";
+    st.onSit = () => { if (!S.status) log("Sul tavolo c'è il tablet: premi E per ordinare."); };
+    st.act = () => eatAction() || (S.status === "cook" ? { text: "Stanno preparando i tuoi piatti... aspetta seduto", run() {} }
+      : S.status === "bring" ? { text: "Arrivano i tuoi piatti!", run() {} }
+      : { text: `Premi <b>E</b> per usare il tablet${S.ayce ? " (altro giro)" : ""} · muoviti per alzarti`, run: () => start(st) });
+  });
+  I.onExit = () => {
+    let msg = "";
+    if ((S.status === "cook" || S.status === "bring") && S.paid) { state.money += S.paid; updateWallet(); msg = `Ordine annullato: ti hanno ridato ${usd(S.paid)}.`; }
+    S.items.forEach(it => { if (it.g.parent) it.g.parent.remove(it.g); });
+    if (S.tray && S.tray.parent) S.tray.parent.remove(S.tray);
+    W.path = []; W.cb = null; W.tray = null; W.H.g.position.set(0, 0, -5.3); W.H.g.rotation.y = 0;
+    Object.assign(S, { status: null, seat: null, ayce: false, items: [], tray: null, paid: 0, rounds: 0 });
+    meal = null; setStatus(null);
+    return msg || "Arigato, a presto!";
+  };
+  return I;
+};
+
 // ---- Entrare e uscire ----
 const fade = document.getElementById("fade");
 function fadeTo(fn, hold) {
@@ -1919,11 +2429,12 @@ function exitPlace() {
   const pl = currentPlace;
   if (shift) endShift(false);
   fadeTo(() => {
+    const bye = pl.interior.onExit ? pl.interior.onExit() : "";
     setWorld(OUTDOOR); currentPlace = null;
     const p = doorPos(pl), face = STRIPS[pl.strip].face;
     player.position.set(p.x, 0, p.z); player.rotation.y = face * Math.PI / 2;
     yaw = -face * Math.PI / 2; pitch = 0.32; dist = 15;
-    log(`Sei uscito da ${pl.name}.`);
+    log(`Sei uscito da ${pl.name}. ${bye}`.trim());
   });
 }
 
@@ -1959,6 +2470,7 @@ addEventListener("keydown", e => {
     return;
   }
   if (miniKey(e)) return;
+  if (tabletOpen) { if (e.code === "Escape") closeTablet(); return; }
   if (bagKey(e)) return;
   if (e.code === "KeyZ" && !e.repeat) { openBag(); return; }
   if (e.code === "KeyH" && !e.repeat) { openRules(); return; }
@@ -2001,6 +2513,7 @@ function nearestHotspot() {
 // cosa succede premendo E adesso (usato anche per il suggerimento in alto)
 function currentAction() {
   if (driving) return { text: "Premi <b>E</b> per scendere dalla macchina", run: exitCar };
+  if (sitting && sitting.st.act) { const a = sitting.st.act(); if (a) return a; }
   if (sitting) return sitting.st.bed
     ? { text: "Premi <b>E</b> per dormire · muoviti per alzarti", run: () => openPanel(bedMenu) }
     : { text: "Premi <b>E</b> o muoviti per alzarti", run: standUp };
@@ -2014,7 +2527,7 @@ function currentAction() {
   const dHs = hs ? Math.hypot(hs.x - player.position.x, hs.z - player.position.z) : Infinity;
   if (world !== OUTDOOR) {
     if (st && dSeat < dHs) return { text: `Premi <b>E</b> per ${st.bed ? "sdraiarti" : "sederti"}`, run: () => sitDown(st) };
-    if (hs) return hs.exit ? { text: "Premi <b>E</b> per uscire", run: exitPlace } : { text: `Premi <b>E</b>: ${hs.icon} ${hs.name}`, run: () => openPanel(hs) };
+    if (hs) return hs.exit ? { text: "Premi <b>E</b> per uscire", run: exitPlace } : { text: `Premi <b>E</b>: ${hs.icon} ${hs.name}`, run: () => hs.run ? hs.run() : openPanel(hs) };
     return null;
   }
   const n = nearestNPC();
@@ -2184,7 +2697,7 @@ const mmBase = document.createElement("canvas"); mmBase.width = mm.width; mmBase
   ROADS_EW.forEach(z => rect(-200, z - 5, 66, z + 5, "#565a63"));
   solids.forEach(s => rect(s.x - s.w / 2, s.z - s.d / 2, s.x + s.w / 2, s.z + s.d / 2, "#f5b8d3"));
 }
-const PLACE_ICON = { casa: "🏠", dacosta: "🍕", elite: "🍷", supermercato: "🛒", lavoro: "💼", negozi: "🛍", aeroporto: "✈", parco: "🌴" };
+const PLACE_ICON = { casa: "🏠", dacosta: "🍕", macdonald: "🍔", sushi: "🍣", elite: "🍷", supermercato: "🛒", lavoro: "💼", negozi: "🛍", aeroporto: "✈", parco: "🌴" };
 function drawArrow(px, pz) {
   mctx.save(); mctx.translate(px, pz); mctx.rotate(-player.rotation.y);
   mctx.fillStyle = "#22e1ff"; mctx.strokeStyle = "#1b1640"; mctx.lineWidth = 1.2;
@@ -2221,7 +2734,7 @@ function drawMinimap() {
 const NEEDS = [["hunger", "🍔", "Fame"], ["energy", "⚡", "Energia"], ["hygiene", "🚿", "Igiene"], ["fun", "🎉", "Svago"]];
 document.getElementById("needs").innerHTML = NEEDS.map(([k, i, n]) => `<div class="need" title="${n}">${i}<div class="bar"><i id="bar-${k}"></i></div></div>`).join("");
 const WARN = {
-  hunger: "Hai fame! Mangia qualcosa: pizzeria, ristorante o il frigo di casa.",
+  hunger: "Hai fame! Mangia qualcosa: Mac Donald, sushi, pizzeria, ristorante o il frigo di casa.",
   energy: "Sei stanco: siediti un po' o vai a dormire nel tuo letto.",
   hygiene: "Ti servirebbe proprio una doccia...",
   fun: "Che noia! Guarda la TV, suona il piano o esci con gli amici."
@@ -2291,13 +2804,15 @@ function sitDown(st) {
   player.position.set(st.x, st.y, st.z);
   player.rotation.set(st.bed ? -Math.PI / 2 : 0, st.ry, 0);
   log(st.bed ? "Ti sei sdraiato. Premi E per dormire, oppure muoviti per alzarti." : "Ti sei seduto e riposi un po'. Muoviti o premi E per alzarti.");
+  if (st.onSit) st.onSit();
 }
 function standUp() {
-  if (!sitting) return;
-  const b = sitting.back;
+  if (!sitting || bite) return;
+  const b = sitting.back, st = sitting.st;
   sitting = null; P.pose = null;
   player.rotation.x = 0;
   player.position.set(b.x, 0, b.z);
+  if (st.onStand) st.onStand();
 }
 function sleep(hours) {
   closePanel();
@@ -2619,6 +3134,7 @@ function update(dt) {
   else player.position.y = world === OUTDOOR ? groundY(player.position.x) : 0;
   animateHuman(P, moving, dt, run);
   if (P.pose === "sit") { P.legL.rotation.x = P.legR.rotation.x = -1.5; P.armL.rotation.x = P.armR.rotation.x = -0.35; }
+  updateBite(dt);
   if (P.carry) { P.armL.rotation.x = P.armR.rotation.x = -1.25; }
   if (!paused && !fade.classList.contains("on")) tickLife(dt, moving && run > 1);
   updateShift(dt);
