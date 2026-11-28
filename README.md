@@ -18,4 +18,6 @@ Ogni locale si può visitare: avvicinati alla porta e premi **E**. Casa, Pizzeri
 
 **Viaggi:** dall'aeroporto voli a Roma, Londra, New York e Tokyo e ci arrivi davvero: ogni città ha monumenti, cibo tipico, hotel, souvenir da regalare agli amici e un taxi per tornare a Miami.
 
+**Salvataggi:** con **G** o col bottone 💾 Salva scegli uno dei 3 slot per salvare la partita (soldi, bisogni, zaino, baule, amici, telefono, viaggi, posizione) e riprenderla quando vuoi, anche dalla pagina delle regole con "Carica una partita salvata". I salvataggi restano nel browser.
+
 All'avvio si apre la pagina delle **regole** con la versione del gioco (si riapre con **H** o con "? Regole" in basso a destra).

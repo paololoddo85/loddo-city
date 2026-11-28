@@ -86,6 +86,7 @@
   #intro .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   #privBtn, #privForm button { font: inherit; font-size: 13px; color: #fff; background: none; border: 1px solid var(--line); border-radius: 10px; padding: 7px 14px; cursor: pointer; }
   #privBtn { display: block; margin: 12px auto 0; }
+  #loadBtn { display: block; width: 100%; margin-top: 10px; padding: 11px; font: 700 15px Poppins, sans-serif; color: #fff; background: none; border: 1px solid var(--line); border-radius: 12px; cursor: pointer; }
   #privForm { margin-top: 10px; text-align: center; }
   #privForm.hidden { display: none; }
   #privPw { font: inherit; font-size: 14px; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); }
@@ -111,7 +112,7 @@
 
   /* ---- telefono ---- */
   #quick { position: fixed; right: 12px; bottom: 74px; display: flex; gap: 8px; }
-  #phoneBtn, #bagBtn { padding: 8px 14px; border-radius: 999px; font: 700 14px Poppins, sans-serif;
+  #phoneBtn, #bagBtn, #saveBtn { padding: 8px 14px; border-radius: 999px; font: 700 14px Poppins, sans-serif;
     color: #fff; cursor: pointer; display: flex; gap: 6px; align-items: center; }
   #phoneBtn .badge { background: var(--pink); border-radius: 999px; padding: 0 7px; font-size: 12px; }
   #phoneBtn .badge:empty { display: none; }
@@ -239,6 +240,7 @@
 <div id="help" class="card"><kbd>WASD</kbd>/<kbd>Frecce</kbd> muovi · <kbd>Shift</kbd> corri · Trascina: ruota · Rotella: zoom · <kbd>E</kbd> entra / usa / raccogli / guida · <kbd>Z</kbd> zaino · <kbd>Esc</kbd> chiudi <button id="rulesBtn" title="Regole (H)">? Regole</button> <span class="ver gameVer"></span></div>
 <div id="speedo" class="card hidden"></div>
 <div id="quick"><button id="bagBtn" class="card" title="Zaino (Z)">🎒 Zaino <span id="bagCount"></span></button>
+<button id="saveBtn" class="card" title="Salvataggi (G)">💾 Salva</button>
 <button id="phoneBtn" class="card" title="Telefono (P)">📱 <span id="phoneLbl">Telefono</span> <span class="badge" id="phoneBadge"></span></button></div>
 <div id="bag" class="box card hidden"><h2 id="bagTitle"></h2><div id="bagGrid"></div><div id="bagInfo"></div><button class="close" id="bagClose">Chiudi (Z)</button></div>
 <div id="phone" class="hidden"><div id="phScreen"><div id="phStatus"></div><div id="phBody"></div><div id="phHome" title="Home"></div></div></div>
@@ -278,6 +280,7 @@
           <span><kbd>Esc</kbd></span><span>chiudi un menu</span>
           <span><kbd>Z</kbd></span><span>apri lo zaino</span>
           <span><kbd>P</kbd></span><span>apri il telefono (se ce l'hai)</span>
+          <span><kbd>G</kbd></span><span>salva o carica la partita (3 slot)</span>
           <span><kbd>H</kbd></span><span>apri queste regole</span>
         </div>
       </div>
@@ -341,6 +344,7 @@
 
     <h3>Novità</h3>
     <div class="changes">
+      <p><b>1.9.0</b> · Salvataggi: 3 slot per salvare e riprendere la partita (tasto G o bottone 💾 Salva).</p>
       <p><b>1.8.0</b> · Sakura Sushi: menù da 60 piatti, con gunkan, temaki, sashimi, antipasti, poke, dolci e bevande.</p>
       <p><b>1.7.0</b> · Tante frasi nuove al telefono: argomenti in chiamata, messaggi che cambiano e risposte alle domande degli amici.</p>
       <p><b>1.6.0</b> · Mac Donald e Sakura Sushi: si ordina da totem e tablet, il cibo arriva davvero e si mangia boccone per boccone.</p>
@@ -353,6 +357,7 @@
     </div>
 
     <button id="play">Gioca! 🌴</button>
+    <button id="loadBtn" type="button">📂 Carica una partita salvata</button>
     <button id="privBtn" type="button">🔒 Area privata</button>
     <form id="privForm" class="hidden">
       <input id="privPw" type="password" autocomplete="off" placeholder="Password" aria-label="Password">
@@ -381,7 +386,7 @@ const state = { money: 150, hasHome: false, job: null, food: 0, console: false, 
   day: 1, time: 8 * 60, energy: 100, hunger: 90, hygiene: 100, fun: 70, workedToday: false,
   phone: null, chats: {}, unread: 0, msgDay: {}, best: {}, souvenirs: [], photos: [], travel: null, bag: [], chest: [] };
 // ================= VERSIONE E PAGINA DELLE REGOLE =================
-const GAME_VERSION = "1.8.0", GAME_DATE = "24 novembre 2026";
+const GAME_VERSION = "1.9.0", GAME_DATE = "26 novembre 2026";
 document.querySelectorAll(".gameVer").forEach(el => { el.textContent = "v" + GAME_VERSION; });
 document.getElementById("gameDate").textContent = GAME_DATE;
 document.getElementById("gameVerLong").textContent = GAME_VERSION;
@@ -2557,6 +2562,7 @@ addEventListener("keydown", e => {
   if (bagKey(e)) return;
   if (e.code === "KeyZ" && !e.repeat) { openBag(); return; }
   if (e.code === "KeyH" && !e.repeat) { openRules(); return; }
+  if (e.code === "KeyG" && !e.repeat && !dialogOpen && panel.classList.contains("hidden") && !phoneOpen && !arcadeOpen) { openSaves(); return; }
   if (e.code === "KeyP" && !e.repeat && !dialogOpen && panel.classList.contains("hidden")) { togglePhone(); return; }
   if (e.code === "Escape") { if (dialogOpen) closeDialog(); else if (!panel.classList.contains("hidden")) closePanel(); }
   if (e.code === "KeyE" && !e.repeat) interact();
@@ -4582,6 +4588,86 @@ function returnHome() {
     updateHUD();
   }, 2200);
 }
+
+// ================= SALVATAGGI (3 slot nel browser) =================
+const SAVE_SLOTS = 3, SAVE_KEY = i => "loddocity.save." + i;
+let saveConfirm = 0; // slot occupato per cui si chiede conferma di sovrascrittura
+function readSlot(i) { try { const t = localStorage.getItem(SAVE_KEY(i)); return t ? JSON.parse(t) : null; } catch (e) { return null; } }
+// cosa stai facendo che non si può interrompere o riprendere da un salvataggio?
+function saveBusy() {
+  if (driving) return "Prima scendi dalla macchina.";
+  if (shift) return "Prima finisci il turno di lavoro.";
+  if (meal || bite || P.carry) return "Prima finisci di mangiare.";
+  return "";
+}
+function whereNow() {
+  if (state.travel) return { kind: "travel", id: state.travel, name: DESTS[state.travel].name };
+  if (currentPlace && currentPlace.id) return { kind: "place", id: currentPlace.id, name: currentPlace.name };
+  return { kind: "out", x: player.position.x, z: player.position.z, ry: player.rotation.y, name: "Miami Beach" };
+}
+function saveGame(i) {
+  const st = JSON.parse(JSON.stringify(state));
+  // i souvenir nello zaino e nel baule puntano a quelli della lista: li salviamo come indice
+  const ref = s => s.sv ? Object.assign({}, s, { sv: state.souvenirs.indexOf(s.sv) }) : s;
+  st.bag = state.bag.map(ref); st.chest = state.chest.map(ref);
+  const data = { v: GAME_VERSION, when: Date.now(), state: st, where: whereNow(), shirt: shirtMat.color.getHex(),
+    npcs: npcs.map(n => ({ name: n.name, fr: n.fr, friend: n.friend })),
+    visited: Object.keys(DESTS).filter(k => DESTS[k].visited) };
+  try { localStorage.setItem(SAVE_KEY(i), JSON.stringify(data)); } catch (e) { log("Non riesco a salvare: il browser non lo permette."); return false; }
+  log(`💾 Partita salvata nello slot ${i}.`);
+  return true;
+}
+function loadGame(i) {
+  const data = readSlot(i);
+  if (!data) return;
+  if (sitting) standUp();
+  closePanel();
+  fadeTo(() => {
+    const st = data.state;
+    for (const k of Object.keys(state)) delete state[k];
+    Object.assign(state, st);
+    const fix = s => typeof s.sv === "number" ? Object.assign({}, s, { sv: state.souvenirs[s.sv] }) : s;
+    state.bag = (st.bag || []).map(fix); state.chest = (st.chest || []).map(fix);
+    state.unreadBy = state.unreadBy || {};
+    (data.npcs || []).forEach(d => { const n = npcs.find(m => m.name === d.name); if (n) { n.fr = d.fr; n.friend = d.friend; } });
+    Object.keys(DESTS).forEach(k => { DESTS[k].visited = (data.visited || []).includes(k); });
+    if (data.shirt != null) shirtMat.color.setHex(data.shirt);
+    const w = data.where || { kind: "out" };
+    let W = null, place = null;
+    if (w.kind === "travel" && DESTS[w.id]) { const D = DESTS[w.id]; W = D.world || (D.world = finishInterior(D.build())); place = { name: `${D.flag} ${D.name}` }; }
+    else if (w.kind === "place" && (place = places.find(p => p.id === w.id))) W = place.interior || (place.interior = buildInterior(place));
+    else state.travel = null;
+    if (W) {
+      setWorld(W); currentPlace = place;
+      player.position.set(W.spawn.x, 0, W.spawn.z); player.rotation.y = Math.PI;
+      yaw = 0; pitch = W.camPitch; dist = W.camDist;
+    } else {
+      setWorld(OUTDOOR); currentPlace = null;
+      player.position.set(w.x != null ? w.x : 80, 0, w.z != null ? w.z : 0); player.rotation.y = w.ry || 0;
+      yaw = 1.25; pitch = 0.32; dist = 15;
+    }
+    updateWallet(); updateBagBtn(); updatePhoneBtn(); renderFriends(); updateHUD();
+    log(`📂 Partita caricata dallo slot ${i}: giorno ${state.day}, ore ${hhmm(state.time)}.`);
+  });
+}
+const savesMenu = {
+  name: "💾 Salvataggi",
+  desc: () => saveBusy() || "Scegli uno slot per salvare la partita o per riprenderla da dove l'avevi lasciata.",
+  actions() {
+    const busy = saveBusy(), a = [];
+    for (let i = 1; i <= SAVE_SLOTS; i++) {
+      const d = readSlot(i);
+      const info = d ? `giorno ${d.state.day}, ${hhmm(d.state.time)}, ${usd(d.state.money)} · ${d.where ? d.where.name : ""} · ${new Date(d.when).toLocaleDateString("it-IT")}` : "vuoto";
+      a.push({ label: saveConfirm === i ? `⚠️ Sicuro? Sovrascrivi lo slot ${i}` : `💾 Salva nello slot ${i} (${info})`, disabled: !!busy,
+        run() { if (d && saveConfirm !== i) { saveConfirm = i; return; } saveConfirm = 0; saveGame(i); } });
+      if (d) a.push({ label: `📂 Carica lo slot ${i}`, disabled: !!busy, run() { saveConfirm = 0; loadGame(i); } });
+    }
+    return a;
+  }
+};
+function openSaves() { if (arcadeOpen || tabletOpen || dialogOpen) return; if (phoneOpen) closePhone(); if (bagOpen) closeBag(); saveConfirm = 0; if (!intro.classList.contains("hidden")) closeRules(); openPanel(savesMenu); }
+document.getElementById("saveBtn").onclick = openSaves;
+document.getElementById("loadBtn").onclick = openSaves;
 
 // posizione iniziale della camera
 update(0.016);
